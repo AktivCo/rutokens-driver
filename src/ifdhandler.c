@@ -736,7 +736,7 @@ EXTERNAL RESPONSECODE IFDHICCPresence(DWORD Lun)
 	 * IFD_COMMUNICATION_ERROR
 	 */
 
-	unsigned char pcbuffer[SIZE_GET_SLOT_STATUS];
+	unsigned char presence;
 	RESPONSECODE return_value = IFD_COMMUNICATION_ERROR;
 	int oldLogLevel;
 	int reader_index;
@@ -767,7 +767,7 @@ EXTERNAL RESPONSECODE IFDHICCPresence(DWORD Lun)
 	if (! (LogLevel & DEBUG_LEVEL_PERIODIC))
 		LogLevel &= ~DEBUG_LEVEL_COMM;
 
-	return_value = CmdGetSlotStatus(reader_index, pcbuffer);
+	return_value = CmdIccPresence(reader_index, &presence);
 
 	/* set back the old timeout */
 	ccid_descriptor->readTimeout = oldReadTimeout;
@@ -779,7 +779,7 @@ EXTERNAL RESPONSECODE IFDHICCPresence(DWORD Lun)
 		return return_value;
 
 	return_value = IFD_COMMUNICATION_ERROR;
-	switch (pcbuffer[7] & CCID_ICC_STATUS_MASK)	/* bStatus */
+	switch (presence & CCID_ICC_STATUS_MASK)	/* bStatus */
 	{
 		case CCID_ICC_PRESENT_ACTIVE:
 			return_value = IFD_ICC_PRESENT;

@@ -40,14 +40,22 @@
 #include "ccid_usb.h"
 #include "apdu.h"
 
-/* All the pinpad readers I used are more or less bogus
- * I use code to change the user command and make the firmware happy */
-#define BOGUS_PINPAD_FIRMWARE
+#define ICC_STATUS_IDLE			0x00
+#define ICC_STATUS_READY_DATA	0x10
+#define ICC_STATUS_READY_SW		0x20
+#define ICC_STATUS_BUSY_COMMON	0x40
+#define ICC_STATUS_MUTE			0x80
 
-/* The firmware of SCM readers reports dwMaxCCIDMessageLength = 263
- * instead of 270 so this prevents from sending a full length APDU
- * of 260 bytes since the driver check this value */
-#define BOGUS_SCM_FIRMWARE_FOR_dwMaxCCIDMessageLength
+#define MAX_BUF_T0_LEN  256
+#define T0_HDR_LEN      5
+
+#define USB_ICC_POWER_ON	0x62
+#define USB_ICC_POWER_OFF	0x63
+#define USB_ICC_XFR_BLOCK	0x65
+#define USB_ICC_DATA_BLOCK	0x6F
+#define USB_ICC_GET_STATUS	0xA0
+
+#define OUR_ATR_LEN	19
 
 #define max( a, b )   ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
@@ -89,7 +97,7 @@ static int convert_rtprot_to_fcp(void *data, size_t data_len);
  *					isCharLevel
  *
  ****************************************************************************/
-int isCharLevel(int reader_index)
+int isCharLevel(int reader_index) /* RT to remove */
 {
 	return CCID_CLASS_CHARACTER == (get_ccid_descriptor(reader_index)->dwFeatures & CCID_CLASS_EXCHANGE_MASK);
 } /* isCharLevel */
@@ -162,15 +170,12 @@ RESPONSECODE CmdPowerOff(unsigned int reader_index)
  *					CmdGetSlotStatus
  *
  ****************************************************************************/
-RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char buffer[]) /* RT remove buffer: need 1 byte */
+RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status) /* RT remove buffer: need 1 byte */
 {
 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
 	int r;
-	unsigned char status;
 
-	/* SlotStatus */
-	r = ControlUSB(reader_index, 0xC1, 0xA0, 0, &status, sizeof(status)); 
-
+	r = ControlUSB(reader_index, 0xC1, USB_ICC_GET_STATUS, 0, status, sizeof(*status)); 
 	/* we got an error? */
 	if (r < 0)
 	{
@@ -180,23 +185,19 @@ RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char buffer[])
 		return IFD_COMMUNICATION_ERROR;
 	}
 
-	/* busy */
-	if ((status & 0xF0) == 0x40)
+	if ((*status & 0xF0) == ICC_STATUS_BUSY_COMMON)
 	{
 		int i;
 		unsigned char prev_status;
-
-		DEBUG_INFO2("Busy: 0x%02X", status);
-
+		DEBUG_INFO2("Busy: 0x%02X", *status);
 		for (i = 0; i < 200; i++)
 		{
-			do {
+			do 
+			{
 				usleep(10000);  /* 10 ms */
-				prev_status = status;
+				prev_status = *status;
 
-				/* SlotStatus */
-				r = ControlUSB(reader_index, 0xC1, 0xA0, 0, &status, sizeof(status));
-
+				r = ControlUSB(reader_index, 0xC1, USB_ICC_GET_STATUS, 0, status, sizeof(*status));
 				/* we got an error? */
 				if (r < 0)
 				{
@@ -206,29 +207,35 @@ RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char buffer[])
 					return IFD_COMMUNICATION_ERROR;
 				}
 
-				if ((status & 0xF0) != 0x40)
-					goto end;
-			} while ((((prev_status & 0x0F) + 1) & 0x0F) == (status & 0x0F));
+				if ((*status & 0xF0) != ICC_STATUS_BUSY_COMMON)
+					return IFD_SUCCESS;
+			} while ((((prev_status & 0x0F) + 1) & 0x0F) == (*status & 0x0F));
 		}
-
 		return IFD_COMMUNICATION_ERROR;
 	}
-
-end:
-	/* simulate a CCID bStatus */
-	/* present and active by default */
-	buffer[7] = CCID_ICC_PRESENT_ACTIVE;
-
-	/* mute */
-	if (0x80 == status)
-
-		buffer[7] = CCID_ICC_ABSENT;
-
-	/* store the status for CmdXfrBlockCHAR_T0() */
-	buffer[0] = status;
-
 	return IFD_SUCCESS;
 } /* CmdGetSlotStatus */
+
+RESPONSECODE CmdIccPresence(unsigned int reader_index,
+	unsigned char* presence)
+{
+	int r;
+	unsigned char status;
+
+	r = CmdGetSlotStatus(reader_index, &status);
+	
+	/* we got an error? */
+	if(r != IFD_SUCCESS)
+		return r;
+
+	/* present and active by default */
+	*presence = CCID_ICC_PRESENT_ACTIVE;
+
+	if (ICC_STATUS_MUTE == status)
+		*presence = CCID_ICC_ABSENT;
+
+	return IFD_SUCCESS;
+}
 
 
 /*****************************************************************************
@@ -350,22 +357,7 @@ const char *ct_hexdump(const void *data, size_t len)
 	return string;
 }
 
-#define MAX_BUF_T0_LEN  256
-#define T0_HDR_LEN      5
 
-#define USB_ICC_POWER_ON	0x62
-#define USB_ICC_POWER_OFF	0x63
-#define USB_ICC_XFR_BLOCK	0x65
-#define USB_ICC_DATA_BLOCK	0x6F
-#define USB_ICC_GET_STATUS	0xA0
-
-#define ICC_STATUS_IDLE			0x00
-#define ICC_STATUS_READY_DATA	0x10
-#define ICC_STATUS_READY_SW		0x20
-#define ICC_STATUS_BUSY_COMMON	0x40
-#define ICC_STATUS_MUTE			0x80
-
-#define OUR_ATR_LEN	19
 
 
 static int rutoken_send(unsigned int reader_index, unsigned int dad,
