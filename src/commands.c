@@ -68,14 +68,14 @@ RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length,
 RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
 	unsigned char rx_buffer[]);
 
+RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[]);
+
 static RESPONSECODE CmdXfrBlockCHAR_T0(unsigned int reader_index, unsigned int
 	tx_length, unsigned char tx_buffer[], unsigned int *rx_length, unsigned
 	char rx_buffer[]);
 
 const char *ct_hexdump(const void *data, size_t len);
 
-static int rutoken_getstatus(unsigned int reader_index, unsigned char *status);
-static int rutoken_recv_sw(unsigned int reader_index, int dad, unsigned char *sw);
 static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const void *sbuf, 
 		size_t slen, void *rbuf, size_t rlen, int iscase4);
 static int rutoken_transparent( unsigned int reader_index, int dad,
@@ -324,6 +324,35 @@ RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
 	return IFD_SUCCESS;
 } /* CCID_Receive */
 
+
+/*****************************************************************************
+ *
+ *					CCID_Receive_SW
+ *
+ ****************************************************************************/
+RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[])
+{
+	unsigned char status;
+	int sw_len = 2;
+	if(CmdGetSlotStatus(reader_index, &status) == ICC_STATUS_MUTE)
+	{  //If device not responsive
+		DEBUG_INFO("status = ICC_STATUS_MUTE");
+		return IFD_COMMUNICATION_ERROR;
+	}
+	if(status == ICC_STATUS_READY_SW)
+	{
+		DEBUG_INFO("status = ICC_STATUS_READY_SW;");
+
+		if(CCID_Receive(reader_index, &sw_len, sw) != IFD_SUCCESS)
+			return IFD_COMMUNICATION_ERROR;
+		
+		DEBUG_INFO3("Get SW %x %x", sw[0], sw[1]);
+		return IFD_SUCCESS;
+	}
+	return IFD_COMMUNICATION_ERROR;
+}/* CCID_Receive_SW */
+
+
 const char *ct_hexdump(const void *data, size_t len)
 {
 	static char string[1024];
@@ -338,43 +367,6 @@ const char *ct_hexdump(const void *data, size_t len)
 		snprintf(string + i, 4, " %02x", *d++);
 	}
 	return string;
-}
-
-
-static int rutoken_getstatus(unsigned int reader_index, unsigned char *status)
-{
-	unsigned char buffer[8];
-	if(IFD_SUCCESS == CmdGetSlotStatus( reader_index, buffer))
-	{	
-		*status = buffer[0];
-		return *status;
-	
-	}
-	else
-		return -1;
-}
-
-static int rutoken_recv_sw(unsigned int reader_index, int dad, unsigned char *sw)
-{
-	unsigned char status;
-	int sw_len = 2;
-	if(rutoken_getstatus(reader_index, &status) == ICC_STATUS_MUTE)
-	{  //If device not responsive
-		DEBUG_INFO("status = ICC_STATUS_MUTE");
-		
-		return -1;
-	}
-	if(status == ICC_STATUS_READY_SW)
-	{
-		DEBUG_INFO("status = ICC_STATUS_READY_SW;");
-
-		if(CCID_Receive(reader_index, &sw_len, sw) != IFD_SUCCESS)
-			return -5;
-		
-		DEBUG_INFO3("Get SW %x %x", sw[0], sw[1]);
-		return 2;
-	}
-	return -1;
 }
 
 // return how mach byte send
@@ -428,7 +420,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 	switch(iso.cse){
 		case	IFD_APDU_CASE_1:
 			// get sw
-			if (rutoken_recv_sw(reader_index, 0, sw) < 0)
+			if (CCID_Receive_SW(reader_index, sw) != IFD_SUCCESS)
 				return -2;
 			break;
 		case    IFD_APDU_CASE_2S:
@@ -436,7 +428,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 			// get answere
 			DEBUG_INFO("get Data");
 			DEBUG_INFO2("get Data %d", iso.le);
-			if(rutoken_getstatus(reader_index, &status) == ICC_STATUS_READY_DATA)
+			if(CmdGetSlotStatus(reader_index, &status) == ICC_STATUS_READY_DATA)
 			{
 				rrecv = iso.le;
 				r = CCID_Receive(reader_index, &rrecv, rbuf);
@@ -445,7 +437,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 				DEBUG_INFO2("get TPDU Anser %s", 
 						ct_hexdump(rbuf, iso.le));
 			}
-			if (rutoken_recv_sw(reader_index, 0, sw) < 0)
+			if (CCID_Receive_SW(reader_index, sw) != IFD_SUCCESS)
 				return -2;
 			if ( sw[0] == 0x67) {
 				// Le definitely not accepted
@@ -464,7 +456,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 			// send data
 			DEBUG_INFO2("send Data %d", iso.lc);
 			
-			if(rutoken_getstatus(reader_index, &status) == ICC_STATUS_READY_DATA)
+			if(CmdGetSlotStatus(reader_index, &status) == ICC_STATUS_READY_DATA)
 			{
 				DEBUG_INFO2("send TPDU Data %s", 
 						ct_hexdump(iso.data, iso.lc));
@@ -472,7 +464,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 					return -4;
 			} else return -3;
 			// get sw
-			if (rutoken_recv_sw(reader_index, 0, sw) < 0)
+			if (CCID_Receive_SW(reader_index, sw) != IFD_SUCCESS)
 				return -2;
 
 			// NOT STANDART TPDU!!! BEGIN
