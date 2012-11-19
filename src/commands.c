@@ -229,16 +229,118 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 	RESPONSECODE return_value = IFD_SUCCESS;
 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
 
-	if (protocol == T_0)
-		if((*rx_length = rutoken_transparent(reader_index, 0, tx_buffer, tx_length, rx_buffer,
-				*rx_length)) > 0)
-			return_value = IFD_SUCCESS;
-	else
+	if( protocol != T_0 )
 	{
 		*rx_length = 0;
-		return_value = IFD_PROTOCOL_NOT_SUPPORTED;
+		return IFD_PROTOCOL_NOT_SUPPORTED;
 	}
 
+	unsigned char sw[2], *send_buf_trn = NULL;
+	const void *send_buf = tx_buffer;
+	int len, rrecv = -1, iscase4 = 0;
+	ifd_iso_apdu_t iso;
+
+	DEBUG_INFO3("buffer %s *rx_length = %d", array_hexdump(tx_buffer, tx_length), *rx_length);
+	if ( ifd_iso_apdu_parse(tx_buffer, tx_length, &iso) < 0)
+		return IFD_COMMUNICATION_ERROR;
+	DEBUG_INFO2("iso.le = %d", iso.le);
+
+	if (iso.cla == 0 && tx_length > 5) {
+		send_buf_trn = malloc(tx_length);
+		if (!send_buf_trn) {
+			DEBUG_INFO2("out of memory (tx_length = %u)", tx_length);
+			return IFD_COMMUNICATION_ERROR;
+		}
+		memcpy(send_buf_trn, tx_buffer, tx_length);
+		/* select file, delete file */
+		if (iso.ins == 0xa4 || iso.ins == 0xe4)
+			swap_pair(send_buf_trn + 5, tx_length - 5);
+		/* create file */
+		else if (iso.ins == 0xe0) {
+			len = convert_fcp_to_rtprot(send_buf_trn + 5, tx_length - 5);
+			DEBUG_INFO2("convert_fcp_to_rtprot = %i", len);
+			if (len > 0) {
+				tx_length = len + 5;
+				send_buf_trn[4] = len; /* replace le */
+			}
+		}
+		/* create_do, key_gen */
+		else if (iso.ins == 0xda && iso.p1 == 1
+				&& (iso.p2 == 0x65 || iso.p2 == 0x62)) {
+			len = convert_doinfo_to_rtprot(send_buf_trn + 5, tx_length - 5);
+			DEBUG_INFO2("convert_doinfo_to_rtprot = %i", len);
+			if (len > 0) {
+				tx_length = len + 5;
+				send_buf_trn[4] = len; /* replace le */
+			}
+		}
+		DEBUG_INFO2("le = %u", send_buf_trn[4]);
+		send_buf = send_buf_trn;
+	}
+	switch(iso.cse){
+		case	IFD_APDU_CASE_2S:
+		case	IFD_APDU_CASE_3S:
+			if (iso.cla == 0 && iso.ins == 0xa4)
+				iscase4 = 1; /* FIXME: */
+		case	IFD_APDU_CASE_1:
+			rrecv = rutoken_send_tpducomand(reader_index, send_buf, tx_length,
+					rx_buffer, *rx_length, iscase4);
+			break;
+		case	IFD_APDU_CASE_4S:
+			// make send case 4 command
+			rrecv = rutoken_send_tpducomand(reader_index, send_buf, tx_length-1,
+					rx_buffer, *rx_length, 1);
+			break;
+		default:
+			break;
+	}
+	if (send_buf_trn)
+		free(send_buf_trn);
+
+	if (rrecv > 0 && (size_t)rrecv >= sizeof(sw)) {
+		memcpy(sw, (unsigned char*)rx_buffer + rrecv - sizeof(sw), sizeof(sw));
+		if (sw[0] != 0x90 || sw[1] != 0)
+			/* do nothing */;
+		/* select file */
+		else if (iso.cla == 0 && iso.ins == 0xa4
+				&& rrecv == sizeof(sw) + 32 /* size rtprot */) {
+			len = convert_rtprot_to_fcp(rx_buffer, *rx_length);
+			DEBUG_INFO2("convert_rtprot_to_fcp = %i", len);
+			if (len > 0) {
+				rrecv = -1;
+				if (*rx_length >= len + sizeof(sw)) {
+					memcpy((unsigned char*)rx_buffer+len, sw, sizeof(sw));
+					rrecv = len + sizeof(sw);
+				}
+			}
+		}
+		/* get_do_info */
+		else if (iso.cla == 0x80 && iso.ins == 0x30
+				&& (size_t)rrecv >= sizeof(sw) + 32 /* size rtprot */) {
+			len = convert_rtprot_to_doinfo(rx_buffer, *rx_length);
+			DEBUG_INFO2("convert_rtprot_to_doinfo = %i", len);
+			if (len > 0) {
+				rrecv = -1;
+				if (*rx_length >= len + sizeof(sw)) {
+					memcpy((unsigned char*)rx_buffer+len, sw, sizeof(sw));
+					rrecv = len + sizeof(sw);
+				}
+			}
+		}
+		else if (iso.cla == 0 && iso.ins == 0xca && iso.p1 == 1) {
+			/* get_serial, get_free_mem */
+			if (iso.p2 == 0x81 || iso.p2 == 0x8a)
+				swap_four(rx_buffer, rrecv - sizeof(sw));
+			/* get_current_ef */
+			else if (iso.p2 == 0x11)
+				swap_pair(rx_buffer, rrecv - sizeof(sw));
+		}
+		*rx_length = rrecv;
+	}
+	else{
+		*rx_length = 0;
+		return_value = IFD_COMMUNICATION_ERROR;
+	}
 	return return_value;
 } /* CmdXfrBlock */
 
@@ -342,7 +444,7 @@ RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[])
 // return how mach byte send
 // sbuf - APDU bufer
 // slen
-static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const void *sbuf, 
+static int rutoken_send_tpducomand(unsigned int reader_index, const void *sbuf,
 		size_t slen, void *rbuf, size_t rlen, int iscase4)
 {
 	int rrecv = 0;
@@ -404,7 +506,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 				r = CCID_Receive(reader_index, &rrecv, rbuf);
 				if (r != IFD_SUCCESS)
 					return -2;
-				DEBUG_INFO2("get TPDU Anser %s", 
+				DEBUG_INFO2("get TPDU Anser %s",
 						array_hexdump(rbuf, iso.le));
 			}
 			if (CCID_Receive_SW(reader_index, sw) != IFD_SUCCESS)
@@ -417,7 +519,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 				unsigned char sbuftmp[slen];
 				memcpy(sbuftmp, sbuf, slen);
 				sbuftmp[4] = sw[1];
-				return rutoken_send_tpducomand(reader_index, dad, sbuftmp, 
+				return rutoken_send_tpducomand(reader_index, sbuftmp,
 						slen, rbuf,  rlen, 0);
 			}
 		};
@@ -428,7 +530,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 			
 			if((CmdGetSlotStatus(reader_index, &status) == IFD_SUCCESS ) && (status == ICC_STATUS_READY_DATA))
 			{
-				DEBUG_INFO2("send TPDU Data %s", 
+				DEBUG_INFO2("send TPDU Data %s",
 						array_hexdump(iso.data, iso.lc));
 				if (CCID_Transmit(reader_index, iso.lc, iso.data) != IFD_SUCCESS)
 					return -4;
@@ -446,10 +548,10 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 				hdr[3] = 0; // p2
 				hdr[4] = lx ; //lx (case 2)
 				if(iscase4)
-					return rutoken_send_tpducomand(reader_index, dad, hdr, 
+					return rutoken_send_tpducomand(reader_index, hdr,
 							T0_HDR_LEN, rbuf, rlen, 0);
 				else {
-					int recvtmp = rutoken_send_tpducomand(reader_index,dad,
+					int recvtmp = rutoken_send_tpducomand(reader_index,
 							hdr, T0_HDR_LEN, rbuf, rlen, 0);
 					rrecv = 0;
 					memcpy(sw, (unsigned char*)rbuf+recvtmp-2, 2);
@@ -465,7 +567,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 				hdr[3] = 0; // p2
 				hdr[4] = iso.le; // le (case 2)
 				if(iscase4)
-					return rutoken_send_tpducomand(reader_index, dad, hdr, 
+					return rutoken_send_tpducomand(reader_index, hdr,
 							T0_HDR_LEN, rbuf, rlen, 0);
 			}
 			// NOT STANDART TPDU!!! END
@@ -483,7 +585,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 	return rrecv;
 }
 
-static int rutoken_transparent( unsigned int reader_index, int dad,
+static int rutoken_transparent( unsigned int reader_index,
 		const void *sbuf, size_t slen,
 		void *rbuf, size_t rlen)
 {
@@ -535,12 +637,12 @@ static int rutoken_transparent( unsigned int reader_index, int dad,
 			if (iso.cla == 0 && iso.ins == 0xa4)
 				iscase4 = 1; /* FIXME: */
 		case	IFD_APDU_CASE_1:
-			rrecv = rutoken_send_tpducomand(reader_index, dad, send_buf, slen,
+			rrecv = rutoken_send_tpducomand(reader_index, send_buf, slen,
 					rbuf, rlen, iscase4);
 			break;
 		case	IFD_APDU_CASE_4S:
 			// make send case 4 command
-			rrecv = rutoken_send_tpducomand(reader_index, dad, send_buf, slen-1,
+			rrecv = rutoken_send_tpducomand(reader_index, send_buf, slen-1,
 					rbuf, rlen, 1);
 			break;
 		default:
