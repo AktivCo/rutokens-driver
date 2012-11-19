@@ -39,11 +39,5 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 	unsigned char tx_buffer[], unsigned int *rx_length,
 	unsigned char rx_buffer[], int protoccol);
 
-RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length,
-	const unsigned char tx_buffer[], unsigned short rx_length);
-
-RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
-	unsigned char rx_buffer[], unsigned char *chain_parameter);
-
 int isCharLevel(int reader_index);
 
