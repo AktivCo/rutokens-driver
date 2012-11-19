@@ -28,12 +28,9 @@
 #define RUTOKEN_ATR_LEN	19
 
 RESPONSECODE CmdPowerOn(unsigned int reader_index, unsigned int * nlength,
-	unsigned char buffer[], int voltage);
+	unsigned char buffer[]);
 
 RESPONSECODE CmdPowerOff(unsigned int reader_index);
-
-RESPONSECODE CmdGetSlotStatus(unsigned int reader_index,
-	unsigned char buffer[]);
 
 RESPONSECODE CmdIccPresence(unsigned int reader_index,
 	unsigned char* presence);
@@ -43,7 +40,7 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 	unsigned char rx_buffer[], int protoccol);
 
 RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length,
-	const unsigned char* tx_buffer, unsigned short rx_length, unsigned char bBWI);
+	const unsigned char tx_buffer[], unsigned short rx_length);
 
 RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
 	unsigned char rx_buffer[], unsigned char *chain_parameter);

@@ -673,7 +673,7 @@ t1_xcv(t1_state_t *t1, unsigned char *block, size_t slen, size_t rmax)
 	{
 		rmax = 3;
 
-		n = CCID_Transmit(t1 -> lun, slen, block, rmax, t1->wtx);
+		n = CCID_Transmit(t1 -> lun, slen, block, rmax);
 		if (n != IFD_SUCCESS)
 			return n;
 
@@ -691,7 +691,7 @@ t1_xcv(t1_state_t *t1, unsigned char *block, size_t slen, size_t rmax)
 
 		rmax = block[2] + 1;
 
-		n = CCID_Transmit(t1 -> lun, 0, block, rmax, t1->wtx);
+		n = CCID_Transmit(t1 -> lun, 0, block, rmax);
 		if (n != IFD_SUCCESS)
 			return n;
 
@@ -707,7 +707,7 @@ t1_xcv(t1_state_t *t1, unsigned char *block, size_t slen, size_t rmax)
 	}
 	else
 	{
-		n = CCID_Transmit(t1 -> lun, slen, block, 0, t1->wtx);
+		n = CCID_Transmit(t1 -> lun, slen, block, 0);
 		t1->wtx = 0;	/* reset to default value */
 		if (n != IFD_SUCCESS)
 			return n;

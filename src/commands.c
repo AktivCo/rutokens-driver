@@ -46,7 +46,6 @@
 #define ICC_STATUS_BUSY_COMMON	0x40
 #define ICC_STATUS_MUTE			0x80
 
-#define MAX_BUF_T0_LEN  256
 #define T0_HDR_LEN      5
 
 #define USB_ICC_POWER_ON	0x62
@@ -55,19 +54,18 @@
 #define USB_ICC_DATA_BLOCK	0x6F
 #define USB_ICC_GET_STATUS	0xA0
 
-#define OUR_ATR_LEN	19
-
 #define max( a, b )   ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #define IFD_ERROR_INSUFFICIENT_BUFFER 700
 
 /* internal functions */
 
+RESPONSECODE CmdGetSlotStatus(unsigned int reader_index,
+	unsigned char* status);
+
 static RESPONSECODE CmdXfrBlockCHAR_T0(unsigned int reader_index, unsigned int
 	tx_length, unsigned char tx_buffer[], unsigned int *rx_length, unsigned
 	char rx_buffer[]);
-
-static void i2dw(int value, unsigned char *buffer);
 
 const char *ct_hexdump(const void *data, size_t len);
 
@@ -109,11 +107,11 @@ int isCharLevel(int reader_index) /* RT to remove */
  *
  ****************************************************************************/
 RESPONSECODE CmdPowerOn(unsigned int reader_index, unsigned int * nlength,
-	unsigned char buffer[], int voltage) /* RT Remove voltage*/
+	unsigned char buffer[])
 {
 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
 	int r;
-	unsigned char pcbuffer[SIZE_GET_SLOT_STATUS];
+	unsigned char status;
 
 	/* first power off to reset the ICC state machine */
 	r = CmdPowerOff(reader_index);
@@ -121,13 +119,11 @@ RESPONSECODE CmdPowerOn(unsigned int reader_index, unsigned int * nlength,
 		return r;
 
 	/* wait for ready */
-	r = CmdGetSlotStatus(reader_index, pcbuffer);
+	r = CmdGetSlotStatus(reader_index, &status);
 	if (r != IFD_SUCCESS)
 		return r;
 
-	/* Power On */
-	r = ControlUSB(reader_index, 0xC1, 0x62, 0, buffer, RUTOKEN_ATR_LEN);
-
+	r = ControlUSB(reader_index, 0xC1, USB_ICC_POWER_ON, 0, buffer, RUTOKEN_ATR_LEN);
 	/* we got an error? */
 	if (r < 0)
 	{
@@ -151,9 +147,7 @@ RESPONSECODE CmdPowerOff(unsigned int reader_index)
 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
 	int r;
 
-	/* PowerOff */
-	r = ControlUSB(reader_index, 0x41, 0x63, 0, NULL, 0);
-
+	r = ControlUSB(reader_index, 0x41, USB_ICC_POWER_OFF, 0, NULL, 0);
 	/* we got an error? */
 	if (r < 0)
 	{
@@ -170,7 +164,7 @@ RESPONSECODE CmdPowerOff(unsigned int reader_index)
  *					CmdGetSlotStatus
  *
  ****************************************************************************/
-RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status) /* RT remove buffer: need 1 byte */
+RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status)
 {
 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
 	int r;
@@ -216,6 +210,11 @@ RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status) 
 	return IFD_SUCCESS;
 } /* CmdGetSlotStatus */
 
+/*****************************************************************************
+ *
+ *					CmdIccPresence
+ *
+ ****************************************************************************/
 RESPONSECODE CmdIccPresence(unsigned int reader_index,
 	unsigned char* presence)
 {
@@ -223,7 +222,6 @@ RESPONSECODE CmdIccPresence(unsigned int reader_index,
 	unsigned char status;
 
 	r = CmdGetSlotStatus(reader_index, &status);
-	
 	/* we got an error? */
 	if(r != IFD_SUCCESS)
 		return r;
@@ -235,7 +233,7 @@ RESPONSECODE CmdIccPresence(unsigned int reader_index,
 		*presence = CCID_ICC_ABSENT;
 
 	return IFD_SUCCESS;
-}
+}/* CmdIccPresence */
 
 
 /*****************************************************************************
@@ -270,15 +268,14 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
  *
  ****************************************************************************/
 RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length,
-	const unsigned char* tx_buffer /* [] */, unsigned short rx_length, unsigned char bBWI)
+	const unsigned char tx_buffer[], unsigned short rx_length)
 {
 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
-	unsigned char status[8];
+	unsigned char status;
 	int r;
 
 	/* Xfr Block */
-	r = ControlUSB(reader_index, 0x41, 0x65, 0, (unsigned char*)tx_buffer, tx_length);
-
+	r = ControlUSB(reader_index, 0x41, USB_ICC_XFR_BLOCK, 0, (unsigned char*)tx_buffer, tx_length);
 	/* we got an error? */
 	if (r < 0)
 	{
@@ -286,7 +283,7 @@ RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length,
 		return IFD_COMMUNICATION_ERROR;
 	}
 
-	if (CmdGetSlotStatus(reader_index, status) != IFD_SUCCESS)
+	if (CmdGetSlotStatus(reader_index, &status) != IFD_SUCCESS)
 	{
 		DEBUG_INFO("error get status");
 		return IFD_COMMUNICATION_ERROR;
@@ -306,11 +303,10 @@ RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
 {
 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
 	int r;
-	unsigned char status[8];
+	unsigned char status;
 
 	/* Data Block */
-	r = ControlUSB(reader_index, 0xC1, 0x6F, 0, rx_buffer, *rx_length);
-
+	r = ControlUSB(reader_index, 0xC1, USB_ICC_DATA_BLOCK, 0, rx_buffer, *rx_length);
 	/* we got an error? */
 	if (r < 0)
 	{
@@ -318,7 +314,7 @@ RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
 		return IFD_COMMUNICATION_ERROR;
 	}
 
-	if (CmdGetSlotStatus(reader_index, status) != IFD_SUCCESS)
+	if (CmdGetSlotStatus(reader_index, &status) != IFD_SUCCESS)
 	{
 		DEBUG_INFO("error get status");
 		return IFD_COMMUNICATION_ERROR;
@@ -326,20 +322,6 @@ RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
 
 	return IFD_SUCCESS;
 } /* CCID_Receive */
-
-
-/*****************************************************************************
- *
- *					i2dw
- *
- ****************************************************************************/
-static void i2dw(int value, unsigned char buffer[])
-{
-	buffer[0] = value & 0xFF;
-	buffer[1] = (value >> 8) & 0xFF;
-	buffer[2] = (value >> 16) & 0xFF;
-	buffer[3] = (value >> 24) & 0xFF;
-} /* i2dw */
 
 const char *ct_hexdump(const void *data, size_t len)
 {
@@ -363,7 +345,7 @@ const char *ct_hexdump(const void *data, size_t len)
 static int rutoken_send(unsigned int reader_index, unsigned int dad,
 		const unsigned char *buffer, size_t len)
 {
-	if(IFD_SUCCESS == CCID_Transmit(reader_index, len,	buffer, /* (unsigned short) */0, 0))
+	if(IFD_SUCCESS == CCID_Transmit(reader_index, len,	buffer, /* (unsigned short) */0))
 	{
 		
 		return (int)len;

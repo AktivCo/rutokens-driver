@@ -554,7 +554,7 @@ EXTERNAL RESPONSECODE IFDHPowerICC(DWORD Lun, DWORD Action,
 		case IFD_POWER_UP:
 		case IFD_RESET:
 			nlength = sizeof(pcbuffer);
-			if (CmdPowerOn(reader_index, &nlength, pcbuffer, PowerOnVoltage)
+			if (CmdPowerOn(reader_index, &nlength, pcbuffer)
 				!= IFD_SUCCESS)
 			{
 				/* used by GemCore SIM PRO: no card is present */
@@ -750,12 +750,6 @@ EXTERNAL RESPONSECODE IFDHICCPresence(DWORD Lun)
 
 	ccid_descriptor = get_ccid_descriptor(reader_index);
 
-	if (GEMCORESIMPRO == ccid_descriptor->readerID)
-	{
-		return_value = ccid_descriptor->dwSlotStatus;
-		goto end;
-	}
-
 	/* save the current read timeout computed from card capabilities */
 	oldReadTimeout = ccid_descriptor->readTimeout;
 
@@ -786,21 +780,6 @@ EXTERNAL RESPONSECODE IFDHICCPresence(DWORD Lun)
 			/* use default slot */
 			break;
 
-		case CCID_ICC_PRESENT_INACTIVE:
-			if ((CcidSlots[reader_index].bPowerFlags == POWERFLAGS_RAZ)
-				|| (CcidSlots[reader_index].bPowerFlags & MASK_POWERFLAGS_PDWN))
-				/* the card was previously absent */
-				return_value = IFD_ICC_PRESENT;
-			else
-			{
-				/* the card was previously present but has been
-				 * removed and inserted between two consecutive
-				 * IFDHICCPresence() calls */
-				CcidSlots[reader_index].bPowerFlags = POWERFLAGS_RAZ;
-				return_value = IFD_ICC_NOT_PRESENT;
-			}
-			break;
-
 		case CCID_ICC_ABSENT:
 			/* Reset ATR buffer */
 			CcidSlots[reader_index].nATRLength = 0;
@@ -813,7 +792,6 @@ EXTERNAL RESPONSECODE IFDHICCPresence(DWORD Lun)
 			break;
 	}
 
-end:
 	DEBUG_PERIODIC2("Card %s",
 		IFD_ICC_PRESENT == return_value ? "present" : "absent");
 

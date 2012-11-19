@@ -54,7 +54,7 @@ PPS_Exchange (int lun, BYTE * params, unsigned *length, unsigned char *pps1)
   DEBUG_XXD ("PPS: Sending request: ", params, len_request);
 
   /* Send PPS request */
-  if (CCID_Transmit (lun, len_request, params, isCharLevel(lun) ? 4 : 0, 0)
+  if (CCID_Transmit (lun, len_request, params, isCharLevel(lun) ? 4 : 0)
 	!= IFD_SUCCESS)
     return PPS_ICC_ERROR;
 
