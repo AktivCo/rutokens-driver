@@ -20,6 +20,8 @@
 /*
  * $Id: commands.h 3074 2008-06-17 16:31:00 ausenok $
  */
+#ifndef COMMANDS_H
+#define COMMANDS_H
 
 #define SIZE_GET_SLOT_STATUS 10
 #define STATUS_OFFSET 7
@@ -40,4 +42,5 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 	unsigned char rx_buffer[], int protoccol);
 
 int isCharLevel(int reader_index);
+#endif
 

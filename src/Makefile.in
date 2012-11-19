@@ -65,11 +65,11 @@ libccid_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am__libccid_la_SOURCES_DIST = apdu.c apdu.h ccid.c ccid.h ccid_ifdhandler.h \
-	commands.c commands.h debug.h defs.h ifdhandler.c utils.c \
+	commands.c commands.h convert_apdu.c convert_apdu.h debug.h defs.h ifdhandler.c utils.c \
 	utils.h ccid_usb.c ccid_usb.h tokenparser.l parser.h strlcpy.c \
 	misc.h strlcpycat.h debug.c
 am__objects_1 = libccid_la-apdu.lo libccid_la-ccid.lo libccid_la-commands.lo \
-	libccid_la-ifdhandler.lo libccid_la-utils.lo
+	libccid_la-convert_apdu.lo libccid_la-ifdhandler.lo libccid_la-utils.lo
 am__objects_2 = libccid_la-ccid_usb.lo
 am__objects_3 = libccid_la-tokenparser.lo libccid_la-strlcpy.lo
 ### HACK !!!!!
@@ -276,6 +276,8 @@ COMMON = apdu.c \
 	ccid_ifdhandler.h \
 	commands.c \
 	commands.h \
+	convert_apdu.c \
+	convert_apdu.h \
 	debug.h \
 	defs.h \
 	ifdhandler.c \
@@ -424,6 +426,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-ccid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-ccid_usb.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-commands.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-convert_apdu.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-debug.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-ifdhandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-strlcpy.Plo@am__quote@
@@ -481,6 +484,13 @@ libccid_la-commands.lo: commands.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='commands.c' object='libccid_la-commands.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-commands.lo `test -f 'commands.c' || echo '$(srcdir)/'`commands.c
+
+libccid_la-convert_apdu.lo: convert_apdu.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-convert_apdu.lo -MD -MP -MF $(DEPDIR)/libccid_la-convert_apdu.Tpo -c -o libccid_la-convert_apdu.lo `test -f 'convert_apdu.c' || echo '$(srcdir)/'`convert_apdu.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-convert_apdu.Tpo $(DEPDIR)/libccid_la-convert_apdu.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='convert_apdu.c' object='libccid_la-convert_apdu.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-convert_apdu.lo `test -f 'convert_apdu.c' || echo '$(srcdir)/'`convert_apdu.c
 
 libccid_la-ifdhandler.lo: ifdhandler.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-ifdhandler.lo -MD -MP -MF $(DEPDIR)/libccid_la-ifdhandler.Tpo -c -o libccid_la-ifdhandler.lo `test -f 'ifdhandler.c' || echo '$(srcdir)/'`ifdhandler.c

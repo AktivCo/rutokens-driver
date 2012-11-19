@@ -25,6 +25,8 @@ COMMON = apdu.c \
 	ccid_ifdhandler.h \
 	commands.c \
 	commands.h \
+	convert_apdu.c \
+	convert_apdu.h \
 	debug.h \
 	defs.h \
 	ifdhandler.c \
