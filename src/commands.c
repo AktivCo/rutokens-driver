@@ -75,22 +75,11 @@ static RESPONSECODE CmdXfrBlockCHAR_T0(unsigned int reader_index, unsigned int
 	tx_length, unsigned char tx_buffer[], unsigned int *rx_length, unsigned
 	char rx_buffer[]);
 
-static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const void *sbuf, 
+static int rutoken_send_tpducomand(unsigned int reader_index, const void *sbuf,
 		size_t slen, void *rbuf, size_t rlen, int iscase4);
-static int rutoken_transparent( unsigned int reader_index, int dad,
+static int rutoken_transparent( unsigned int reader_index,
 		const void *sbuf, size_t slen,
 		void *rbuf, size_t rlen);
-
-
-/*****************************************************************************
- *
- *					isCharLevel
- *
- ****************************************************************************/
-int isCharLevel(int reader_index) /* RT to remove */
-{
-	return CCID_CLASS_CHARACTER == (get_ccid_descriptor(reader_index)->dwFeatures & CCID_CLASS_EXCHANGE_MASK);
-} /* isCharLevel */
 
 
 /*****************************************************************************
