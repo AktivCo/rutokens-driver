@@ -92,3 +92,10 @@ extern int LogLevel;
 
 #endif
 
+#ifndef _DEBUG_H_
+#define _DEBUG_H_
+
+const char *array_hexdump(const void *data, unsigned long int len);
+
+#endif /* _DEBUG_H_ */
+

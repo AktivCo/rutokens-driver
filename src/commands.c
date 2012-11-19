@@ -75,8 +75,6 @@ static RESPONSECODE CmdXfrBlockCHAR_T0(unsigned int reader_index, unsigned int
 	tx_length, unsigned char tx_buffer[], unsigned int *rx_length, unsigned
 	char rx_buffer[]);
 
-const char *ct_hexdump(const void *data, size_t len);
-
 static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const void *sbuf, 
 		size_t slen, void *rbuf, size_t rlen, int iscase4);
 static int rutoken_transparent( unsigned int reader_index, int dad,
@@ -352,22 +350,6 @@ RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[])
 }/* CCID_Receive_SW */
 
 
-const char *ct_hexdump(const void *data, size_t len)
-{
-	static char string[1024];
-	unsigned char *d = (unsigned char *)data;
-	unsigned int i, left;
-
-	string[0] = '\0';
-	left = sizeof(string);
-	for (i = 0; len--; i += 3) {
-		if (i >= sizeof(string) - 4)
-			break;
-		snprintf(string + i, 4, " %02x", *d++);
-	}
-	return string;
-}
-
 // return how mach byte send
 // sbuf - APDU bufer
 // slen
@@ -379,7 +361,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 	unsigned char status;
 	unsigned char sw[2];
 	ifd_iso_apdu_t iso;
-	DEBUG_INFO3("send tpdu command %s, len: %d", ct_hexdump(sbuf, slen), slen);
+	DEBUG_INFO3("send tpdu command %s, len: %d", array_hexdump(sbuf, slen), slen);
 	
 	if ( ifd_iso_apdu_parse(sbuf, slen, &iso) < 0)
 		return -1;
@@ -434,7 +416,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 				if (r != IFD_SUCCESS)
 					return -2;
 				DEBUG_INFO2("get TPDU Anser %s", 
-						ct_hexdump(rbuf, iso.le));
+						array_hexdump(rbuf, iso.le));
 			}
 			if (CCID_Receive_SW(reader_index, sw) != IFD_SUCCESS)
 				return -2;
@@ -458,7 +440,7 @@ static int rutoken_send_tpducomand(unsigned int reader_index, int dad, const voi
 			if((CmdGetSlotStatus(reader_index, &status) == IFD_SUCCESS ) && (status == ICC_STATUS_READY_DATA))
 			{
 				DEBUG_INFO2("send TPDU Data %s", 
-						ct_hexdump(iso.data, iso.lc));
+						array_hexdump(iso.data, iso.lc));
 				if (CCID_Transmit(reader_index, iso.lc, iso.data) != IFD_SUCCESS)
 					return -4;
 			} else return -3;
@@ -521,7 +503,7 @@ static int rutoken_transparent( unsigned int reader_index, int dad,
 	int len, rrecv = -1, iscase4 = 0;
 	ifd_iso_apdu_t iso;
 
-	DEBUG_INFO3("buffer %s rlen = %d", ct_hexdump(sbuf, slen), rlen);
+	DEBUG_INFO3("buffer %s rlen = %d", array_hexdump(sbuf, slen), rlen);
 	if ( ifd_iso_apdu_parse(sbuf, slen, &iso) < 0)
 		return -1;
 	DEBUG_INFO2("iso.le = %d", iso.le);

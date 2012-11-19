@@ -69,7 +69,7 @@ int convert_doinfo_to_rtprot(void *data, size_t data_len)
 	}
 	data_a5_len = dohdr[1] & 0xff;
 	if (read_tag(p, data_len, 0xA5, data_a5, data_a5_len) == 0)
-		DEBUG_INFO2("tag 0xA5 = %s", ct_hexdump(data_a5, data_a5_len));
+		DEBUG_INFO2("tag 0xA5 = %s", array_hexdump(data_a5, data_a5_len));
 	else
 		data_a5_len = 0;
 	if (data_len < sizeof(dohdr) + data_a5_len) {
@@ -86,7 +86,7 @@ int convert_doinfo_to_rtprot(void *data, size_t data_len)
 		memcpy(dohdr + i, secattr, 8);
 		for (i += 8, p = &secattr[8]; i < sizeof(dohdr); ++i, p += 4)
 			dohdr[i] = *p;
-		DEBUG_INFO2("tag 0x86 = %s", ct_hexdump(&dohdr[17], 15));
+		DEBUG_INFO2("tag 0x86 = %s", array_hexdump(&dohdr[17], 15));
 	}
 	memcpy(data, dohdr, sizeof(dohdr));
 	memcpy((unsigned char*)data + sizeof(dohdr), data_a5, data_a5_len);
@@ -135,7 +135,7 @@ int convert_fcp_to_rtprot(void *data, size_t data_len)
 		memcpy(rtprot + i, secattr, 8);
 		for (i += 8, p = &secattr[8]; i < sizeof(rtprot); ++i, p += 4)
 			rtprot[i] = *p;
-		DEBUG_INFO2("tag 0x86 = %s", ct_hexdump(&rtprot[17], 15));
+		DEBUG_INFO2("tag 0x86 = %s", array_hexdump(&rtprot[17], 15));
 	}
 	memcpy(data, rtprot, sizeof(rtprot));
 	return sizeof(rtprot);
@@ -191,7 +191,7 @@ int convert_rtprot_to_doinfo(void *data, size_t data_len)
 		memcpy(doinfo + doinfo_len, pdata + 32, pdata[0]);
 		doinfo_len += pdata[0];
 	}
-	DEBUG_INFO2("doinfo = %s", ct_hexdump(doinfo, doinfo_len));
+	DEBUG_INFO2("doinfo = %s", array_hexdump(doinfo, doinfo_len));
 	memcpy(data, doinfo, doinfo_len);
 	return doinfo_len;
 }
@@ -232,7 +232,7 @@ int convert_rtprot_to_fcp(void *data, size_t data_len)
 	memcpy(fcp + 23, p + 17, 8);
 	for (i = 0; i < 7 && sizeof(fcp) > 23 + 8 + i * 4; ++i)
 		fcp[23 + 8 + i * 4] = p[17 + 8 + i];
-	DEBUG_INFO2("fcp = %s", ct_hexdump(fcp, sizeof(fcp)));
+	DEBUG_INFO2("fcp = %s", array_hexdump(fcp, sizeof(fcp)));
 	memcpy(data, fcp, sizeof(fcp));
 	return sizeof(fcp);
 }
