@@ -32,17 +32,6 @@ COMMON = apdu.c \
 	utils.h 
 USB = ccid_usb.c ccid_usb.h
 SERIAL = ccid_serial.c ccid_serial.h
-T1 = towitoko/atr.c \
-	towitoko/atr.h \
-	towitoko/defines.h \
-	towitoko/pps.c \
-	towitoko/pps.h \
-	openct/buffer.c \
-	openct/buffer.h \
-	openct/checksum.c \
-	openct/checksum.h \
-	openct/proto-t1.c \
-	openct/proto-t1.h
 TOKEN_PARSER = tokenparser.l parser.h \
 	strlcpy.c \
 	misc.h \
@@ -61,7 +50,7 @@ libccid_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
 	$(SYMBOL_VISIBILITY) -D$(CCID_VERSION)
 
 libccidtwin_la_SOURCES = $(COMMON) $(SERIAL) $(TOKEN_PARSER) \
-	$(PROVIDED_BY_PCSC) $(T1)
+	$(PROVIDED_BY_PCSC)
 libccidtwin_la_CFLAGS = $(PCSC_CFLAGS) $(PTHREAD_CFLAGS) $(SYMBOL_VISIBILITY) \
 	-DTWIN_SERIAL -D$(CCID_VERSION)
 libccidtwin_la_LIBADD = $(PTHREAD_LIBS)
@@ -71,7 +60,7 @@ parse_LDADD = libccid.la
 parse_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS)
 
 EXTRA_DIST = Info.plist.src create_Info_plist.pl reader.conf.in \
-	towitoko/COPYING towitoko/README openct/LICENSE \
+	openct/LICENSE \
 	convert_version.pl pcscd_ccid.rules
 
 install: $(LIBS_TO_INSTALL)

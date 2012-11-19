@@ -31,7 +31,6 @@
 
 #include "misc.h"
 #include "commands.h"
-#include "openct/proto-t1.h"
 #include "ccid.h"
 #include "defs.h"
 #include "ccid_ifdhandler.h"

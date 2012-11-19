@@ -23,8 +23,6 @@
 
 #include <pcsclite.h>
 
-#include "openct/proto-t1.h"
-
 typedef struct CCID_DESC
 {
 	/*
@@ -37,11 +35,6 @@ typedef struct CCID_DESC
 	 * Card state
 	 */
 	UCHAR bPowerFlags;
-
-	/*
-	 * T=1 Protocol context
-	 */
-	t1_state_t t1;
 } CcidDesc;
 
 typedef enum {

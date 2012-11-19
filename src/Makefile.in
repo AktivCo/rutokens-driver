@@ -67,10 +67,7 @@ libccid_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 am__libccid_la_SOURCES_DIST = apdu.c apdu.h ccid.c ccid.h ccid_ifdhandler.h \
 	commands.c commands.h debug.h defs.h ifdhandler.c utils.c \
 	utils.h ccid_usb.c ccid_usb.h tokenparser.l parser.h strlcpy.c \
-	misc.h strlcpycat.h debug.c towitoko/atr.c towitoko/atr.h \
-	towitoko/defines.h towitoko/pps.c towitoko/pps.h \
-	openct/buffer.c openct/buffer.h openct/checksum.c \
-	openct/checksum.h openct/proto-t1.c openct/proto-t1.h
+	misc.h strlcpycat.h debug.c
 am__objects_1 = libccid_la-apdu.lo libccid_la-ccid.lo libccid_la-commands.lo \
 	libccid_la-ifdhandler.lo libccid_la-utils.lo
 am__objects_2 = libccid_la-ccid_usb.lo
@@ -78,11 +75,8 @@ am__objects_3 = libccid_la-tokenparser.lo libccid_la-strlcpy.lo
 ### HACK !!!!!
 #@WITHOUT_PCSC_TRUE@am__objects_4 = libccid_la-debug.lo
 am__objects_4 = libccid_la-debug.lo
-am__objects_5 = libccid_la-atr.lo libccid_la-pps.lo \
-	libccid_la-buffer.lo libccid_la-checksum.lo \
-	libccid_la-proto-t1.lo
 am_libccid_la_OBJECTS = $(am__objects_1) $(am__objects_2) \
-	$(am__objects_3) $(am__objects_4) $(am__objects_5)
+	$(am__objects_3) $(am__objects_4)
 libccid_la_OBJECTS = $(am_libccid_la_OBJECTS)
 libccid_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libccid_la_CFLAGS) \
@@ -92,22 +86,15 @@ libccidtwin_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
 am__libccidtwin_la_SOURCES_DIST = ccid.c ccid.h ccid_ifdhandler.h \
 	commands.c commands.h debug.h defs.h ifdhandler.c utils.c \
 	utils.h ccid_serial.c ccid_serial.h tokenparser.l parser.h \
-	strlcpy.c misc.h strlcpycat.h debug.c towitoko/atr.c \
-	towitoko/atr.h towitoko/defines.h towitoko/pps.c \
-	towitoko/pps.h openct/buffer.c openct/buffer.h \
-	openct/checksum.c openct/checksum.h openct/proto-t1.c \
-	openct/proto-t1.h
+	strlcpy.c misc.h strlcpycat.h debug.c
 am__objects_6 = libccidtwin_la-ccid.lo libccidtwin_la-commands.lo \
 	libccidtwin_la-ifdhandler.lo libccidtwin_la-utils.lo
 am__objects_7 = libccidtwin_la-ccid_serial.lo
 am__objects_8 = libccidtwin_la-tokenparser.lo \
 	libccidtwin_la-strlcpy.lo
 @WITHOUT_PCSC_TRUE@am__objects_9 = libccidtwin_la-debug.lo
-am__objects_10 = libccidtwin_la-atr.lo libccidtwin_la-pps.lo \
-	libccidtwin_la-buffer.lo libccidtwin_la-checksum.lo \
-	libccidtwin_la-proto-t1.lo
 am_libccidtwin_la_OBJECTS = $(am__objects_6) $(am__objects_7) \
-	$(am__objects_8) $(am__objects_9) $(am__objects_10)
+	$(am__objects_8) $(am__objects_9)
 libccidtwin_la_OBJECTS = $(am_libccidtwin_la_OBJECTS)
 libccidtwin_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libccidtwin_la_CFLAGS) \
@@ -298,17 +285,6 @@ COMMON = apdu.c \
 
 USB = ccid_usb.c ccid_usb.h
 SERIAL = ccid_serial.c ccid_serial.h
-T1 = towitoko/atr.c \
-	towitoko/atr.h \
-	towitoko/defines.h \
-	towitoko/pps.c \
-	towitoko/pps.h \
-	openct/buffer.c \
-	openct/buffer.h \
-	openct/checksum.c \
-	openct/checksum.h \
-	openct/proto-t1.c \
-	openct/proto-t1.h
 
 TOKEN_PARSER = tokenparser.l parser.h \
 	strlcpy.c \
@@ -317,7 +293,7 @@ TOKEN_PARSER = tokenparser.l parser.h \
 
 MAINTAINERCLEANFILES = tokenparser.c
 @WITHOUT_PCSC_TRUE@PROVIDED_BY_PCSC = debug.c
-libccid_la_SOURCES = $(COMMON) $(USB) $(TOKEN_PARSER) $(PROVIDED_BY_PCSC) $(T1)
+libccid_la_SOURCES = $(COMMON) $(USB) $(TOKEN_PARSER) $(PROVIDED_BY_PCSC)
 libccid_la_LIBADD = $(LEXLIB) $(COREFOUNDATION) $(IOKIT) \
 	$(LIBUSB_LIBS) $(PTHREAD_LIBS)
 
@@ -325,7 +301,7 @@ libccid_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
 	$(SYMBOL_VISIBILITY) -D$(CCID_VERSION)
 
 libccidtwin_la_SOURCES = $(COMMON) $(SERIAL) $(TOKEN_PARSER) \
-	$(PROVIDED_BY_PCSC) $(T1)
+	$(PROVIDED_BY_PCSC)
 
 libccidtwin_la_CFLAGS = $(PCSC_CFLAGS) $(PTHREAD_CFLAGS) $(SYMBOL_VISIBILITY) \
 	-DTWIN_SERIAL -D$(CCID_VERSION)
@@ -335,7 +311,7 @@ parse_SOURCES = parse.c debug.c
 parse_LDADD = libccid.la
 parse_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS)
 EXTRA_DIST = Info.plist.src create_Info_plist.pl reader.conf.in \
-	towitoko/COPYING towitoko/README openct/LICENSE \
+	openct/LICENSE \
 	convert_version.pl pcscd_ccid.rules
 
 @UDEV_FALSE@ifdCapabilities = 0x00000000
@@ -445,29 +421,19 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-apdu.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-atr.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-ccid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-ccid_usb.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-checksum.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-commands.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-debug.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-ifdhandler.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-pps.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-proto-t1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-strlcpy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-tokenparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-utils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-atr.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-ccid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-ccid_serial.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-checksum.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-commands.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-debug.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-ifdhandler.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-pps.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-proto-t1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-strlcpy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-tokenparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-utils.Plo@am__quote@
@@ -558,41 +524,6 @@ libccid_la-debug.lo: debug.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
 
-libccid_la-atr.lo: towitoko/atr.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-atr.lo -MD -MP -MF $(DEPDIR)/libccid_la-atr.Tpo -c -o libccid_la-atr.lo `test -f 'towitoko/atr.c' || echo '$(srcdir)/'`towitoko/atr.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-atr.Tpo $(DEPDIR)/libccid_la-atr.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='towitoko/atr.c' object='libccid_la-atr.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-atr.lo `test -f 'towitoko/atr.c' || echo '$(srcdir)/'`towitoko/atr.c
-
-libccid_la-pps.lo: towitoko/pps.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-pps.lo -MD -MP -MF $(DEPDIR)/libccid_la-pps.Tpo -c -o libccid_la-pps.lo `test -f 'towitoko/pps.c' || echo '$(srcdir)/'`towitoko/pps.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-pps.Tpo $(DEPDIR)/libccid_la-pps.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='towitoko/pps.c' object='libccid_la-pps.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-pps.lo `test -f 'towitoko/pps.c' || echo '$(srcdir)/'`towitoko/pps.c
-
-libccid_la-buffer.lo: openct/buffer.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-buffer.lo -MD -MP -MF $(DEPDIR)/libccid_la-buffer.Tpo -c -o libccid_la-buffer.lo `test -f 'openct/buffer.c' || echo '$(srcdir)/'`openct/buffer.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-buffer.Tpo $(DEPDIR)/libccid_la-buffer.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='openct/buffer.c' object='libccid_la-buffer.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-buffer.lo `test -f 'openct/buffer.c' || echo '$(srcdir)/'`openct/buffer.c
-
-libccid_la-checksum.lo: openct/checksum.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-checksum.lo -MD -MP -MF $(DEPDIR)/libccid_la-checksum.Tpo -c -o libccid_la-checksum.lo `test -f 'openct/checksum.c' || echo '$(srcdir)/'`openct/checksum.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-checksum.Tpo $(DEPDIR)/libccid_la-checksum.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='openct/checksum.c' object='libccid_la-checksum.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-checksum.lo `test -f 'openct/checksum.c' || echo '$(srcdir)/'`openct/checksum.c
-
-libccid_la-proto-t1.lo: openct/proto-t1.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-proto-t1.lo -MD -MP -MF $(DEPDIR)/libccid_la-proto-t1.Tpo -c -o libccid_la-proto-t1.lo `test -f 'openct/proto-t1.c' || echo '$(srcdir)/'`openct/proto-t1.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-proto-t1.Tpo $(DEPDIR)/libccid_la-proto-t1.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='openct/proto-t1.c' object='libccid_la-proto-t1.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-proto-t1.lo `test -f 'openct/proto-t1.c' || echo '$(srcdir)/'`openct/proto-t1.c
-
 libccidtwin_la-ccid.lo: ccid.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-ccid.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-ccid.Tpo -c -o libccidtwin_la-ccid.lo `test -f 'ccid.c' || echo '$(srcdir)/'`ccid.c
 @am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-ccid.Tpo $(DEPDIR)/libccidtwin_la-ccid.Plo
@@ -648,41 +579,6 @@ libccidtwin_la-debug.lo: debug.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='debug.c' object='libccidtwin_la-debug.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
-
-libccidtwin_la-atr.lo: towitoko/atr.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-atr.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-atr.Tpo -c -o libccidtwin_la-atr.lo `test -f 'towitoko/atr.c' || echo '$(srcdir)/'`towitoko/atr.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-atr.Tpo $(DEPDIR)/libccidtwin_la-atr.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='towitoko/atr.c' object='libccidtwin_la-atr.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-atr.lo `test -f 'towitoko/atr.c' || echo '$(srcdir)/'`towitoko/atr.c
-
-libccidtwin_la-pps.lo: towitoko/pps.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-pps.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-pps.Tpo -c -o libccidtwin_la-pps.lo `test -f 'towitoko/pps.c' || echo '$(srcdir)/'`towitoko/pps.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-pps.Tpo $(DEPDIR)/libccidtwin_la-pps.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='towitoko/pps.c' object='libccidtwin_la-pps.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-pps.lo `test -f 'towitoko/pps.c' || echo '$(srcdir)/'`towitoko/pps.c
-
-libccidtwin_la-buffer.lo: openct/buffer.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-buffer.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-buffer.Tpo -c -o libccidtwin_la-buffer.lo `test -f 'openct/buffer.c' || echo '$(srcdir)/'`openct/buffer.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-buffer.Tpo $(DEPDIR)/libccidtwin_la-buffer.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='openct/buffer.c' object='libccidtwin_la-buffer.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-buffer.lo `test -f 'openct/buffer.c' || echo '$(srcdir)/'`openct/buffer.c
-
-libccidtwin_la-checksum.lo: openct/checksum.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-checksum.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-checksum.Tpo -c -o libccidtwin_la-checksum.lo `test -f 'openct/checksum.c' || echo '$(srcdir)/'`openct/checksum.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-checksum.Tpo $(DEPDIR)/libccidtwin_la-checksum.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='openct/checksum.c' object='libccidtwin_la-checksum.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-checksum.lo `test -f 'openct/checksum.c' || echo '$(srcdir)/'`openct/checksum.c
-
-libccidtwin_la-proto-t1.lo: openct/proto-t1.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-proto-t1.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-proto-t1.Tpo -c -o libccidtwin_la-proto-t1.lo `test -f 'openct/proto-t1.c' || echo '$(srcdir)/'`openct/proto-t1.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-proto-t1.Tpo $(DEPDIR)/libccidtwin_la-proto-t1.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='openct/proto-t1.c' object='libccidtwin_la-proto-t1.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-proto-t1.lo `test -f 'openct/proto-t1.c' || echo '$(srcdir)/'`openct/proto-t1.c
 
 parse-parse.o: parse.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(parse_CFLAGS) $(CFLAGS) -MT parse-parse.o -MD -MP -MF $(DEPDIR)/parse-parse.Tpo -c -o parse-parse.o `test -f 'parse.c' || echo '$(srcdir)/'`parse.c
