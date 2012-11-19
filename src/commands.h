@@ -25,21 +25,10 @@
 #define STATUS_OFFSET 7
 #define ERROR_OFFSET 8
 #define CHAIN_PARAMETER_OFFSET 9
+#define RUTOKEN_ATR_LEN	19
 
 RESPONSECODE CmdPowerOn(unsigned int reader_index, unsigned int * nlength,
 	unsigned char buffer[], int voltage);
-
-RESPONSECODE SecurePINVerify(unsigned int reader_index,
-	unsigned char TxBuffer[], unsigned int TxLength,
-	unsigned char RxBuffer[], unsigned int *RxLength);
-
-RESPONSECODE SecurePINModify(unsigned int reader_index,
-	unsigned char TxBuffer[], unsigned int TxLength,
-	unsigned char RxBuffer[], unsigned int *RxLength);
-
-RESPONSECODE CmdEscape(unsigned int reader_index,
-	const unsigned char TxBuffer[], unsigned int TxLength,
-	unsigned char RxBuffer[], unsigned int *RxLength);
 
 RESPONSECODE CmdPowerOff(unsigned int reader_index);
 
@@ -55,9 +44,6 @@ RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length,
 
 RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
 	unsigned char rx_buffer[], unsigned char *chain_parameter);
-
-RESPONSECODE SetParameters(unsigned int reader_index, char protocol,
-	unsigned int length, unsigned char buffer[]);
 
 int isCharLevel(int reader_index);
 
