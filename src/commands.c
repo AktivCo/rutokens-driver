@@ -71,6 +71,10 @@ RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
 
 RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[]);
 
+RESPONSECODE CmdTranslateTxBuffer(const ifd_iso_apdu_t* iso, unsigned int tx_length, unsigned char tx_buffer[], unsigned char** send_buf_trn);
+
+RESPONSECODE CmdTranslateRxBuffer(const ifd_iso_apdu_t* iso, unsigned int *rx_length, unsigned char rx_buffer[], int rrecv);
+
 static RESPONSECODE CmdXfrBlockCHAR_T0(unsigned int reader_index, unsigned int
 	tx_length, unsigned char tx_buffer[], unsigned int *rx_length, unsigned
 	char rx_buffer[]);
@@ -219,6 +223,122 @@ RESPONSECODE CmdIccPresence(unsigned int reader_index,
 
 /*****************************************************************************
  *
+ *					CmdTranslateTxBuffer
+ *
+ ****************************************************************************/
+RESPONSECODE CmdTranslateTxBuffer(const ifd_iso_apdu_t* iso, unsigned int tx_length, unsigned char tx_buffer[], unsigned char** send_buf_trn)
+{
+	int len;
+	*send_buf_trn = NULL;
+
+	if (iso->cla == 0 && tx_length > 5)
+	{
+		*send_buf_trn = malloc(tx_length);
+		if (!send_buf_trn)
+		{
+			DEBUG_INFO2("out of memory (tx_length = %u)", tx_length);
+			return IFD_COMMUNICATION_ERROR;
+		}
+		memcpy(*send_buf_trn, tx_buffer, tx_length);
+		/* select file, delete file */
+		if (iso->ins == 0xa4 || iso->ins == 0xe4)
+			swap_pair(*send_buf_trn + 5, tx_length - 5);
+		/* create file */
+		else if (iso->ins == 0xe0)
+		{
+			len = convert_fcp_to_rtprot(send_buf_trn + 5, tx_length - 5);
+			DEBUG_INFO2("convert_fcp_to_rtprot = %i", len);
+			if (len > 0)
+			{
+				tx_length = len + 5;
+				(*send_buf_trn)[4] = len; /* replace le */
+			}
+		}
+		/* create_do, key_gen */
+		else if (iso->ins == 0xda && iso->p1 == 1	&& (iso->p2 == 0x65 || iso->p2 == 0x62))
+		{
+			len = convert_doinfo_to_rtprot(*send_buf_trn + 5, tx_length - 5);
+			DEBUG_INFO2("convert_doinfo_to_rtprot = %i", len);
+			if (len > 0)
+			{
+				tx_length = len + 5;
+				(*send_buf_trn)[4] = len; /* replace le */
+			}
+		}
+		DEBUG_INFO2("le = %u", (*send_buf_trn)[4]);
+	}
+	return IFD_SUCCESS;
+}/* CmdTranslateTxBuffer */
+
+
+/*****************************************************************************
+ *
+ *					CmdTranslateRxBuffer
+ *
+ ****************************************************************************/
+RESPONSECODE CmdTranslateRxBuffer(const ifd_iso_apdu_t* iso, unsigned int *rx_length, unsigned char rx_buffer[], int rrecv)
+{
+	int len;
+	unsigned char sw[2];
+
+	if (rrecv > 0 && (size_t)rrecv >= sizeof(sw))
+	{
+		memcpy(sw, (unsigned char*)rx_buffer + rrecv - sizeof(sw), sizeof(sw));
+		if (sw[0] != 0x90 || sw[1] != 0)
+			/* do nothing */;
+		/* select file */
+		else if (iso->cla == 0 && iso->ins == 0xa4 && rrecv == sizeof(sw) + 32 /* size rtprot */)
+		{
+			len = convert_rtprot_to_fcp(rx_buffer, *rx_length);
+			DEBUG_INFO2("convert_rtprot_to_fcp = %i", len);
+			if (len > 0)
+			{
+				rrecv = -1;
+				if (*rx_length >= len + sizeof(sw))
+				{
+					memcpy((unsigned char*)rx_buffer+len, sw, sizeof(sw));
+					rrecv = len + sizeof(sw);
+				}
+			}
+		}
+		/* get_do_info */
+		else if (iso->cla == 0x80 && iso->ins == 0x30	&& (size_t)rrecv >= sizeof(sw) + 32 /* size rtprot */)
+		{
+			len = convert_rtprot_to_doinfo(rx_buffer, *rx_length);
+			DEBUG_INFO2("convert_rtprot_to_doinfo = %i", len);
+			if (len > 0)
+			{
+				rrecv = -1;
+				if (*rx_length >= len + sizeof(sw))
+				{
+					memcpy((unsigned char*)rx_buffer+len, sw, sizeof(sw));
+					rrecv = len + sizeof(sw);
+				}
+			}
+		}
+		else if (iso->cla == 0 && iso->ins == 0xca && iso->p1 == 1)
+		{
+			/* get_serial, get_free_mem */
+			if (iso->p2 == 0x81 || iso->p2 == 0x8a)
+				swap_four(rx_buffer, rrecv - sizeof(sw));
+			/* get_current_ef */
+			else if (iso->p2 == 0x11)
+				swap_pair(rx_buffer, rrecv - sizeof(sw));
+		}
+		*rx_length = rrecv;
+	}
+	else
+	{
+		*rx_length = 0;
+		return IFD_COMMUNICATION_ERROR;
+	}
+
+	return IFD_SUCCESS;
+}/* CmdTranslateRxBuffer */
+
+
+/*****************************************************************************
+ *
  *					CmdXfrBlock
  *
  ****************************************************************************/
@@ -235,49 +355,26 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 		return IFD_PROTOCOL_NOT_SUPPORTED;
 	}
 
-	unsigned char sw[2], *send_buf_trn = NULL;
+	unsigned char *send_buf_trn = NULL;
 	const void *send_buf = tx_buffer;
-	int len, rrecv = -1, iscase4 = 0;
+	int r, rrecv = -1, iscase4 = 0;
 	ifd_iso_apdu_t iso;
 
-	DEBUG_INFO3("buffer %s *rx_length = %d", array_hexdump(tx_buffer, tx_length), *rx_length);
+	DEBUG_INFO3("buffer %s; *rx_length = %d", array_hexdump(tx_buffer, tx_length), *rx_length);
+
 	if ( ifd_iso_apdu_parse(tx_buffer, tx_length, &iso) < 0)
 		return IFD_COMMUNICATION_ERROR;
 	DEBUG_INFO2("iso.le = %d", iso.le);
 
-	if (iso.cla == 0 && tx_length > 5) {
-		send_buf_trn = malloc(tx_length);
-		if (!send_buf_trn) {
-			DEBUG_INFO2("out of memory (tx_length = %u)", tx_length);
-			return IFD_COMMUNICATION_ERROR;
-		}
-		memcpy(send_buf_trn, tx_buffer, tx_length);
-		/* select file, delete file */
-		if (iso.ins == 0xa4 || iso.ins == 0xe4)
-			swap_pair(send_buf_trn + 5, tx_length - 5);
-		/* create file */
-		else if (iso.ins == 0xe0) {
-			len = convert_fcp_to_rtprot(send_buf_trn + 5, tx_length - 5);
-			DEBUG_INFO2("convert_fcp_to_rtprot = %i", len);
-			if (len > 0) {
-				tx_length = len + 5;
-				send_buf_trn[4] = len; /* replace le */
-			}
-		}
-		/* create_do, key_gen */
-		else if (iso.ins == 0xda && iso.p1 == 1
-				&& (iso.p2 == 0x65 || iso.p2 == 0x62)) {
-			len = convert_doinfo_to_rtprot(send_buf_trn + 5, tx_length - 5);
-			DEBUG_INFO2("convert_doinfo_to_rtprot = %i", len);
-			if (len > 0) {
-				tx_length = len + 5;
-				send_buf_trn[4] = len; /* replace le */
-			}
-		}
-		DEBUG_INFO2("le = %u", send_buf_trn[4]);
+	r = CmdTranslateTxBuffer(&iso, tx_length, tx_buffer, &send_buf_trn);
+	if(r != IFD_SUCCESS)
+		return r;
+
+	if(send_buf_trn)
 		send_buf = send_buf_trn;
-	}
-	switch(iso.cse){
+
+	switch(iso.cse)
+	{
 		case	IFD_APDU_CASE_2S:
 		case	IFD_APDU_CASE_3S:
 			if (iso.cla == 0 && iso.ins == 0xa4)
@@ -294,54 +391,11 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 		default:
 			break;
 	}
+
 	if (send_buf_trn)
 		free(send_buf_trn);
 
-	if (rrecv > 0 && (size_t)rrecv >= sizeof(sw)) {
-		memcpy(sw, (unsigned char*)rx_buffer + rrecv - sizeof(sw), sizeof(sw));
-		if (sw[0] != 0x90 || sw[1] != 0)
-			/* do nothing */;
-		/* select file */
-		else if (iso.cla == 0 && iso.ins == 0xa4
-				&& rrecv == sizeof(sw) + 32 /* size rtprot */) {
-			len = convert_rtprot_to_fcp(rx_buffer, *rx_length);
-			DEBUG_INFO2("convert_rtprot_to_fcp = %i", len);
-			if (len > 0) {
-				rrecv = -1;
-				if (*rx_length >= len + sizeof(sw)) {
-					memcpy((unsigned char*)rx_buffer+len, sw, sizeof(sw));
-					rrecv = len + sizeof(sw);
-				}
-			}
-		}
-		/* get_do_info */
-		else if (iso.cla == 0x80 && iso.ins == 0x30
-				&& (size_t)rrecv >= sizeof(sw) + 32 /* size rtprot */) {
-			len = convert_rtprot_to_doinfo(rx_buffer, *rx_length);
-			DEBUG_INFO2("convert_rtprot_to_doinfo = %i", len);
-			if (len > 0) {
-				rrecv = -1;
-				if (*rx_length >= len + sizeof(sw)) {
-					memcpy((unsigned char*)rx_buffer+len, sw, sizeof(sw));
-					rrecv = len + sizeof(sw);
-				}
-			}
-		}
-		else if (iso.cla == 0 && iso.ins == 0xca && iso.p1 == 1) {
-			/* get_serial, get_free_mem */
-			if (iso.p2 == 0x81 || iso.p2 == 0x8a)
-				swap_four(rx_buffer, rrecv - sizeof(sw));
-			/* get_current_ef */
-			else if (iso.p2 == 0x11)
-				swap_pair(rx_buffer, rrecv - sizeof(sw));
-		}
-		*rx_length = rrecv;
-	}
-	else{
-		*rx_length = 0;
-		return_value = IFD_COMMUNICATION_ERROR;
-	}
-	return return_value;
+	return CmdTranslateRxBuffer(&iso, rx_length, rx_buffer, rrecv);
 } /* CmdXfrBlock */
 
 
