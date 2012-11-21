@@ -56,18 +56,14 @@
 
 #define max( a, b )   ( ( ( a ) > ( b ) ) ? ( a ) : ( b ) )
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-#define IFD_ERROR_INSUFFICIENT_BUFFER 700
 
 /* internal functions */
 
-RESPONSECODE CmdGetSlotStatus(unsigned int reader_index,
-	unsigned char* status);
+RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status);
 
-RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length,
-	const unsigned char tx_buffer[]);
+RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length, const unsigned char tx_buffer[]);
 
-RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
-	unsigned char rx_buffer[]);
+RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length, unsigned char rx_buffer[]);
 
 RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[]);
 
@@ -75,15 +71,10 @@ RESPONSECODE CmdTranslateTxBuffer(const ifd_iso_apdu_t* iso, unsigned int tx_len
 
 RESPONSECODE CmdTranslateRxBuffer(const ifd_iso_apdu_t* iso, unsigned int *rx_length, unsigned char rx_buffer[], int rrecv);
 
-static RESPONSECODE CmdXfrBlockCHAR_T0(unsigned int reader_index, unsigned int
-	tx_length, unsigned char tx_buffer[], unsigned int *rx_length, unsigned
-	char rx_buffer[]);
+RESPONSECODE CmdPrepareT0Hdr(ifd_iso_apdu_t* iso, unsigned char hdr[]);
 
-static int rutoken_send_tpducomand(unsigned int reader_index, const void *sbuf,
-		size_t slen, void *rbuf, size_t rlen, int iscase4);
-static int rutoken_transparent( unsigned int reader_index,
-		const void *sbuf, size_t slen,
-		void *rbuf, size_t rlen);
+RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
+		size_t slen, void *rbuf, size_t rlen, int *rrecv, int iscase4);
 
 
 /*****************************************************************************
@@ -154,7 +145,7 @@ RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status)
 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
 	int r;
 
-	r = ControlUSB(reader_index, 0xC1, USB_ICC_GET_STATUS, 0, status, sizeof(*status)); 
+	r = ControlUSB(reader_index, 0xC1, USB_ICC_GET_STATUS, 0, status, sizeof(*status));
 	/* we got an error? */
 	if (r < 0)
 	{
@@ -171,7 +162,7 @@ RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status)
 		DEBUG_INFO2("Busy: 0x%02X", *status);
 		for (i = 0; i < 200; i++)
 		{
-			do 
+			do
 			{
 				usleep(10000);  /* 10 ms */
 				prev_status = *status;
@@ -380,13 +371,13 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 			if (iso.cla == 0 && iso.ins == 0xa4)
 				iscase4 = 1; /* FIXME: */
 		case	IFD_APDU_CASE_1:
-			rrecv = rutoken_send_tpducomand(reader_index, send_buf, tx_length,
-					rx_buffer, *rx_length, iscase4);
+			r = CmdSendTPDU(reader_index, send_buf, tx_length,
+					rx_buffer, *rx_length, &rrecv, iscase4);
 			break;
 		case	IFD_APDU_CASE_4S:
 			// make send case 4 command
-			rrecv = rutoken_send_tpducomand(reader_index, send_buf, tx_length-1,
-					rx_buffer, *rx_length, 1);
+			r = CmdSendTPDU(reader_index, send_buf, tx_length-1,
+					rx_buffer, *rx_length, &rrecv, 1);
 			break;
 		default:
 			break;
@@ -394,6 +385,12 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 
 	if (send_buf_trn)
 		free(send_buf_trn);
+
+	if(r != IFD_SUCCESS)
+	{
+		*rx_length = 0;
+		return r;
+	}
 
 	return CmdTranslateRxBuffer(&iso, rx_length, rx_buffer, rrecv);
 } /* CmdXfrBlock */
@@ -495,24 +492,9 @@ RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[])
 }/* CCID_Receive_SW */
 
 
-// return how mach byte send
-// sbuf - APDU bufer
-// slen
-static int rutoken_send_tpducomand(unsigned int reader_index, const void *sbuf,
-		size_t slen, void *rbuf, size_t rlen, int iscase4)
+RESPONSECODE CmdPrepareT0Hdr(ifd_iso_apdu_t* iso, unsigned char hdr[])
 {
-	int rrecv = 0;
-	int r = 0;
-	unsigned char status;
-	unsigned char sw[2];
-	ifd_iso_apdu_t iso;
-	DEBUG_INFO3("send tpdu command %s, len: %d", array_hexdump(sbuf, slen), slen);
-	
-	if ( ifd_iso_apdu_parse(sbuf, slen, &iso) < 0)
-		return -1;
-	
-	unsigned char hdr[T0_HDR_LEN]={iso.cla, iso.ins, iso.p1, iso.p2, 0};
-	switch(iso.cse){
+	switch(iso->cse){
 		case	IFD_APDU_CASE_1:
 			// {cla, ins, p1, p2, 0};
 			DEBUG_INFO("case 1");
@@ -522,59 +504,91 @@ static int rutoken_send_tpducomand(unsigned int reader_index, const void *sbuf,
 			// Rutoken Bug!!!
 			DEBUG_INFO("case 2");
 			/* select file */
-			if (iso.cla == 0 && iso.ins == 0xa4)
-				iso.le = 0x20;
+			if (iso->cla == 0 && iso->ins == 0xa4)
+				iso->le = 0x20;
 			/* get_do_info */
-			else if (iso.cla == 0x80 && iso.ins == 0x30)
-				iso.le = 0xff;
-			hdr[4] = iso.le;
+			else if (iso->cla == 0x80 && iso->ins == 0x30)
+				iso->le = 0xff;
+			hdr[4] = iso->le;
 			break;
 		case    IFD_APDU_CASE_3S:
 			// {cla, ins, p1, p2, lc};
 			DEBUG_INFO("case 3");
-			hdr[4] = iso.lc;
+			hdr[4] = iso->lc;
 			break;
 		default:
 			break;
 	}
+	return IFD_SUCCESS;
+}
+
+// return in *rrecv how much bytes received
+// sbuf - APDU buffer
+// slen
+RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
+		size_t slen, void *rbuf, size_t rlen, int *rrecv, int iscase4)
+{
+	int r = 0;
+	unsigned char status;
+	unsigned char sw[2];
+	ifd_iso_apdu_t iso;
+	DEBUG_INFO3("send tpdu command %s, len: %d", array_hexdump(sbuf, slen), slen);
+
+	*rrecv = 0;
+	
+	if ( ifd_iso_apdu_parse(sbuf, slen, &iso) < 0 )
+		return IFD_COMMUNICATION_ERROR;
+
+	unsigned char hdr[T0_HDR_LEN]={iso.cla, iso.ins, iso.p1, iso.p2, 0};
+	CmdPrepareT0Hdr(&iso, hdr);
+	
 	//send TPDU header
-	
-	if (CCID_Transmit(reader_index, T0_HDR_LEN, hdr) != IFD_SUCCESS)
-		return -1;
-	
-	// send TPDU data or get answere and sw
-	switch(iso.cse){
+	r = CCID_Transmit(reader_index, T0_HDR_LEN, hdr);
+	if ( r != IFD_SUCCESS)
+		return r;
+
+	// send TPDU data or get answer and sw
+	switch(iso.cse)
+	{
 		case	IFD_APDU_CASE_1:
 			// get sw
-			if (CCID_Receive_SW(reader_index, sw) != IFD_SUCCESS)
-				return -2;
+			r = CCID_Receive_SW(reader_index, sw);
+			if (r != IFD_SUCCESS)
+				return r;
 			break;
 		case    IFD_APDU_CASE_2S:
 		{
 			// get answere
-			DEBUG_INFO("get Data");
 			DEBUG_INFO2("get Data %d", iso.le);
-			if((CmdGetSlotStatus(reader_index, &status) == IFD_SUCCESS) && (status == ICC_STATUS_READY_DATA))
+
+			r = CmdGetSlotStatus(reader_index, &status);
+			if(r!= IFD_SUCCESS)
+				return r;
+
+			if(status == ICC_STATUS_READY_DATA)
 			{
-				rrecv = iso.le;
-				r = CCID_Receive(reader_index, &rrecv, rbuf);
+				*rrecv = iso.le;
+				r = CCID_Receive(reader_index, rrecv, rbuf);
 				if (r != IFD_SUCCESS)
-					return -2;
-				DEBUG_INFO2("get TPDU Anser %s",
-						array_hexdump(rbuf, iso.le));
+					return r;
+				DEBUG_INFO2("get TPDU Anser %s", array_hexdump(rbuf, iso.le));
 			}
-			if (CCID_Receive_SW(reader_index, sw) != IFD_SUCCESS)
-				return -2;
-			if ( sw[0] == 0x67) {
+
+			r = CCID_Receive_SW(reader_index, sw);
+			if (r != IFD_SUCCESS)
+				return r;
+
+			if (sw[0] == 0x67)
+			{
 				// Le definitely not accepted
 				break;
 			}
-			if ( (sw[0] == 0x6c) ) {
+			if (sw[0] == 0x6c)
+			{
 				unsigned char sbuftmp[slen];
 				memcpy(sbuftmp, sbuf, slen);
 				sbuftmp[4] = sw[1];
-				return rutoken_send_tpducomand(reader_index, sbuftmp,
-						slen, rbuf,  rlen, 0);
+				return CmdSendTPDU(reader_index, sbuftmp, slen, rbuf,  rlen, rrecv, 0);
 			}
 		};
 			break;
@@ -582,16 +596,23 @@ static int rutoken_send_tpducomand(unsigned int reader_index, const void *sbuf,
 			// send data
 			DEBUG_INFO2("send Data %d", iso.lc);
 			
-			if((CmdGetSlotStatus(reader_index, &status) == IFD_SUCCESS ) && (status == ICC_STATUS_READY_DATA))
+			r = CmdGetSlotStatus(reader_index, &status);
+			if (r != IFD_SUCCESS)
+					return r;
+
+			if(status == ICC_STATUS_READY_DATA)
 			{
-				DEBUG_INFO2("send TPDU Data %s",
-						array_hexdump(iso.data, iso.lc));
-				if (CCID_Transmit(reader_index, iso.lc, iso.data) != IFD_SUCCESS)
-					return -4;
-			} else return -3;
+				DEBUG_INFO2("send TPDU Data %s", array_hexdump(iso.data, iso.lc));
+				r = CCID_Transmit(reader_index, iso.lc, iso.data);
+				if (r != IFD_SUCCESS)
+					return r;
+			}
+			else
+				return IFD_COMMUNICATION_ERROR;
 			// get sw
-			if (CCID_Receive_SW(reader_index, sw) != IFD_SUCCESS)
-				return -2;
+			r = CCID_Receive_SW(reader_index, sw);
+			if (r != IFD_SUCCESS)
+				return r;
 
 			// NOT STANDART TPDU!!! BEGIN
 			if ( sw[0]== 0x61){
@@ -602,12 +623,16 @@ static int rutoken_send_tpducomand(unsigned int reader_index, const void *sbuf,
 				hdr[3] = 0; // p2
 				hdr[4] = lx ; //lx (case 2)
 				if(iscase4)
-					return rutoken_send_tpducomand(reader_index, hdr,
-							T0_HDR_LEN, rbuf, rlen, 0);
+					return CmdSendTPDU(reader_index, hdr,
+							T0_HDR_LEN, rbuf, rlen, rrecv, 0);
 				else {
-					int recvtmp = rutoken_send_tpducomand(reader_index,
-							hdr, T0_HDR_LEN, rbuf, rlen, 0);
-					rrecv = 0;
+					int recvtmp;
+					r = CmdSendTPDU(reader_index,
+							hdr, T0_HDR_LEN, rbuf, rlen, &recvtmp, 0);
+					if(r != IFD_SUCCESS)
+						return r;
+
+					*rrecv = 0;
 					memcpy(sw, (unsigned char*)rbuf+recvtmp-2, 2);
 					break;
 				}
@@ -621,128 +646,19 @@ static int rutoken_send_tpducomand(unsigned int reader_index, const void *sbuf,
 				hdr[3] = 0; // p2
 				hdr[4] = iso.le; // le (case 2)
 				if(iscase4)
-					return rutoken_send_tpducomand(reader_index, hdr,
-							T0_HDR_LEN, rbuf, rlen, 0);
+					return CmdSendTPDU(reader_index, hdr, T0_HDR_LEN, rbuf, rlen, rrecv, 0);
 			}
-			// NOT STANDART TPDU!!! END
 
+			// NOT STANDART TPDU!!! END
 			break;
 		default:
 			break;
 	}
 	// Add SW to respond
-	DEBUG_INFO("add SW");
-	DEBUG_INFO2("add SW, rrecv=%d",rrecv);
-	memcpy(((char *)rbuf)+rrecv, sw, 2);
-	rrecv+=2;
-	DEBUG_INFO2("recv %d bytes", rrecv);
-	return rrecv;
-}
+	DEBUG_INFO2("before add SW, rrecv=%d",rrecv);
+	memcpy(((char *)rbuf)+*rrecv, sw, 2);
+	*rrecv+=2;
+	DEBUG_INFO2("recv %d bytes", *rrecv);
 
-static int rutoken_transparent( unsigned int reader_index,
-		const void *sbuf, size_t slen,
-		void *rbuf, size_t rlen)
-{
-	unsigned char sw[2], *send_buf_trn = NULL;
-	const void *send_buf = sbuf;
-	int len, rrecv = -1, iscase4 = 0;
-	ifd_iso_apdu_t iso;
-
-	DEBUG_INFO3("buffer %s rlen = %d", array_hexdump(sbuf, slen), rlen);
-	if ( ifd_iso_apdu_parse(sbuf, slen, &iso) < 0)
-		return -1;
-	DEBUG_INFO2("iso.le = %d", iso.le);
-
-	if (iso.cla == 0 && slen > 5) {
-		send_buf_trn = malloc(slen);
-		if (!send_buf_trn) {
-			DEBUG_INFO2("out of memory (slen = %u)", slen);
-			return -1;
-		}
-		memcpy(send_buf_trn, sbuf, slen);
-		/* select file, delete file */
-		if (iso.ins == 0xa4 || iso.ins == 0xe4)
-			swap_pair(send_buf_trn + 5, slen - 5);
-		/* create file */
-		else if (iso.ins == 0xe0) {
-			len = convert_fcp_to_rtprot(send_buf_trn + 5, slen - 5);
-			DEBUG_INFO2("convert_fcp_to_rtprot = %i", len);
-			if (len > 0) {
-				slen = len + 5;
-				send_buf_trn[4] = len; /* replace le */
-			}
-		}
-		/* create_do, key_gen */
-		else if (iso.ins == 0xda && iso.p1 == 1
-				&& (iso.p2 == 0x65 || iso.p2 == 0x62)) {
-			len = convert_doinfo_to_rtprot(send_buf_trn + 5, slen - 5);
-			DEBUG_INFO2("convert_doinfo_to_rtprot = %i", len);
-			if (len > 0) {
-				slen = len + 5;
-				send_buf_trn[4] = len; /* replace le */
-			}
-		}
-		DEBUG_INFO2("le = %u", send_buf_trn[4]);
-		send_buf = send_buf_trn;
-	}
-	switch(iso.cse){
-		case	IFD_APDU_CASE_2S:
-		case	IFD_APDU_CASE_3S:
-			if (iso.cla == 0 && iso.ins == 0xa4)
-				iscase4 = 1; /* FIXME: */
-		case	IFD_APDU_CASE_1:
-			rrecv = rutoken_send_tpducomand(reader_index, send_buf, slen,
-					rbuf, rlen, iscase4);
-			break;
-		case	IFD_APDU_CASE_4S:
-			// make send case 4 command
-			rrecv = rutoken_send_tpducomand(reader_index, send_buf, slen-1,
-					rbuf, rlen, 1);
-			break;
-		default:
-			break;
-	}
-	if (send_buf_trn)
-		free(send_buf_trn);
-
-	if (rrecv > 0 && (size_t)rrecv >= sizeof(sw)) {
-		memcpy(sw, (unsigned char*)rbuf + rrecv - sizeof(sw), sizeof(sw));
-		if (sw[0] != 0x90 || sw[1] != 0)
-			/* do nothing */;
-		/* select file */
-		else if (iso.cla == 0 && iso.ins == 0xa4
-				&& rrecv == sizeof(sw) + 32 /* size rtprot */) {
-			len = convert_rtprot_to_fcp(rbuf, rlen);
-			DEBUG_INFO2("convert_rtprot_to_fcp = %i", len);
-			if (len > 0) {
-				rrecv = -1;
-				if (rlen >= len + sizeof(sw)) {
-					memcpy((unsigned char*)rbuf+len, sw, sizeof(sw));
-					rrecv = len + sizeof(sw);
-				}
-			}
-		}
-		/* get_do_info */
-		else if (iso.cla == 0x80 && iso.ins == 0x30
-				&& (size_t)rrecv >= sizeof(sw) + 32 /* size rtprot */) {
-			len = convert_rtprot_to_doinfo(rbuf, rlen);
-			DEBUG_INFO2("convert_rtprot_to_doinfo = %i", len);
-			if (len > 0) {
-				rrecv = -1;
-				if (rlen >= len + sizeof(sw)) {
-					memcpy((unsigned char*)rbuf+len, sw, sizeof(sw));
-					rrecv = len + sizeof(sw);
-				}
-			}
-		}
-		else if (iso.cla == 0 && iso.ins == 0xca && iso.p1 == 1) {
-			/* get_serial, get_free_mem */
-			if (iso.p2 == 0x81 || iso.p2 == 0x8a)
-				swap_four(rbuf, rrecv - sizeof(sw));
-			/* get_current_ef */
-			else if (iso.p2 == 0x11)
-				swap_pair(rbuf, rrecv - sizeof(sw));
-		}
-	}
-	return rrecv;
+	return IFD_SUCCESS;
 }
