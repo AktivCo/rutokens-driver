@@ -67,7 +67,7 @@ RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length, un
 
 RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[]);
 
-RESPONSECODE CmdTranslateTxBuffer(const ifd_iso_apdu_t* iso, unsigned int tx_length, unsigned char tx_buffer[], unsigned char** send_buf_trn);
+RESPONSECODE CmdTranslateTxBuffer(const ifd_iso_apdu_t* iso, unsigned int *tx_length, unsigned char tx_buffer[], unsigned char** send_buf_trn);
 
 RESPONSECODE CmdTranslateRxBuffer(const ifd_iso_apdu_t* iso, unsigned int *rx_length, unsigned char rx_buffer[], int rrecv);
 
@@ -217,42 +217,42 @@ RESPONSECODE CmdIccPresence(unsigned int reader_index,
  *					CmdTranslateTxBuffer
  *
  ****************************************************************************/
-RESPONSECODE CmdTranslateTxBuffer(const ifd_iso_apdu_t* iso, unsigned int tx_length, unsigned char tx_buffer[], unsigned char** send_buf_trn)
+RESPONSECODE CmdTranslateTxBuffer(const ifd_iso_apdu_t* iso, unsigned int* tx_length, unsigned char tx_buffer[], unsigned char** send_buf_trn)
 {
 	int len;
 	*send_buf_trn = NULL;
 
-	if (iso->cla == 0 && tx_length > 5)
+	if (iso->cla == 0 && *tx_length > 5)
 	{
-		*send_buf_trn = malloc(tx_length);
+		*send_buf_trn = malloc(*tx_length);
 		if (!send_buf_trn)
 		{
-			DEBUG_INFO2("out of memory (tx_length = %u)", tx_length);
+			DEBUG_INFO2("out of memory (tx_length = %u)", *tx_length);
 			return IFD_COMMUNICATION_ERROR;
 		}
-		memcpy(*send_buf_trn, tx_buffer, tx_length);
+		memcpy(*send_buf_trn, tx_buffer, *tx_length);
 		/* select file, delete file */
 		if (iso->ins == 0xa4 || iso->ins == 0xe4)
-			swap_pair(*send_buf_trn + 5, tx_length - 5);
+			swap_pair(*send_buf_trn + 5, *tx_length - 5);
 		/* create file */
 		else if (iso->ins == 0xe0)
 		{
-			len = convert_fcp_to_rtprot(send_buf_trn + 5, tx_length - 5);
+			len = convert_fcp_to_rtprot(*send_buf_trn + 5, *tx_length - 5);
 			DEBUG_INFO2("convert_fcp_to_rtprot = %i", len);
 			if (len > 0)
 			{
-				tx_length = len + 5;
+				*tx_length = len + 5;
 				(*send_buf_trn)[4] = len; /* replace le */
 			}
 		}
 		/* create_do, key_gen */
 		else if (iso->ins == 0xda && iso->p1 == 1	&& (iso->p2 == 0x65 || iso->p2 == 0x62))
 		{
-			len = convert_doinfo_to_rtprot(*send_buf_trn + 5, tx_length - 5);
+			len = convert_doinfo_to_rtprot(*send_buf_trn + 5, *tx_length - 5);
 			DEBUG_INFO2("convert_doinfo_to_rtprot = %i", len);
 			if (len > 0)
 			{
-				tx_length = len + 5;
+				*tx_length = len + 5;
 				(*send_buf_trn)[4] = len; /* replace le */
 			}
 		}
@@ -357,7 +357,7 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 		return IFD_COMMUNICATION_ERROR;
 	DEBUG_INFO2("iso.le = %d", iso.le);
 
-	r = CmdTranslateTxBuffer(&iso, tx_length, tx_buffer, &send_buf_trn);
+	r = CmdTranslateTxBuffer(&iso, &tx_length, tx_buffer, &send_buf_trn);
 	if(r != IFD_SUCCESS)
 		return r;
 
@@ -492,6 +492,11 @@ RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[])
 }/* CCID_Receive_SW */
 
 
+/*****************************************************************************
+ *
+ *					CmdPrepareT0Hdr
+ *
+ ****************************************************************************/
 RESPONSECODE CmdPrepareT0Hdr(ifd_iso_apdu_t* iso, unsigned char hdr[])
 {
 	switch(iso->cse){
@@ -520,11 +525,14 @@ RESPONSECODE CmdPrepareT0Hdr(ifd_iso_apdu_t* iso, unsigned char hdr[])
 			break;
 	}
 	return IFD_SUCCESS;
-}
+}/* CmdPrepareT0Hdr */
 
-// return in *rrecv how much bytes received
-// sbuf - APDU buffer
-// slen
+/*****************************************************************************
+ *
+ *					CmdSendTPDU
+ *
+ *  return in *rrecv how much bytes received
+ ****************************************************************************/
 RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
 		size_t slen, void *rbuf, size_t rlen, int *rrecv, int iscase4)
 {
@@ -661,4 +669,4 @@ RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
 	DEBUG_INFO2("recv %d bytes", *rrecv);
 
 	return IFD_SUCCESS;
-}
+}/* CmdSendTPDU */
