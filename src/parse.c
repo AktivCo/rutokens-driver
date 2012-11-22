@@ -30,6 +30,7 @@
 #include <errno.h>
 
 #include "defs.h"
+#include "ccid_usb.h"
 #include "ccid.h"
 
 #ifndef TRUE

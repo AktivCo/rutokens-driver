@@ -31,6 +31,7 @@
 
 #include "ccid.h"
 #include "defs.h"
+#include "ccid_usb.h"
 #include "ccid_ifdhandler.h"
 #include "debug.h"
 #include "utils.h"
@@ -81,7 +82,7 @@ EXTERNAL RESPONSECODE IFDHCreateChannelByName(DWORD Lun, LPSTR lpcDevice)
 	pthread_mutex_lock(&ifdh_context_mutex);
 #endif
 
-	if (OpenPortByName(reader_index, lpcDevice) != STATUS_SUCCESS)
+	if (OpenUSBByName(reader_index, lpcDevice) != STATUS_SUCCESS)
 	{
 		DEBUG_CRITICAL("failed");
 		return_value = IFD_COMMUNICATION_ERROR;
@@ -173,7 +174,7 @@ EXTERNAL RESPONSECODE IFDHCreateChannel(DWORD Lun, DWORD Channel)
 	pthread_mutex_lock(&ifdh_context_mutex);
 #endif
 
-	if (OpenPort(reader_index, Channel) != STATUS_SUCCESS)
+	if (OpenUSB(reader_index, Channel) != STATUS_SUCCESS)
 	{
 		DEBUG_CRITICAL("failed");
 		return_value = IFD_COMMUNICATION_ERROR;
@@ -220,7 +221,7 @@ EXTERNAL RESPONSECODE IFDHCloseChannel(DWORD Lun)
 	pthread_mutex_lock(&ifdh_context_mutex);
 #endif
 
-	(void)ClosePort(reader_index);
+	(void)CloseUSB(reader_index);
 	ReleaseReaderIndex(reader_index);
 
 #ifdef HAVE_PTHREAD

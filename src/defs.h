@@ -85,26 +85,3 @@ typedef enum {
 /* Default communication read timeout in seconds */
 #define DEFAULT_COM_READ_TIMEOUT 2
 
-/*
- * communication ports abstraction
- */
-#ifdef TWIN_SERIAL
-
-#define OpenPortByName OpenSerialByName
-#define OpenPort OpenSerial
-#define ClosePort CloseSerial
-#define ReadPort ReadSerial
-#define WritePort WriteSerial
-#include "ccid_serial.h"
-
-#else
-
-#define OpenPortByName OpenUSBByName
-#define OpenPort OpenUSB
-#define ClosePort CloseUSB
-#define ReadPort ReadUSB
-#define WritePort WriteUSB
-#include "ccid_usb.h"
-
-#endif
-
