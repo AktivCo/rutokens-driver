@@ -47,10 +47,5 @@ extern int DriverOptions;
  */
 #define CCID_DRIVER_MAX_READERS 16
 
-/*
- * CCID driver specific functions
- */
-CcidDesc *get_ccid_slot(unsigned int reader_index);
-
 #endif
 

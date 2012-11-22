@@ -51,16 +51,10 @@ static pthread_mutex_t ifdh_context_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int LogLevel = DEBUG_LEVEL_CRITICAL | DEBUG_LEVEL_INFO;
 int DriverOptions = 0;
-int PowerOnVoltage = VOLTAGE_5V;
 static int DebugInitialized = FALSE;
 
 /* local functions */
 static void init_driver(void);
-static char find_baud_rate(unsigned int baudrate, unsigned int *list);
-static unsigned int T0_card_timeout(double f, double d, int TC1, int TC2,
-	int clock_frequency);
-static unsigned int T1_card_timeout(double f, double d, int TC1, int BWI,
-	int CWI, int clock_frequency);
 
 
 EXTERNAL RESPONSECODE IFDHCreateChannelByName(DWORD Lun, LPSTR lpcDevice)
@@ -371,9 +365,6 @@ EXTERNAL RESPONSECODE IFDHSetCapabilities(DWORD Lun, DWORD Tag,
 
 	DEBUG_INFO3("lun: %X, tag: 0x%X", Lun, Tag);
 
-	/* if (CheckLun(Lun))
-		return IFD_COMMUNICATION_ERROR; */
-
 	return IFD_NOT_SUPPORTED;
 } /* IFDHSetCapabilities */
 
@@ -411,6 +402,7 @@ EXTERNAL RESPONSECODE IFDHSetProtocolParameters(DWORD Lun, DWORD Protocol,
 	if (-1 == (reader_index = LunToReaderIndex(Lun)))
 		return IFD_COMMUNICATION_ERROR;
 
+	/* No such feature to negotiate anything */
 	return IFD_SUCCESS;
 } /* IFDHSetProtocolParameters */
 
@@ -493,10 +485,6 @@ EXTERNAL RESPONSECODE IFDHPowerICC(DWORD Lun, DWORD Action,
 			if (CmdPowerOn(reader_index, &nlength, pcbuffer)
 				!= IFD_SUCCESS)
 			{
-				/* used by GemCore SIM PRO: no card is present */
-				get_ccid_descriptor(reader_index)->dwSlotStatus
-					= IFD_ICC_NOT_PRESENT;;
-
 				DEBUG_CRITICAL("PowerUp failed");
 				return_value = IFD_ERROR_POWER_ACTION;
 				goto end;
@@ -732,12 +720,6 @@ EXTERNAL RESPONSECODE IFDHICCPresence(DWORD Lun)
 } /* IFDHICCPresence */
 
 
-CcidDesc *get_ccid_slot(unsigned int reader_index)
-{
-	return &CcidSlots[reader_index];
-} /* get_ccid_slot */
-
-
 void init_driver(void)
 {
 	char keyValue[TOKEN_MAX_VALUE_SIZE];
@@ -780,163 +762,9 @@ void init_driver(void)
 		DEBUG_INFO2("DriverOptions: 0x%.4X", DriverOptions);
 	}
 
-	/* get the voltage parameter */
-	switch ((DriverOptions >> 4) & 0x03)
-	{
-		case 0:
-			PowerOnVoltage = VOLTAGE_5V;
-			break;
-
-		case 1:
-			PowerOnVoltage = VOLTAGE_3V;
-			break;
-
-		case 2:
-			PowerOnVoltage = VOLTAGE_1_8V;
-			break;
-
-		case 3:
-			PowerOnVoltage = VOLTAGE_AUTO;
-			break;
-	}
-
 	/* initialise the Lun to reader_index mapping */
 	InitReaderIndex();
 
 	DebugInitialized = TRUE;
 } /* init_driver */
-
-
-static char find_baud_rate(unsigned int baudrate, unsigned int *list)
-{
-	int i;
-
-	DEBUG_COMM2("Card baud rate: %d", baudrate);
-
-	/* Does the reader support the announced smart card data speed? */
-	for (i=0;; i++)
-	{
-		/* end of array marker */
-		if (0 == list[i])
-			break;
-
-		DEBUG_COMM2("Reader can do: %d", list[i]);
-
-		/* We must take into account that the card_baudrate integral value
-		 * is an approximative result, computed from the d/f float result.
-		 */
-		if ((baudrate < list[i] + 2) && (baudrate > list[i] - 2))
-			return TRUE;
-	}
-
-	return FALSE;
-} /* find_baud_rate */
-
-
-static unsigned int T0_card_timeout(double f, double d, int TC1, int TC2,
-	int clock_frequency)
-{
-	unsigned int timeout = DEFAULT_COM_READ_TIMEOUT;
-	double EGT, WWT;
-	unsigned int t;
-
-	/* Timeout applied on ISO_IN or ISO_OUT card exchange
-	 * we choose the maximum computed value.
-	 *
-	 * ISO_IN timeout is the sum of:
-	 * Terminal:					Smart card:
-	 * 5 bytes header cmd  ->
-	 *                    <-		Procedure byte
-	 * 256 data bytes	   ->
-	 * 					  <-		SW1-SW2
-	 * = 261 EGT       + 3 WWT     + 3 WWT
-	 *
-	 * ISO_OUT Timeout is the sum of:
-	 * Terminal:                    Smart card:
-	 * 5 bytes header cmd  ->
-	 * 					  <-        Procedure byte + 256 data bytes + SW1-SW2
-	 * = 5 EGT          + 1 WWT     + 259 WWT
-	 */
-
-	/* clock_frequency is in kHz so the times are in milliseconds and not
-	 * in seconds */
-
-	/* may happen with non ISO cards */
-	if ((0 == f) || (0 == d) || (0 == clock_frequency))
-		return 60;	/* 60 seconds */
-
-	/* EGT */
-	/* see ch. 6.5.3 Extra Guard Time, page 12 of ISO 7816-3 */
-	EGT = 12 * f / d / clock_frequency + (f / d) * TC1 / clock_frequency;
-
-	/* card WWT */
-	/* see ch. 8.2 Character level, page 15 of ISO 7816-3 */
-	WWT = 960 * TC2 * f / clock_frequency;
-
-	/* ISO in */
-	t  = 261 * EGT + (3 + 3) * WWT;
-	/* Convert from milliseonds to seconds rouned to the upper value
-	 * use +1 instead of ceil() to round up to the nearest interger
-	 * so we can avoid a dependency on the math library */
-	t = t/1000 +1;
-	if (timeout < t)
-		timeout = t;
-
-	/* ISO out */
-	t = 5 * EGT + (1 + 259) * WWT;
-	t = t/1000 +1;
-	if (timeout < t)
-		timeout = t;
-
-	return timeout;
-} /* T0_card_timeout  */
-
-
-static unsigned int T1_card_timeout(double f, double d, int TC1,
-	int BWI, int CWI, int clock_frequency)
-{
-	double EGT, BWT, CWT, etu;
-	unsigned int timeout;
-
-	/* Timeout applied on ISO in + ISO out card exchange
-	 *
-     * Timeout is the sum of:
-	 * - ISO in delay between leading edge of the first character sent by the
-	 *   interface device and the last one (NAD PCB LN APDU CKS) = 260 EGT,
-	 * - delay between ISO in and ISO out = BWT,
-	 * - ISO out delay between leading edge of the first character sent by the
-	 *   card and the last one (NAD PCB LN DATAS CKS) = 260 CWT.
-	 */
-
-	/* clock_frequency is in kHz so the times are in milliseconds and not
-	 * in seconds */
-
-	/* may happen with non ISO cards */
-	if ((0 == f) || (0 == d) || (0 == clock_frequency))
-		return 60;	/* 60 seconds */
-
-	/* see ch. 6.5.2 Transmission factors F and D, page 12 of ISO 7816-3 */
-	etu = f / d / clock_frequency;
-
-	/* EGT */
-	/* see ch. 6.5.3 Extra Guard Time, page 12 of ISO 7816-3 */
-	EGT = 12 * etu + (f / d) * TC1 / clock_frequency;
-
-	/* card BWT */
-	/* see ch. 9.5.3.2 Block Waiting Time, page 20 of ISO 7816-3 */
-	BWT = 11 * etu + (1<<BWI) * 960 * 372 / clock_frequency;
-
-	/* card CWT */
-	/* see ch. 9.5.3.1 Caracter Waiting Time, page 20 of ISO 7816-3 */
-	CWT = (11 + (1<<CWI)) * etu;
-
-	timeout = 260*EGT + BWT + 260*CWT;
-
-	/* Convert from milliseonds to seconds rounded to the upper value
-	 * we use +1 instead of ceil() to round up to the nearest greater interger
-	 * so we can avoid a dependency on the math library */
-	timeout = timeout/1000 +1;
-
-	return timeout;
-} /* T1_card_timeout  */
 
