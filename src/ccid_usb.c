@@ -85,7 +85,6 @@ typedef struct
 #include "ccid_usb.h"
 
 static int get_end_points(struct usb_device *dev, _usbDevice *usbdevice);
-int ccid_check_firmware(struct usb_device *dev);
 static unsigned int *get_data_rates(unsigned int reader_index,
 	struct usb_device *dev);
 
@@ -164,8 +163,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 		/* format: usb:%04x/%04x, vendor, product */
 		if (strncmp("usb:", device, 4) != 0)
 		{
-			DEBUG_CRITICAL2("device name does not start with \"usb:\": %s",
-				device);
+			DEBUG_CRITICAL2("device name does not start with \"usb:\": %s", device);
 			return STATUS_UNSUCCESSFUL;
 		}
 
@@ -237,8 +235,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 	}
 	else
 	{
-		DEBUG_INFO2("LTPBundleFindValueWithKey error. Can't find %s?",
-			infofile);
+		DEBUG_INFO2("LTPBundleFindValueWithKey error. Can't find %s?", infofile);
 		return STATUS_UNSUCCESSFUL;
 	}
 	if (!LTPBundleFindValueWithKey(infofile, "ifdProductString", keyValue, 0))
@@ -293,12 +290,10 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 			for (dev = bus->devices; dev; dev = dev->next)
 			{
 				/* device defined by name? */
-				if (dirname && (strcmp(dirname, bus->dirname)
-					|| strcmp(filename, dev->filename)))
+				if (dirname && (strcmp(dirname, bus->dirname) || strcmp(filename, dev->filename)))
 					continue;
 
-				if (dev->descriptor.idVendor == vendorID
-					&& dev->descriptor.idProduct == productID)
+				if (dev->descriptor.idVendor == vendorID && dev->descriptor.idProduct == productID)
 				{
 					int r, already_used;
 					struct usb_interface *usb_interface = NULL;
@@ -307,8 +302,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					/* is it already opened? */
 					already_used = FALSE;
 
-					DEBUG_COMM3("Checking device: %s/%s",
-						bus->dirname, dev->filename);
+					DEBUG_COMM3("Checking device: %s/%s", bus->dirname, dev->filename);
 					for (r=0; r<CCID_DRIVER_MAX_READERS; r++)
 					{
 						if (usbDevice[r].handle)
@@ -322,50 +316,16 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					/* this reader is already managed by us */
 					if (already_used)
 					{
-						if ((previous_reader_index != -1)
-							&& usbDevice[previous_reader_index].handle
-							&& (strcmp(usbDevice[previous_reader_index].dirname, bus->dirname)  == 0)
-							&& (strcmp(usbDevice[previous_reader_index].filename, dev->filename) == 0)
-							&& usbDevice[previous_reader_index].ccid.bCurrentSlotIndex < usbDevice[previous_reader_index].ccid.bMaxSlotIndex)
-						{
-							/* we reuse the same device
-							 * and the reader is multi-slot */
-							usbDevice[reader_index] = usbDevice[previous_reader_index];
-							/* the other slots do not have the same data rates */
-							if ((GEMCOREPOSPRO == usbDevice[reader_index].ccid.readerID)
-								|| (GEMCORESIMPRO == usbDevice[reader_index].ccid.readerID))
-							{
-								usbDevice[reader_index].ccid.arrayOfSupportedDataRates = SerialCustomDataRates;
-								usbDevice[reader_index].ccid.dwMaxDataRate = 125000;
-							}
-
-							*usbDevice[reader_index].nb_opened_slots += 1;
-							usbDevice[reader_index].ccid.bCurrentSlotIndex++;
-							usbDevice[reader_index].ccid.dwSlotStatus =
-								IFD_ICC_PRESENT;
-							DEBUG_INFO2("Opening slot: %d",
-								usbDevice[reader_index].ccid.bCurrentSlotIndex);
-							goto end;
-						}
-						else
-						{
-							DEBUG_INFO3("USB device %s/%s already in use."
-								" Checking next one.",
-								bus->dirname, dev->filename);
-						}
-
+						DEBUG_INFO3("USB device %s/%s already in use. Checking next one.", bus->dirname, dev->filename);
 						continue;
 					}
 
-					DEBUG_COMM3("Trying to open USB bus/device: %s/%s",
-						 bus->dirname, dev->filename);
+					DEBUG_COMM3("Trying to open USB bus/device: %s/%s",	 bus->dirname, dev->filename);
 
 					dev_handle = usb_open(dev);
 					if (dev_handle == NULL)
 					{
-						DEBUG_CRITICAL4("Can't usb_open(%s/%s): %s",
-							bus->dirname, dev->filename, strerror(errno));
-
+						DEBUG_CRITICAL4("Can't usb_open(%s/%s): %s", bus->dirname, dev->filename, strerror(errno));
 						continue;
 					}
 
@@ -373,8 +333,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					if (dev->config == NULL)
 					{
 						usb_close(dev_handle);
-						DEBUG_CRITICAL3("No dev->config found for %s/%s",
-							 bus->dirname, dev->filename);
+						DEBUG_CRITICAL3("No dev->config found for %s/%s", bus->dirname, dev->filename);
 						return STATUS_UNSUCCESSFUL;
 					}
 
@@ -382,42 +341,25 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					if (usb_interface == NULL)
 					{
 						usb_close(dev_handle);
-						DEBUG_CRITICAL3("Can't find a CCID interface on %s/%s",
-							bus->dirname, dev->filename);
+						DEBUG_CRITICAL3("Can't find a CCID interface on %s/%s",	bus->dirname, dev->filename);
 						return STATUS_UNSUCCESSFUL;
 					}
 
 					if (usb_interface->altsetting->extralen != 54)
-					{
-						/* usb_close(dev_handle); */
-						DEBUG_CRITICAL4("Extra field for %s/%s has a wrong length: %d", bus->dirname, dev->filename, usb_interface->altsetting->extralen);
-						/* return STATUS_UNSUCCESSFUL; */
-					}
+						DEBUG_INFO4("Extra field for %s/%s has a wrong length: %d", bus->dirname, dev->filename, usb_interface->altsetting->extralen);
 
 					interface = usb_interface->altsetting->bInterfaceNumber;
 					if (usb_claim_interface(dev_handle, interface) < 0)
 					{
 						usb_close(dev_handle);
-						DEBUG_CRITICAL4("Can't claim interface %s/%s: %s",
-							bus->dirname, dev->filename, strerror(errno));
+						DEBUG_CRITICAL4("Can't claim interface %s/%s: %s",	bus->dirname, dev->filename, strerror(errno));
 						return STATUS_UNSUCCESSFUL;
 					}
 
-					DEBUG_INFO4("Found Vendor/Product: %04X/%04X (%s)",
-						dev->descriptor.idVendor,
-						dev->descriptor.idProduct, keyValue);
-					DEBUG_INFO3("Using USB bus/device: %s/%s",
-						 bus->dirname, dev->filename);
+					DEBUG_INFO4("Found Vendor/Product: %04X/%04X (%s)",	dev->descriptor.idVendor, dev->descriptor.idProduct, keyValue);
+					DEBUG_INFO3("Using USB bus/device: %s/%s", bus->dirname, dev->filename);
 
-					/* check for firmware bugs */
-					if (ccid_check_firmware(dev))
-					{
-						usb_close(dev_handle);
-						return STATUS_UNSUCCESSFUL;
-					}
-
-					/* Get Endpoints values*/
-					get_end_points(dev, &usbDevice[reader_index]);
+					/* No Endpoints; control only*/
 
 					/* store device information */
 					usbDevice[reader_index].handle = dev_handle;
@@ -430,16 +372,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					/* CCID common informations */
 					usbDevice[reader_index].ccid.real_bSeq = 0;
 					usbDevice[reader_index].ccid.pbSeq = &usbDevice[reader_index].ccid.real_bSeq;
-					usbDevice[reader_index].ccid.readerID =
-						(dev->descriptor.idVendor << 16) +
-						dev->descriptor.idProduct;
-					/*usbDevice[reader_index].ccid.dwFeatures = dw2i(usb_interface->altsetting->extra, 40);
-					usbDevice[reader_index].ccid.bPINSupport = usb_interface->altsetting->extra[52];
-					usbDevice[reader_index].ccid.dwMaxCCIDMessageLength = dw2i(usb_interface->altsetting->extra, 44);
-					usbDevice[reader_index].ccid.dwMaxIFSD = dw2i(usb_interface->altsetting->extra, 28);
-					usbDevice[reader_index].ccid.dwDefaultClock = dw2i(usb_interface->altsetting->extra, 10);
-					usbDevice[reader_index].ccid.dwMaxDataRate = dw2i(usb_interface->altsetting->extra, 23);
-					usbDevice[reader_index].ccid.bMaxSlotIndex = usb_interface->altsetting->extra[4];*/
+					usbDevice[reader_index].ccid.readerID = (dev->descriptor.idVendor << 16) + dev->descriptor.idProduct;
 
 					/* 
 					 * Only one of the following values may be present to select a level of exhange: 
@@ -455,14 +388,13 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					usbDevice[reader_index].ccid.dwDefaultClock = 3580; /* 3.58 Mhz */
 					usbDevice[reader_index].ccid.dwMaxDataRate = 9600; /* 9.6Kbps */
 					usbDevice[reader_index].ccid.bMaxSlotIndex = 0;
+					usbDevice[reader_index].ccid.arrayOfSupportedDataRates = NULL;
 
 					usbDevice[reader_index].ccid.bCurrentSlotIndex = 0;
 					usbDevice[reader_index].ccid.readTimeout = DEFAULT_COM_READ_TIMEOUT;
-					usbDevice[reader_index].ccid.arrayOfSupportedDataRates = get_data_rates(reader_index, dev);
 					usbDevice[reader_index].ccid.bInterfaceProtocol = usb_interface->altsetting->bInterfaceProtocol;
 					usbDevice[reader_index].ccid.bNumEndpoints = usb_interface->altsetting->bNumEndpoints;
 					usbDevice[reader_index].ccid.dwSlotStatus = IFD_ICC_PRESENT;
-					goto end;
 				}
 			}
 		}
@@ -544,45 +476,6 @@ _ccid_descriptor *get_ccid_descriptor(unsigned int reader_index)
 
 /*****************************************************************************
  *
- *					get_end_points
- *
- ****************************************************************************/
-static int get_end_points(struct usb_device *dev, _usbDevice *usbdevice)
-{
-	int i;
-	int bEndpointAddress;
-	struct usb_interface *usb_interface = get_ccid_usb_interface(dev);
-
-	/*
-	 * 3 Endpoints maximum: Interrupt In, Bulk In, Bulk Out
-	 */
-	for (i=0; i<usb_interface->altsetting->bNumEndpoints; i++)
-	{
-		/* interrupt end point (if available) */
-		if (usb_interface->altsetting->endpoint[i].bmAttributes == USB_ENDPOINT_TYPE_INTERRUPT)
-		{
-			usbdevice->interrupt = usb_interface->altsetting->endpoint[i].bEndpointAddress;
-			continue;
-		}
-
-		if (usb_interface->altsetting->endpoint[i].bmAttributes != USB_ENDPOINT_TYPE_BULK)
-			continue;
-
-		bEndpointAddress = usb_interface->altsetting->endpoint[i].bEndpointAddress;
-
-		if ((bEndpointAddress & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_IN)
-			usbdevice->bulk_in = bEndpointAddress;
-
-		if ((bEndpointAddress & USB_ENDPOINT_DIR_MASK) == USB_ENDPOINT_OUT)
-			usbdevice->bulk_out = bEndpointAddress;
-	}
-
-	return 0;
-} /* get_end_points */
-
-
-/*****************************************************************************
- *
  *					get_ccid_usb_interface
  *
  ****************************************************************************/
@@ -590,163 +483,19 @@ static int get_end_points(struct usb_device *dev, _usbDevice *usbdevice)
 {
 	struct usb_interface *usb_interface = NULL;
 	int i;
-#ifdef O2MICRO_OZ776_PATCH
-	int readerID;
-#endif
 
 	/* if multiple interfaces use the first one with CCID class type */
 	for (i=0; dev->config && i<dev->config->bNumInterfaces; i++)
 	{
-		/* CCID Class? */
-		if (dev->config->interface[i].altsetting->bInterfaceClass == 0xb
-#ifdef ALLOW_PROPRIETARY_CLASS
-			|| dev->config->interface[i].altsetting->bInterfaceClass == 0xff
-#endif
-			)
+		if (dev->config->interface[i].altsetting->bInterfaceClass == 0xff)
 		{
 			usb_interface = &dev->config->interface[i];
 			break;
 		}
 	}
 
-#ifdef O2MICRO_OZ776_PATCH
-	readerID = (dev->descriptor.idVendor << 16) + dev->descriptor.idProduct;
-	if (usb_interface != NULL
-		&& ((OZ776 == readerID) || (OZ776_7772 == readerID)
-		|| (REINER_SCT == readerID) || (BLUDRIVEII_CCID == readerID))
-		&& (0 == usb_interface->altsetting->extralen)) /* this is the bug */
-	{
-		for (i=0; i<usb_interface->altsetting->bNumEndpoints; i++)
-		{
-			/* find the extra[] array */
-			if (54 == usb_interface->altsetting->endpoint[i].extralen)
-			{
-				/* get the extra[] from the endpoint */
-				usb_interface->altsetting->extralen = 54;
-				usb_interface->altsetting->extra =
-					usb_interface->altsetting->endpoint[i].extra;
-				/* avoid double free on close */
-				usb_interface->altsetting->endpoint[i].extra = NULL;
-				usb_interface->altsetting->endpoint[i].extralen = 0;
-				break;
-			}
-		}
-	}
-#endif
-
 	return usb_interface;
 } /* get_ccid_usb_interface */
-
-
-/*****************************************************************************
- *
- *					ccid_check_firmware
- *
- ****************************************************************************/
-int ccid_check_firmware(struct usb_device *dev)
-{
-	unsigned int i;
-
-	for (i=0; i<sizeof(Bogus_firmwares)/sizeof(Bogus_firmwares[0]); i++)
-	{
-		if (dev->descriptor.idVendor != Bogus_firmwares[i].vendor)
-				continue;
-
-		if (dev->descriptor.idProduct != Bogus_firmwares[i].product)
-			continue;
-
-		/* firmware too old and buggy */
-		if (dev->descriptor.bcdDevice < Bogus_firmwares[i].firmware)
-		{
-			if (DriverOptions & DRIVER_OPTION_USE_BOGUS_FIRMWARE)
-			{
-				DEBUG_INFO3("Firmware (%X.%02X) is bogus! but you choosed to use it",
-					dev->descriptor.bcdDevice >> 8,
-					dev->descriptor.bcdDevice & 0xFF);
-				return FALSE;
-			}
-			else
-			{
-				DEBUG_CRITICAL3("Firmware (%X.%02X) is bogus! Upgrade the reader firmware or get a new reader.",
-					dev->descriptor.bcdDevice >> 8,
-					dev->descriptor.bcdDevice & 0xFF);
-				return TRUE;
-			}
-		}
-	}
-
-	/* by default the firmware is not bogus */
-	return FALSE;
-} /* ccid_check_firmware */
-
-
-/*****************************************************************************
- *
- *                                      get_data_rates
- *
- ****************************************************************************/
-static unsigned int *get_data_rates(unsigned int reader_index,
-	struct usb_device *dev)
-{
-	int n, i, len;
-	unsigned char buffer[256*sizeof(int)];	/* maximum is 256 records */
-	unsigned int *int_array;
-
-	/* See CCID 3.7.3 page 25 */
-	n = ControlUSB(reader_index,
-		0xA1, /* request type */
-		0x03, /* GET_DATA_RATES */
-		0x00, /* value */
-		buffer, sizeof(buffer));
-
-	/* we got an error? */
-	if (n <= 0)
-	{
-		DEBUG_INFO2("IFD does not support GET_DATA_RATES request: %s",
-			strerror(errno));
-		return NULL;
-	}
-
-	/* we got a strange value */
-	if (n % 4)
-	{
-		DEBUG_INFO2("Wrong GET DATA RATES size: %d", n);
-		return NULL;
-	}
-
-	/* allocate the buffer (including the end marker) */
-	n /= sizeof(int);
-
-	/* we do not get the expected number of data rates */
-	len = get_ccid_usb_interface(dev)->altsetting->extra[27]; /* bNumDataRatesSupported */
-	if ((n != len) && len)
-	{
-		DEBUG_INFO3("Got %d data rates but was expecting %d", n, len);
-
-		/* we got more data than expected */
-		if (n > len)
-			n = len;
-	}
-
-	int_array = calloc(n+1, sizeof(int));
-	if (NULL == int_array)
-	{
-		DEBUG_CRITICAL("Memory allocation failed");
-		return NULL;
-	}
-
-	/* convert in correct endianess */
-	for (i=0; i<n; i++)
-	{
-		int_array[i] = dw2i(buffer, i*4);
-		DEBUG_INFO2("declared: %d bps", int_array[i]);
-	}
-
-	/* end of array marker */
-	int_array[i] = 0;
-
-	return int_array;
-} /* get_data_rates */
 
 
 /*****************************************************************************
