@@ -55,10 +55,6 @@ int PowerOnVoltage = VOLTAGE_5V;
 static int DebugInitialized = FALSE;
 
 /* local functions */
-#if HAVE_DECL_TAG_IFD_POLLING_THREAD && !defined(TWIN_SERIAL) && defined(USE_USB_INTERRUPT)
-static RESPONSECODE IFDHPolling(DWORD Lun);
-static RESPONSECODE IFDHSleep(DWORD Lun);
-#endif
 static void init_driver(void);
 static char find_baud_rate(unsigned int baudrate, unsigned int *list);
 static unsigned int T0_card_timeout(double f, double d, int TC1, int TC2,
@@ -72,7 +68,7 @@ EXTERNAL RESPONSECODE IFDHCreateChannelByName(DWORD Lun, LPSTR lpcDevice)
 	RESPONSECODE return_value = IFD_SUCCESS;
 	int reader_index;
 
-	if (! DebugInitialized)
+	if (!DebugInitialized)
 		init_driver();
 
 	DEBUG_INFO3("lun: %X, device: %s", Lun, lpcDevice);
@@ -164,7 +160,7 @@ EXTERNAL RESPONSECODE IFDHCreateChannel(DWORD Lun, DWORD Channel)
 	RESPONSECODE return_value = IFD_SUCCESS;
 	int reader_index;
 
-	if (! DebugInitialized)
+	if (!DebugInitialized)
 		init_driver();
 
 	DEBUG_INFO2("lun: %X", Lun);
@@ -239,38 +235,6 @@ EXTERNAL RESPONSECODE IFDHCloseChannel(DWORD Lun)
 
 	return IFD_SUCCESS;
 } /* IFDHCloseChannel */
-
-
-#if HAVE_DECL_TAG_IFD_POLLING_THREAD  && defined(USE_USB_INTERRUPT)
-static RESPONSECODE IFDHPolling(DWORD Lun)
-{
-	int reader_index;
-	int ret;
-
-	if (-1 == (reader_index = LunToReaderIndex(Lun)))
-		return IFD_COMMUNICATION_ERROR;
-
-	/* log only if DEBUG_LEVEL_PERIODIC is set */
-	if (LogLevel & DEBUG_LEVEL_PERIODIC)
-		DEBUG_INFO2("lun: %X", Lun);
-
-	ret = InterruptRead(reader_index);
-	if (ret > 0)
-		return IFD_SUCCESS;
-	if (0 == ret)
-		return IFD_NO_SUCH_DEVICE;
-	return IFD_COMMUNICATION_ERROR;
-}
-
-/* on an ICCD device the card is always inserted
- * so no card movement will ever happen: just do nothing */
-static RESPONSECODE IFDHSleep(DWORD Lun)
-{
-	DEBUG_INFO2("lun: %X", Lun);
-	sleep(60*60);	/* 1 hour */
-	return IFD_SUCCESS;
-}
-#endif
 
 
 EXTERNAL RESPONSECODE IFDHGetCapabilities(DWORD Lun, DWORD Tag,
@@ -374,28 +338,6 @@ EXTERNAL RESPONSECODE IFDHGetCapabilities(DWORD Lun, DWORD Tag,
 			if (Value)
 				*(uint32_t *)Value = get_ccid_descriptor(reader_index) -> dwMaxCCIDMessageLength - 10;
 			break;
-
-#if HAVE_DECL_TAG_IFD_POLLING_THREAD && defined(USE_USB_INTERRUPT)
-		case TAG_IFD_POLLING_THREAD:
-			{
-				_ccid_descriptor *ccid_desc;
-
-				/* default value: not supported */
-				*Length = 0;
-
-				ccid_desc = get_ccid_descriptor(reader_index);
-				/* CCID and not ICCD */
-				if ((0 == ccid_desc -> bInterfaceProtocol)
-					/* 3 end points */
-					&& (3 == ccid_desc -> bNumEndpoints))
-				{
-					*Length = sizeof(void *);
-					if (Value)
-						*(void **)Value = IFDHPolling;
-				}
-			}
-			break;
-#endif
 
 		default:
 			return IFD_ERROR_TAG;

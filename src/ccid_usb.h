@@ -27,12 +27,6 @@ status_t OpenUSB(unsigned int reader_index, int channel);
 
 status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device);
 
-status_t WriteUSB(unsigned int reader_index, unsigned int length,
-	unsigned char *Buffer);
-
-status_t ReadUSB(unsigned int reader_index, unsigned int *length,
-	unsigned char *Buffer);
-
 status_t CloseUSB(unsigned int reader_index);
 
 #if defined (__USB_H__) || defined (_SYS_USB_LIBUSB_USB_H)
@@ -42,5 +36,4 @@ status_t CloseUSB(unsigned int reader_index);
 int ControlUSB(int reader_index, int requesttype, int request, int value,
 	unsigned char *bytes, unsigned int size);
 
-int InterruptRead(int reader_index);
 #endif
