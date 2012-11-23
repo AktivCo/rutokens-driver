@@ -84,10 +84,6 @@ typedef struct
 /* The _usbDevice structure must be defined before including ccid_usb.h */
 #include "ccid_usb.h"
 
-static int get_end_points(struct usb_device *dev, _usbDevice *usbdevice);
-static unsigned int *get_data_rates(unsigned int reader_index,
-	struct usb_device *dev);
-
 /* ne need to initialize to 0 since it is static */
 static _usbDevice usbDevice[CCID_DRIVER_MAX_READERS];
 
@@ -440,10 +436,6 @@ status_t CloseUSB(unsigned int reader_index)
 	if (0 == *usbDevice[reader_index].nb_opened_slots)
 	{
 		DEBUG_COMM("Last slot closed. Release resources");
-
-		/* reset so that bSeq starts at 0 again */
-		if (DriverOptions & DRIVER_OPTION_RESET_ON_CLOSE)
-			usb_reset(usbDevice[reader_index].handle);
 
 		usb_release_interface(usbDevice[reader_index].handle,
 			usbDevice[reader_index].interface);

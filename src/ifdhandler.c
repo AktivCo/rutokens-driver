@@ -51,7 +51,6 @@ static pthread_mutex_t ifdh_context_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 int LogLevel = DEBUG_LEVEL_CRITICAL | DEBUG_LEVEL_INFO;
-int DriverOptions = 0;
 static int DebugInitialized = FALSE;
 
 /* local functions */
@@ -751,16 +750,6 @@ void init_driver(void)
 
 		/* print the log level used */
 		DEBUG_INFO2("LogLevel from LIBCCID_ifdLogLevel: 0x%.4X", LogLevel);
-	}
-	
-	/* Driver options */
-	if (0 == LTPBundleFindValueWithKey(infofile, "ifdDriverOptions", keyValue, 0))
-	{
-		/* convert from hex or dec or octal */
-		DriverOptions = strtoul(keyValue, NULL, 0);
-
-		/* print the log level used */
-		DEBUG_INFO2("DriverOptions: 0x%.4X", DriverOptions);
 	}
 
 	/* initialise the Lun to reader_index mapping */
