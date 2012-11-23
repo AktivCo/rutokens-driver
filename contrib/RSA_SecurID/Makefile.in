@@ -172,7 +172,6 @@ build_os = @build_os@
 build_vendor = @build_vendor@
 builddir = @builddir@
 bundle = @bundle@
-ccidtwindir = @ccidtwindir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@

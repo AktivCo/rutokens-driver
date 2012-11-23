@@ -57,68 +57,6 @@ the usb.h and libusb.so files. The ./configure script will use
 PATH/include/ to search for usb.h and PATH/lib/ to search for libusb.so
 
 
-building serial reader driver
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-A serial CCID reader can also be connected on a serial port. By default
-the serial driver is not built. You must explicitely do:
-
-$ ./configure --enable-twinserial
-$ make
-# make install
-
-
-builing serial reader driver only
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-It is possible to generate the driver for the GemPC Twin using serial
-communication only (for example on an embedded system without USB).
-Just do:
-$ ./configure --enable-twinserial --disable-libusb
-$ make
-# make install
-
-By default ./configure try to get the directory used by pcscd using
-'pkg-config libpcsclite --variable=usbdropdir' and add '/serial'.
-You should not have to use --enable-ccidtwindir=DIR to specify the
-target directory to use. 
-
-
-configuring the driver for the serial reader
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You have to create or edit the file /etc/reader.conf. The file should
-contain something like:
-
-# Gemplus reader with serial communication
-#  - reader is the reader name. It is needed for multi-slot readers.
-#    Possible reader values are: GemPCPinPad, GemCorePOSPro, GemCoreSIMPro,
-#    GemPCTwin (default value)
-# example: /dev/ttyS0:GemPCPinPad
-#FRIENDLYNAME      "GemPCTwin serial"
-#DEVICENAME        /dev/ttySn[:reader]
-#LIBPATH           TARGET
-#CHANNELID         1
-
-FRIENDLYNAME      "GemPC Twin serial"
-DEVICENAME        /dev/ttyS0
-LIBPATH           /usr/local/pcsc/drivers/serial/libccidtwin.so.1.2.3
-CHANNELID         1
-
-You will have to adapt the library path to your configuration and library
-version.
-
-By default the GemPC Twin serial reader parameters are loaded by the
-driver, if you use a GemPC PinPad, a GemCore POS Pro or a GemCore SIM
-Pro you have to indicate it in the DEVICENAME field. You will then have
-something like:
-DEVICENAME        /dev/ttyS0:GemPCPinPad
-
-/dev/ttyS0 (DEVICENAME field) is the first serial port under Linux
-(known as COM1 under DOS/Windows). Of course if your reader is connected
-to another serial port you have to adapt that.
-
-
 Binary installation:
 """"""""""""""""""""
 

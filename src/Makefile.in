@@ -37,8 +37,6 @@ build_triplet = @build@
 host_triplet = @host@
 @WITH_LIBUSB_TRUE@am__append_1 = libccid.la
 @WITH_LIBUSB_TRUE@am__append_2 = install_ccid
-@WITH_TWIN_SERIAL_TRUE@am__append_3 = libccidtwin.la
-@WITH_TWIN_SERIAL_TRUE@am__append_4 = install_ccidtwin
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	tokenparser.c
@@ -81,24 +79,6 @@ libccid_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libccid_la_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 @WITH_LIBUSB_TRUE@am_libccid_la_rpath = -rpath $(libdir)
-libccidtwin_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am__libccidtwin_la_SOURCES_DIST = ccid.h ccid_ifdhandler.h \
-	commands.c commands.h debug.h defs.h ifdhandler.c utils.c \
-	utils.h ccid_serial.c ccid_serial.h tokenparser.l parser.h \
-	strlcpy.c misc.h strlcpycat.h debug.c
-am__objects_6 = libccidtwin_la-ccid.lo libccidtwin_la-commands.lo \
-	libccidtwin_la-ifdhandler.lo libccidtwin_la-utils.lo
-am__objects_7 = libccidtwin_la-ccid_serial.lo
-am__objects_8 = libccidtwin_la-tokenparser.lo \
-	libccidtwin_la-strlcpy.lo
-@WITHOUT_PCSC_TRUE@am__objects_9 = libccidtwin_la-debug.lo
-am_libccidtwin_la_OBJECTS = $(am__objects_6) $(am__objects_7) \
-	$(am__objects_8) $(am__objects_9)
-libccidtwin_la_OBJECTS = $(am_libccidtwin_la_OBJECTS)
-libccidtwin_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libccidtwin_la_CFLAGS) \
-	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-@WITH_TWIN_SERIAL_TRUE@am_libccidtwin_la_rpath = -rpath $(libdir)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/build/depcomp
@@ -117,9 +97,8 @@ LEXCOMPILE = $(LEX) $(LFLAGS) $(AM_LFLAGS)
 LTLEXCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=compile $(LEX) $(LFLAGS) $(AM_LFLAGS)
 YLWRAP = $(top_srcdir)/build/ylwrap
-SOURCES = $(libccid_la_SOURCES) $(libccidtwin_la_SOURCES)
-DIST_SOURCES = $(am__libccid_la_SOURCES_DIST) \
-	$(am__libccidtwin_la_SOURCES_DIST)
+SOURCES = $(libccid_la_SOURCES)
+DIST_SOURCES = $(am__libccid_la_SOURCES_DIST)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -220,7 +199,6 @@ build_os = @build_os@
 build_vendor = @build_vendor@
 builddir = @builddir@
 bundle = @bundle@
-ccidtwindir = @ccidtwindir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
@@ -256,7 +234,6 @@ top_srcdir = @top_srcdir@
 usbdropdir = @usbdropdir@
 CCID_BUNDLE = $(bundle)
 CCID_LIB = libccid.$(DYN_LIB_EXT)
-CCIDTWIN_LIB = libccidtwin.$(DYN_LIB_EXT)
 CCID_VERSION = CCID_VERSION=`$(srcdir)/convert_version.pl $(PACKAGE_VERSION)`
 lib_LTLIBRARIES = $(am__append_1) $(am__append_3)
 LIBS_TO_INSTALL = $(am__append_2) $(am__append_4)
@@ -291,14 +268,6 @@ libccid_la_LIBADD = $(LEXLIB) $(COREFOUNDATION) $(IOKIT) \
 
 libccid_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
 	$(SYMBOL_VISIBILITY) -D$(CCID_VERSION)
-
-libccidtwin_la_SOURCES = $(COMMON) $(SERIAL) $(TOKEN_PARSER) \
-	$(PROVIDED_BY_PCSC)
-
-libccidtwin_la_CFLAGS = $(PCSC_CFLAGS) $(PTHREAD_CFLAGS) $(SYMBOL_VISIBILITY) \
-	-DTWIN_SERIAL -D$(CCID_VERSION)
-
-libccidtwin_la_LIBADD = $(PTHREAD_LIBS)
 EXTRA_DIST = Info.plist.src create_Info_plist.pl reader.conf.in \
 	openct/LICENSE \
 	convert_version.pl pcscd_ccid.rules
@@ -369,8 +338,6 @@ clean-libLTLIBRARIES:
 	done
 libccid.la: $(libccid_la_OBJECTS) $(libccid_la_DEPENDENCIES) 
 	$(libccid_la_LINK) $(am_libccid_la_rpath) $(libccid_la_OBJECTS) $(libccid_la_LIBADD) $(LIBS)
-libccidtwin.la: $(libccidtwin_la_OBJECTS) $(libccidtwin_la_DEPENDENCIES) 
-	$(libccidtwin_la_LINK) $(am_libccidtwin_la_rpath) $(libccidtwin_la_OBJECTS) $(libccidtwin_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -387,13 +354,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-strlcpy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-tokenparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-utils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-ccid_serial.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-commands.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-debug.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-ifdhandler.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-strlcpy.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-tokenparser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-utils.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -478,55 +438,6 @@ libccid_la-debug.lo: debug.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='debug.c' object='libccid_la-debug.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
-
-libccidtwin_la-commands.lo: commands.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-commands.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-commands.Tpo -c -o libccidtwin_la-commands.lo `test -f 'commands.c' || echo '$(srcdir)/'`commands.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-commands.Tpo $(DEPDIR)/libccidtwin_la-commands.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='commands.c' object='libccidtwin_la-commands.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-commands.lo `test -f 'commands.c' || echo '$(srcdir)/'`commands.c
-
-libccidtwin_la-ifdhandler.lo: ifdhandler.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-ifdhandler.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-ifdhandler.Tpo -c -o libccidtwin_la-ifdhandler.lo `test -f 'ifdhandler.c' || echo '$(srcdir)/'`ifdhandler.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-ifdhandler.Tpo $(DEPDIR)/libccidtwin_la-ifdhandler.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ifdhandler.c' object='libccidtwin_la-ifdhandler.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-ifdhandler.lo `test -f 'ifdhandler.c' || echo '$(srcdir)/'`ifdhandler.c
-
-libccidtwin_la-utils.lo: utils.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-utils.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-utils.Tpo -c -o libccidtwin_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-utils.Tpo $(DEPDIR)/libccidtwin_la-utils.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='utils.c' object='libccidtwin_la-utils.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-
-libccidtwin_la-ccid_serial.lo: ccid_serial.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-ccid_serial.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-ccid_serial.Tpo -c -o libccidtwin_la-ccid_serial.lo `test -f 'ccid_serial.c' || echo '$(srcdir)/'`ccid_serial.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-ccid_serial.Tpo $(DEPDIR)/libccidtwin_la-ccid_serial.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ccid_serial.c' object='libccidtwin_la-ccid_serial.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-ccid_serial.lo `test -f 'ccid_serial.c' || echo '$(srcdir)/'`ccid_serial.c
-
-libccidtwin_la-tokenparser.lo: tokenparser.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-tokenparser.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-tokenparser.Tpo -c -o libccidtwin_la-tokenparser.lo `test -f 'tokenparser.c' || echo '$(srcdir)/'`tokenparser.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-tokenparser.Tpo $(DEPDIR)/libccidtwin_la-tokenparser.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tokenparser.c' object='libccidtwin_la-tokenparser.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-tokenparser.lo `test -f 'tokenparser.c' || echo '$(srcdir)/'`tokenparser.c
-
-libccidtwin_la-strlcpy.lo: strlcpy.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-strlcpy.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-strlcpy.Tpo -c -o libccidtwin_la-strlcpy.lo `test -f 'strlcpy.c' || echo '$(srcdir)/'`strlcpy.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-strlcpy.Tpo $(DEPDIR)/libccidtwin_la-strlcpy.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='strlcpy.c' object='libccidtwin_la-strlcpy.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-strlcpy.lo `test -f 'strlcpy.c' || echo '$(srcdir)/'`strlcpy.c
-
-libccidtwin_la-debug.lo: debug.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-debug.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-debug.Tpo -c -o libccidtwin_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-debug.Tpo $(DEPDIR)/libccidtwin_la-debug.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='debug.c' object='libccidtwin_la-debug.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
 
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
@@ -733,27 +644,10 @@ install_ccid: libccid.la Info.plist
 	ln -fs $(CCID_LIB).$(VERSION) $(DESTDIR)$(usbdropdir)/$(CCID_BUNDLE)/Contents/$(BUNDLE_HOST)/$(CCID_LIB)
 	$(INSTALL_UDEV_RULE_FILE)
 
-install_ccidtwin: libccidtwin.la
-	$(mkinstalldirs) $(DESTDIR)$(ccidtwindir)
-	cp .libs/$(CCIDTWIN_LIB) $(DESTDIR)$(ccidtwindir)/$(CCIDTWIN_LIB).$(VERSION)
-	ln -fs $(CCIDTWIN_LIB).$(VERSION) $(DESTDIR)$(ccidtwindir)/$(CCIDTWIN_LIB)
-	if [ -e $(DESTDIR)/etc/reader.conf ] ; \
-	then \
-		echo "Edit existing /etc/reader.conf" ; \
-	else \
-		$(mkinstalldirs) $(DESTDIR)/etc ; \
-		perl -ne "s|TARGET|$(ccidtwindir)/$(CCIDTWIN_LIB)| ; print" $(srcdir)/reader.conf.in > $(DESTDIR)/etc/reader.conf ; \
-	fi
-
-# do not uninstall the serial driver by default
-# use explicitely 'make uninstall_ccidtwin'
 uninstall: uninstall_ccid
 
 uninstall_ccid:
 	rm -rf $(DESTDIR)$(usbdropdir)/$(CCID_BUNDLE)
-
-uninstall_ccidtwin:
-	rm -f $(DESTDIR)$(ccidtwindir)/$(CCIDTWIN_LIB).$(VERSION)
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

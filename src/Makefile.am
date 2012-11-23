@@ -2,7 +2,6 @@
 
 CCID_BUNDLE = $(bundle)
 CCID_LIB = libccid.$(DYN_LIB_EXT)
-CCIDTWIN_LIB = libccidtwin.$(DYN_LIB_EXT)
 
 CCID_VERSION=CCID_VERSION=`$(srcdir)/convert_version.pl $(PACKAGE_VERSION)`
 
@@ -11,10 +10,6 @@ LIBS_TO_INSTALL =
 if WITH_LIBUSB
 lib_LTLIBRARIES += libccid.la
 LIBS_TO_INSTALL += install_ccid
-endif
-if WITH_TWIN_SERIAL
-lib_LTLIBRARIES += libccidtwin.la
-LIBS_TO_INSTALL += install_ccidtwin
 endif
 
 COMMON = apdu.c \
@@ -49,12 +44,6 @@ libccid_la_LIBADD = $(LEXLIB) $(COREFOUNDATION) $(IOKIT) \
 libccid_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
 	$(SYMBOL_VISIBILITY) -D$(CCID_VERSION)
 
-libccidtwin_la_SOURCES = $(COMMON) $(SERIAL) $(TOKEN_PARSER) \
-	$(PROVIDED_BY_PCSC)
-libccidtwin_la_CFLAGS = $(PCSC_CFLAGS) $(PTHREAD_CFLAGS) $(SYMBOL_VISIBILITY) \
-	-DTWIN_SERIAL -D$(CCID_VERSION)
-libccidtwin_la_LIBADD = $(PTHREAD_LIBS)
-
 EXTRA_DIST = Info.plist.src create_Info_plist.pl reader.conf.in \
 	openct/LICENSE \
 	convert_version.pl pcscd_ccid.rules
@@ -80,25 +69,8 @@ install_ccid: libccid.la Info.plist
 	ln -fs $(CCID_LIB).$(VERSION) $(DESTDIR)$(usbdropdir)/$(CCID_BUNDLE)/Contents/$(BUNDLE_HOST)/$(CCID_LIB)
 	$(INSTALL_UDEV_RULE_FILE)
 
-install_ccidtwin: libccidtwin.la
-	$(mkinstalldirs) $(DESTDIR)$(ccidtwindir)
-	cp .libs/$(CCIDTWIN_LIB) $(DESTDIR)$(ccidtwindir)/$(CCIDTWIN_LIB).$(VERSION)
-	ln -fs $(CCIDTWIN_LIB).$(VERSION) $(DESTDIR)$(ccidtwindir)/$(CCIDTWIN_LIB)
-	if [ -e $(DESTDIR)/etc/reader.conf ] ; \
-	then \
-		echo "Edit existing /etc/reader.conf" ; \
-	else \
-		$(mkinstalldirs) $(DESTDIR)/etc ; \
-		perl -ne "s|TARGET|$(ccidtwindir)/$(CCIDTWIN_LIB)| ; print" $(srcdir)/reader.conf.in > $(DESTDIR)/etc/reader.conf ; \
-	fi
-
-# do not uninstall the serial driver by default
-# use explicitely 'make uninstall_ccidtwin'
 uninstall: uninstall_ccid
 
 uninstall_ccid:
 	rm -rf $(DESTDIR)$(usbdropdir)/$(CCID_BUNDLE)
-
-uninstall_ccidtwin:
-	rm -f $(DESTDIR)$(ccidtwindir)/$(CCIDTWIN_LIB).$(VERSION)
 

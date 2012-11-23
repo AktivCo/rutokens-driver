@@ -895,8 +895,6 @@ SYMBOL_VISIBILITY
 PTHREAD_CC
 PTHREAD_LIBS
 PTHREAD_CFLAGS
-WITH_TWIN_SERIAL_TRUE
-WITH_TWIN_SERIAL_FALSE
 WITHOUT_PCSC_TRUE
 WITHOUT_PCSC_FALSE
 UDEV_TRUE
@@ -904,7 +902,6 @@ UDEV_FALSE
 ac_aux_dir
 bundle
 usbdropdir
-ccidtwindir
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -1523,10 +1520,6 @@ Optional Features:
   --enable-bundle=NAME    bundle directory name (default ifd-ccid.bundle)
   --enable-usbdropdir=DIR directory containing USB drivers (default to pcscd
                           config or $(prefix)/pcsc/drivers)
-  --enable-twinserial     also compile and install the serial Twin driver
-  --enable-ccidtwindir=DIR
-                          directory to install the serial Twin driver (default
-                          to pcscd config or $(prefix)/pcsc/drivers/serial)
   --disable-pcsclite      do not use pcsc-lite debug support
   --enable-udev           udev support for pcscd hotplug
 
@@ -22699,35 +22692,6 @@ echo "$as_me: error: use --enable-usbdropdir=DIR" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-# --enable-twinserial
-# Check whether --enable-twinserial was given.
-if test "${enable_twinserial+set}" = set; then
-  enableval=$enable_twinserial; twinserial="${enableval}"
-else
-  twinserial=no
-fi
-
- if test "${twinserial}" != "no"; then
-  WITH_TWIN_SERIAL_TRUE=
-  WITH_TWIN_SERIAL_FALSE='#'
-else
-  WITH_TWIN_SERIAL_TRUE='#'
-  WITH_TWIN_SERIAL_FALSE=
-fi
-
-
-# --enable-ccidtwindir=DIR
-# Check whether --enable-ccidtwindir was given.
-if test "${enable_ccidtwindir+set}" = set; then
-  enableval=$enable_ccidtwindir; ccidtwindir="${enableval}"
-else
-  ccidtwindir=false
-fi
-
-if test "${ccidtwindir}" = false ; then
-	ccidtwindir=`$PKG_CONFIG libpcsclite --variable=usbdropdir`/serial
-fi
-
 # --disable-pcsclite
 # Check whether --enable-pcsclite was given.
 if test "${enable_pcsclite+set}" = set; then
@@ -22866,8 +22830,6 @@ use USB interrupt:       ${use_usb_interrupt}
 multi threading:         ${multithread}
 bundle directory name:   ${bundle}
 USB drop directory:      ${usbdropdir}
-serial Twin support:     ${twinserial}
-serial twin install dir: ${ccidtwindir}
 compiled for pcsc-lite:  ${pcsclite}
 udev support:            ${udev}
 
@@ -23005,13 +22967,6 @@ if test -z "${WITH_LIBUSB_TRUE}" && test -z "${WITH_LIBUSB_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"WITH_LIBUSB\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"WITH_LIBUSB\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${WITH_TWIN_SERIAL_TRUE}" && test -z "${WITH_TWIN_SERIAL_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"WITH_TWIN_SERIAL\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"WITH_TWIN_SERIAL\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -23736,8 +23691,6 @@ SYMBOL_VISIBILITY!$SYMBOL_VISIBILITY$ac_delim
 PTHREAD_CC!$PTHREAD_CC$ac_delim
 PTHREAD_LIBS!$PTHREAD_LIBS$ac_delim
 PTHREAD_CFLAGS!$PTHREAD_CFLAGS$ac_delim
-WITH_TWIN_SERIAL_TRUE!$WITH_TWIN_SERIAL_TRUE$ac_delim
-WITH_TWIN_SERIAL_FALSE!$WITH_TWIN_SERIAL_FALSE$ac_delim
 WITHOUT_PCSC_TRUE!$WITHOUT_PCSC_TRUE$ac_delim
 WITHOUT_PCSC_FALSE!$WITHOUT_PCSC_FALSE$ac_delim
 UDEV_TRUE!$UDEV_TRUE$ac_delim
@@ -23745,12 +23698,11 @@ UDEV_FALSE!$UDEV_FALSE$ac_delim
 ac_aux_dir!$ac_aux_dir$ac_delim
 bundle!$bundle$ac_delim
 usbdropdir!$usbdropdir$ac_delim
-ccidtwindir!$ccidtwindir$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 42; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 39; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
