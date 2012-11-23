@@ -20,7 +20,6 @@ endif
 
 COMMON = apdu.c \
 	apdu.h \
-	ccid.c \
 	ccid.h \
 	ccid_ifdhandler.h \
 	commands.c \

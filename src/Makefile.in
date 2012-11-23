@@ -64,11 +64,11 @@ am__DEPENDENCIES_1 =
 libccid_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am__libccid_la_SOURCES_DIST = apdu.c apdu.h ccid.c ccid.h ccid_ifdhandler.h \
+am__libccid_la_SOURCES_DIST = apdu.c apdu.h ccid.h ccid_ifdhandler.h \
 	commands.c commands.h convert_apdu.c convert_apdu.h debug.h defs.h ifdhandler.c utils.c \
 	utils.h ccid_usb.c ccid_usb.h tokenparser.l parser.h strlcpy.c \
 	misc.h strlcpycat.h debug.c
-am__objects_1 = libccid_la-apdu.lo libccid_la-ccid.lo libccid_la-commands.lo \
+am__objects_1 = libccid_la-apdu.lo libccid_la-commands.lo \
 	libccid_la-convert_apdu.lo libccid_la-ifdhandler.lo libccid_la-utils.lo
 am__objects_2 = libccid_la-ccid_usb.lo
 am__objects_3 = libccid_la-tokenparser.lo libccid_la-strlcpy.lo
@@ -83,7 +83,7 @@ libccid_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 @WITH_LIBUSB_TRUE@am_libccid_la_rpath = -rpath $(libdir)
 libccidtwin_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am__libccidtwin_la_SOURCES_DIST = ccid.c ccid.h ccid_ifdhandler.h \
+am__libccidtwin_la_SOURCES_DIST = ccid.h ccid_ifdhandler.h \
 	commands.c commands.h debug.h defs.h ifdhandler.c utils.c \
 	utils.h ccid_serial.c ccid_serial.h tokenparser.l parser.h \
 	strlcpy.c misc.h strlcpycat.h debug.c
@@ -271,7 +271,6 @@ lib_LTLIBRARIES = $(am__append_1) $(am__append_3)
 LIBS_TO_INSTALL = $(am__append_2) $(am__append_4)
 COMMON = apdu.c \
 	apdu.h \
-	ccid.c \
 	ccid.h \
 	ccid_ifdhandler.h \
 	commands.c \
@@ -423,7 +422,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-apdu.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-ccid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-ccid_usb.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-commands.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-convert_apdu.Plo@am__quote@
@@ -432,7 +430,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-strlcpy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-tokenparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-utils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-ccid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-ccid_serial.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-commands.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccidtwin_la-debug.Plo@am__quote@
@@ -470,13 +467,6 @@ libccid_la-apdu.lo: apdu.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='apdu.c' object='libccid_la-apdu.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-apdu.lo `test -f 'apdu.c' || echo '$(srcdir)/'`apdu.c
-
-libccid_la-ccid.lo: ccid.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-ccid.lo -MD -MP -MF $(DEPDIR)/libccid_la-ccid.Tpo -c -o libccid_la-ccid.lo `test -f 'ccid.c' || echo '$(srcdir)/'`ccid.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-ccid.Tpo $(DEPDIR)/libccid_la-ccid.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ccid.c' object='libccid_la-ccid.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-ccid.lo `test -f 'ccid.c' || echo '$(srcdir)/'`ccid.c
 
 libccid_la-commands.lo: commands.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-commands.lo -MD -MP -MF $(DEPDIR)/libccid_la-commands.Tpo -c -o libccid_la-commands.lo `test -f 'commands.c' || echo '$(srcdir)/'`commands.c
@@ -533,13 +523,6 @@ libccid_la-debug.lo: debug.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='debug.c' object='libccid_la-debug.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
-
-libccidtwin_la-ccid.lo: ccid.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-ccid.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-ccid.Tpo -c -o libccidtwin_la-ccid.lo `test -f 'ccid.c' || echo '$(srcdir)/'`ccid.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccidtwin_la-ccid.Tpo $(DEPDIR)/libccidtwin_la-ccid.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ccid.c' object='libccidtwin_la-ccid.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -c -o libccidtwin_la-ccid.lo `test -f 'ccid.c' || echo '$(srcdir)/'`ccid.c
 
 libccidtwin_la-commands.lo: commands.c
 @am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccidtwin_la_CFLAGS) $(CFLAGS) -MT libccidtwin_la-commands.lo -MD -MP -MF $(DEPDIR)/libccidtwin_la-commands.Tpo -c -o libccidtwin_la-commands.lo `test -f 'commands.c' || echo '$(srcdir)/'`commands.c

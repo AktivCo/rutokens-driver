@@ -192,7 +192,6 @@ typedef struct
 #define VOLTAGE_3V 2
 #define VOLTAGE_1_8V 3
 
-void ccid_error(int error, const char *file, int line, const char *function);
 _ccid_descriptor *get_ccid_descriptor(unsigned int reader_index);
 
 /* convert a 4 byte integer in USB format into an int */
