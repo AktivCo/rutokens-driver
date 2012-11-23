@@ -85,7 +85,7 @@ RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
 RESPONSECODE CmdPowerOn(unsigned int reader_index, unsigned int * nlength,
 	unsigned char buffer[])
 {
-	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
+	_device_descriptor *device_descriptor = get_device_descriptor(reader_index);
 	int r;
 	unsigned char status;
 
@@ -120,7 +120,7 @@ RESPONSECODE CmdPowerOn(unsigned int reader_index, unsigned int * nlength,
  ****************************************************************************/
 RESPONSECODE CmdPowerOff(unsigned int reader_index)
 {
-	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
+	_device_descriptor *device_descriptor = get_device_descriptor(reader_index);
 	int r;
 
 	r = ControlUSB(reader_index, 0x41, USB_ICC_POWER_OFF, 0, NULL, 0);
@@ -142,7 +142,7 @@ RESPONSECODE CmdPowerOff(unsigned int reader_index)
  ****************************************************************************/
 RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status)
 {
-	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
+	_device_descriptor *device_descriptor = get_device_descriptor(reader_index);
 	int r;
 
 	r = ControlUSB(reader_index, 0xC1, USB_ICC_GET_STATUS, 0, status, sizeof(*status));
@@ -338,7 +338,7 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 	unsigned char rx_buffer[], int protocol) /* RT remove protocol: we use T0 only */
 {
 	RESPONSECODE return_value = IFD_SUCCESS;
-	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
+	_device_descriptor *device_descriptor = get_device_descriptor(reader_index);
 
 	if( protocol != T_0 )
 	{
@@ -404,7 +404,7 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 RESPONSECODE CmdTransmit(unsigned int reader_index, unsigned int tx_length,
 	const unsigned char tx_buffer[])
 {
-	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
+	_device_descriptor *device_descriptor = get_device_descriptor(reader_index);
 	unsigned char status;
 	int r;
 
@@ -435,7 +435,7 @@ RESPONSECODE CmdTransmit(unsigned int reader_index, unsigned int tx_length,
 RESPONSECODE CmdReceive(unsigned int reader_index, unsigned int *rx_length,
 	unsigned char rx_buffer[])
 {
-	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
+	_device_descriptor *device_descriptor = get_device_descriptor(reader_index);
 	int r;
 	unsigned char status;
 

@@ -108,7 +108,7 @@ typedef struct
 	 * of IFD_ICC_PRESENT
 	 */
 	int dwSlotStatus;
-} _ccid_descriptor;
+} _device_descriptor;
 
 /* Features from dwFeatures */
 #define CCID_CLASS_AUTO_CONF_ATR	0x00000002
@@ -192,7 +192,7 @@ typedef struct
 #define VOLTAGE_3V 2
 #define VOLTAGE_1_8V 3
 
-_ccid_descriptor *get_ccid_descriptor(unsigned int reader_index);
+_device_descriptor *get_device_descriptor(unsigned int reader_index);
 
 /* convert a 4 byte integer in USB format into an int */
 #define dw2i(a, x) ((((((a[x+3] << 8) + a[x+2]) << 8) + a[x+1]) << 8) + a[x])

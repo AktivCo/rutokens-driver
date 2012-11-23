@@ -23,7 +23,7 @@
 
 #include <pcsclite.h>
 
-typedef struct CCID_DESC
+typedef struct DEV_DESC
 {
 	/*
 	 * ATR
@@ -35,7 +35,7 @@ typedef struct CCID_DESC
 	 * Card state
 	 */
 	UCHAR bPowerFlags;
-} CcidDesc;
+} DevDesc;
 
 typedef enum {
 	STATUS_NO_SUCH_DEVICE        = 0xF9,

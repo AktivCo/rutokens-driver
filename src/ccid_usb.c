@@ -77,7 +77,7 @@ typedef struct
 	/*
 	 * CCID infos common to USB and serial
 	 */
-	_ccid_descriptor ccid;
+	_device_descriptor rtdesc;
 
 } _usbDevice;
 
@@ -85,7 +85,7 @@ typedef struct
 #include "ccid_usb.h"
 
 /* ne need to initialize to 0 since it is static */
-static _usbDevice usbDevice[CCID_DRIVER_MAX_READERS];
+static _usbDevice usbDevice[DRIVER_MAX_READERS];
 
 #define PCSCLITE_MANUKEY_NAME                   "ifdVendorID"
 #define PCSCLITE_PRODKEY_NAME                   "ifdProductID"
@@ -299,7 +299,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					already_used = FALSE;
 
 					DEBUG_COMM3("Checking device: %s/%s", bus->dirname, dev->filename);
-					for (r=0; r<CCID_DRIVER_MAX_READERS; r++)
+					for (r=0; r<DRIVER_MAX_READERS; r++)
 					{
 						if (usbDevice[r].handle)
 						{
@@ -333,7 +333,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 						return STATUS_UNSUCCESSFUL;
 					}
 
-					usb_interface = get_ccid_usb_interface(dev);
+					usb_interface = get_usb_interface(dev);
 					if (usb_interface == NULL)
 					{
 						usb_close(dev_handle);
@@ -366,9 +366,9 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					usbDevice[reader_index].nb_opened_slots = &usbDevice[reader_index].real_nb_opened_slots;
 
 					/* CCID common informations */
-					usbDevice[reader_index].ccid.real_bSeq = 0;
-					usbDevice[reader_index].ccid.pbSeq = &usbDevice[reader_index].ccid.real_bSeq;
-					usbDevice[reader_index].ccid.readerID = (dev->descriptor.idVendor << 16) + dev->descriptor.idProduct;
+					usbDevice[reader_index].rtdesc.real_bSeq = 0;
+					usbDevice[reader_index].rtdesc.pbSeq = &usbDevice[reader_index].rtdesc.real_bSeq;
+					usbDevice[reader_index].rtdesc.readerID = (dev->descriptor.idVendor << 16) + dev->descriptor.idProduct;
 
 					/* 
 					 * Only one of the following values may be present to select a level of exhange: 
@@ -377,20 +377,20 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					 *  - xxx2xxxxh Short APDU level exchange with CCID
 					 *  - xxx4xxxxh Short and Extended APDU level exchange with CCID
 					 */
-					usbDevice[reader_index].ccid.dwFeatures = 0x00000840;
-					usbDevice[reader_index].ccid.bPINSupport = 1;
-					usbDevice[reader_index].ccid.dwMaxCCIDMessageLength = 261;
-					usbDevice[reader_index].ccid.dwMaxIFSD = 254;
-					usbDevice[reader_index].ccid.dwDefaultClock = 3580; /* 3.58 Mhz */
-					usbDevice[reader_index].ccid.dwMaxDataRate = 9600; /* 9.6Kbps */
-					usbDevice[reader_index].ccid.bMaxSlotIndex = 0;
-					usbDevice[reader_index].ccid.arrayOfSupportedDataRates = NULL;
+					usbDevice[reader_index].rtdesc.dwFeatures = 0x00000840;
+					usbDevice[reader_index].rtdesc.bPINSupport = 1;
+					usbDevice[reader_index].rtdesc.dwMaxCCIDMessageLength = 261;
+					usbDevice[reader_index].rtdesc.dwMaxIFSD = 254;
+					usbDevice[reader_index].rtdesc.dwDefaultClock = 3580; /* 3.58 Mhz */
+					usbDevice[reader_index].rtdesc.dwMaxDataRate = 9600; /* 9.6Kbps */
+					usbDevice[reader_index].rtdesc.bMaxSlotIndex = 0;
+					usbDevice[reader_index].rtdesc.arrayOfSupportedDataRates = NULL;
 
-					usbDevice[reader_index].ccid.bCurrentSlotIndex = 0;
-					usbDevice[reader_index].ccid.readTimeout = DEFAULT_COM_READ_TIMEOUT;
-					usbDevice[reader_index].ccid.bInterfaceProtocol = usb_interface->altsetting->bInterfaceProtocol;
-					usbDevice[reader_index].ccid.bNumEndpoints = usb_interface->altsetting->bNumEndpoints;
-					usbDevice[reader_index].ccid.dwSlotStatus = IFD_ICC_PRESENT;
+					usbDevice[reader_index].rtdesc.bCurrentSlotIndex = 0;
+					usbDevice[reader_index].rtdesc.readTimeout = DEFAULT_COM_READ_TIMEOUT;
+					usbDevice[reader_index].rtdesc.bInterfaceProtocol = usb_interface->altsetting->bInterfaceProtocol;
+					usbDevice[reader_index].rtdesc.bNumEndpoints = usb_interface->altsetting->bNumEndpoints;
+					usbDevice[reader_index].rtdesc.dwSlotStatus = IFD_ICC_PRESENT;
 				}
 			}
 		}
@@ -422,11 +422,11 @@ status_t CloseUSB(unsigned int reader_index)
 		usbDevice[reader_index].dirname,
 		usbDevice[reader_index].filename);
 
-	if (usbDevice[reader_index].ccid.arrayOfSupportedDataRates
-		&& (usbDevice[reader_index].ccid.bCurrentSlotIndex == 0))
+	if (usbDevice[reader_index].rtdesc.arrayOfSupportedDataRates
+		&& (usbDevice[reader_index].rtdesc.bCurrentSlotIndex == 0))
 	{
-		free(usbDevice[reader_index].ccid.arrayOfSupportedDataRates);
-		usbDevice[reader_index].ccid.arrayOfSupportedDataRates = NULL;
+		free(usbDevice[reader_index].rtdesc.arrayOfSupportedDataRates);
+		usbDevice[reader_index].rtdesc.arrayOfSupportedDataRates = NULL;
 	}
 
 	/* one slot closed */
@@ -457,21 +457,21 @@ status_t CloseUSB(unsigned int reader_index)
 
 /*****************************************************************************
  *
- *					get_ccid_descriptor
+ *					get_device_descriptor
  *
  ****************************************************************************/
-_ccid_descriptor *get_ccid_descriptor(unsigned int reader_index)
+_device_descriptor *get_device_descriptor(unsigned int reader_index)
 {
-	return &usbDevice[reader_index].ccid;
-} /* get_ccid_descriptor */
+	return &usbDevice[reader_index].rtdesc;
+} /* get_device_descriptor */
 
 
 /*****************************************************************************
  *
- *					get_ccid_usb_interface
+ *					get_usb_interface
  *
  ****************************************************************************/
-/*@null@*/ EXTERNAL struct usb_interface * get_ccid_usb_interface(struct usb_device *dev)
+/*@null@*/ EXTERNAL struct usb_interface * get_usb_interface(struct usb_device *dev)
 {
 	struct usb_interface *usb_interface = NULL;
 	int i;
@@ -487,7 +487,7 @@ _ccid_descriptor *get_ccid_descriptor(unsigned int reader_index)
 	}
 
 	return usb_interface;
-} /* get_ccid_usb_interface */
+} /* get_usb_interface */
 
 
 /*****************************************************************************
@@ -507,7 +507,7 @@ int ControlUSB(int reader_index, int requesttype, int request, int value,
 
 	ret = usb_control_msg(usbDevice[reader_index].handle, requesttype,
 		request, value, usbDevice[reader_index].interface, (char *)bytes, size,
-		usbDevice[reader_index].ccid.readTimeout * 1000);
+		usbDevice[reader_index].rtdesc.readTimeout * 1000);
 
 	if (requesttype & 0x80)
 		 DEBUG_XXD("receive: ", bytes, ret);
