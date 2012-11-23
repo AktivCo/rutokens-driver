@@ -11,7 +11,6 @@ LIBS_TO_INSTALL =
 if WITH_LIBUSB
 lib_LTLIBRARIES += libccid.la
 LIBS_TO_INSTALL += install_ccid
-bin_PROGRAMS = parse
 endif
 if WITH_TWIN_SERIAL
 lib_LTLIBRARIES += libccidtwin.la
@@ -55,10 +54,6 @@ libccidtwin_la_SOURCES = $(COMMON) $(SERIAL) $(TOKEN_PARSER) \
 libccidtwin_la_CFLAGS = $(PCSC_CFLAGS) $(PTHREAD_CFLAGS) $(SYMBOL_VISIBILITY) \
 	-DTWIN_SERIAL -D$(CCID_VERSION)
 libccidtwin_la_LIBADD = $(PTHREAD_LIBS)
-
-parse_SOURCES = parse.c debug.c
-parse_LDADD = libccid.la
-parse_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS)
 
 EXTRA_DIST = Info.plist.src create_Info_plist.pl reader.conf.in \
 	openct/LICENSE \
