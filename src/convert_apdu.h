@@ -1,6 +1,6 @@
 /*
  * APDU conversion for Rutoken S
- *
+ * Taken from openct.
  *
  */
 #ifndef CONVERT_APDU_H

@@ -1,3 +1,8 @@
+/*
+ * APDU conversion for Rutoken S
+ * Taken from openct.
+ *
+ */
 #include <stdlib.h>
 #include <string.h>
 #include "convert_apdu.h"

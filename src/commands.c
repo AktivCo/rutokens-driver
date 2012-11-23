@@ -61,11 +61,11 @@
 
 RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status);
 
-RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length, const unsigned char tx_buffer[]);
+RESPONSECODE CmdTransmit(unsigned int reader_index, unsigned int tx_length, const unsigned char tx_buffer[]);
 
-RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length, unsigned char rx_buffer[]);
+RESPONSECODE CmdReceive(unsigned int reader_index, unsigned int *rx_length, unsigned char rx_buffer[]);
 
-RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[]);
+RESPONSECODE CmdReceiveSW(unsigned int reader_index, unsigned char sw[]);
 
 RESPONSECODE CmdTranslateTxBuffer(const ifd_iso_apdu_t* iso, unsigned int *tx_length, unsigned char tx_buffer[], unsigned char** send_buf_trn);
 
@@ -398,10 +398,10 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 
 /*****************************************************************************
  *
- *					CCID_Transmit
+ *					CmdTransmit
  *
  ****************************************************************************/
-RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length,
+RESPONSECODE CmdTransmit(unsigned int reader_index, unsigned int tx_length,
 	const unsigned char tx_buffer[])
 {
 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
@@ -424,15 +424,15 @@ RESPONSECODE CCID_Transmit(unsigned int reader_index, unsigned int tx_length,
 	}
 
 	return IFD_SUCCESS;
-} /* CCID_Transmit */
+} /* CmdTransmit */
 
 
 /*****************************************************************************
  *
- *					CCID_Receive
+ *					CmdReceive
  *
  ****************************************************************************/
-RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
+RESPONSECODE CmdReceive(unsigned int reader_index, unsigned int *rx_length,
 	unsigned char rx_buffer[])
 {
 	_ccid_descriptor *ccid_descriptor = get_ccid_descriptor(reader_index);
@@ -455,15 +455,15 @@ RESPONSECODE CCID_Receive(unsigned int reader_index, unsigned int *rx_length,
 	}
 
 	return IFD_SUCCESS;
-} /* CCID_Receive */
+} /* CmdReceive */
 
 
 /*****************************************************************************
  *
- *					CCID_Receive_SW
+ *					CmdReceiveSW
  *
  ****************************************************************************/
-RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[])
+RESPONSECODE CmdReceiveSW(unsigned int reader_index, unsigned char sw[])
 {
 	unsigned char status = 0;
 	int sw_len = 2;
@@ -482,14 +482,14 @@ RESPONSECODE CCID_Receive_SW(unsigned int reader_index, unsigned char sw[])
 	{
 		DEBUG_INFO("status = ICC_STATUS_READY_SW;");
 
-		if(CCID_Receive(reader_index, &sw_len, sw) != IFD_SUCCESS)
+		if(CmdReceive(reader_index, &sw_len, sw) != IFD_SUCCESS)
 			return IFD_COMMUNICATION_ERROR;
 		
 		DEBUG_INFO3("Get SW %x %x", sw[0], sw[1]);
 		return IFD_SUCCESS;
 	}
 	return IFD_COMMUNICATION_ERROR;
-}/* CCID_Receive_SW */
+}/* CmdReceiveSW */
 
 
 /*****************************************************************************
@@ -551,7 +551,7 @@ RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
 	CmdPrepareT0Hdr(&iso, hdr);
 	
 	//send TPDU header
-	r = CCID_Transmit(reader_index, T0_HDR_LEN, hdr);
+	r = CmdTransmit(reader_index, T0_HDR_LEN, hdr);
 	if ( r != IFD_SUCCESS)
 		return r;
 
@@ -560,7 +560,7 @@ RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
 	{
 		case	IFD_APDU_CASE_1:
 			// get sw
-			r = CCID_Receive_SW(reader_index, sw);
+			r = CmdReceiveSW(reader_index, sw);
 			if (r != IFD_SUCCESS)
 				return r;
 			break;
@@ -576,13 +576,13 @@ RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
 			if(status == ICC_STATUS_READY_DATA)
 			{
 				*rrecv = iso.le;
-				r = CCID_Receive(reader_index, rrecv, rbuf);
+				r = CmdReceive(reader_index, rrecv, rbuf);
 				if (r != IFD_SUCCESS)
 					return r;
 				DEBUG_INFO2("get TPDU Anser %s", array_hexdump(rbuf, iso.le));
 			}
 
-			r = CCID_Receive_SW(reader_index, sw);
+			r = CmdReceiveSW(reader_index, sw);
 			if (r != IFD_SUCCESS)
 				return r;
 
@@ -611,14 +611,14 @@ RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
 			if(status == ICC_STATUS_READY_DATA)
 			{
 				DEBUG_INFO2("send TPDU Data %s", array_hexdump(iso.data, iso.lc));
-				r = CCID_Transmit(reader_index, iso.lc, iso.data);
+				r = CmdTransmit(reader_index, iso.lc, iso.data);
 				if (r != IFD_SUCCESS)
 					return r;
 			}
 			else
 				return IFD_COMMUNICATION_ERROR;
 			// get sw
-			r = CCID_Receive_SW(reader_index, sw);
+			r = CmdReceiveSW(reader_index, sw);
 			if (r != IFD_SUCCESS)
 				return r;
 

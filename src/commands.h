@@ -25,13 +25,11 @@
 
 #define RUTOKEN_ATR_LEN	19
 
-RESPONSECODE CmdPowerOn(unsigned int reader_index, unsigned int * nlength,
-	unsigned char buffer[]);
+RESPONSECODE CmdPowerOn(unsigned int reader_index, unsigned int * nlength, unsigned char buffer[]);
 
 RESPONSECODE CmdPowerOff(unsigned int reader_index);
 
-RESPONSECODE CmdIccPresence(unsigned int reader_index,
-	unsigned char* presence);
+RESPONSECODE CmdIccPresence(unsigned int reader_index, unsigned char* presence);
 
 RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 	unsigned char tx_buffer[], unsigned int *rx_length,
