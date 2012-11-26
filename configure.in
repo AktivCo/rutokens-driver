@@ -307,8 +307,7 @@ EOF
 AC_CONFIG_FILES(Makefile
 	m4/Makefile
 	src/Makefile
-	readers/Makefile
-	examples/Makefile)
+	readers/Makefile)
 
 AC_OUTPUT
 

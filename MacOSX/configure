@@ -53,7 +53,7 @@ LIBUSB_CFLAGS="-I/Developer/SDKs/MacOSX10.5.sdk/usr/include"
 LIBUSB_LIBS="-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib -lusb"
 
 # RESPONSECODE is already defined by PCSC/wintypes.h
-# define needed here to compile examples/scardcontrol.c since config.h is
+# define needed here since config.h is
 # not included
 CFLAGS="$CFLAGS -DRESPONSECODE_DEFINED_IN_WINTYPES_H"
 

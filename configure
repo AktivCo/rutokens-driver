@@ -22836,7 +22836,7 @@ udev support:            ${udev}
 EOF
 
 # Write Makefiles.
-ac_config_files="$ac_config_files Makefile m4/Makefile src/Makefile readers/Makefile examples/Makefile"
+ac_config_files="$ac_config_files Makefile m4/Makefile src/Makefile readers/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -23457,7 +23457,6 @@ do
     "m4/Makefile") CONFIG_FILES="$CONFIG_FILES m4/Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "readers/Makefile") CONFIG_FILES="$CONFIG_FILES readers/Makefile" ;;
-    "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
