@@ -15,7 +15,6 @@ endif
 COMMON = apdu.c \
 	apdu.h \
 	ccid.h \
-	ccid_ifdhandler.h \
 	commands.c \
 	commands.h \
 	convert_apdu.c \

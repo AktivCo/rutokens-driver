@@ -25,7 +25,6 @@
 
 #include "ccid.h"
 #include "defs.h"
-#include "ccid_ifdhandler.h"
 #include "utils.h"
 #include "debug.h"
 

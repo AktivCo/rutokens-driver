@@ -32,7 +32,6 @@
 #include "ccid.h"
 #include "defs.h"
 #include "ccid_usb.h"
-#include "ccid_ifdhandler.h"
 #include "debug.h"
 #include "utils.h"
 #include "commands.h"
@@ -41,6 +40,12 @@
 #ifdef HAVE_PTHREAD
 #include <pthread.h>
 #endif
+
+#define CLASS2_IOCTL_MAGIC 0x330000
+#define IOCTL_FEATURE_VERIFY_PIN_DIRECT \
+	SCARD_CTL_CODE(FEATURE_VERIFY_PIN_DIRECT + CLASS2_IOCTL_MAGIC)
+#define IOCTL_FEATURE_MODIFY_PIN_DIRECT \
+	SCARD_CTL_CODE(FEATURE_MODIFY_PIN_DIRECT + CLASS2_IOCTL_MAGIC)
 
 /* Array of structures to hold the ATR and other state value of each slot */
 static DevDesc DevSlots[DRIVER_MAX_READERS];

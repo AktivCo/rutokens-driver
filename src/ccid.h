@@ -21,6 +21,14 @@
  * $Id: ccid.h 2974 2008-05-28 18:32:52Z rousseau $
  */
 
+/*
+ * Maximum number of readers supported simultaneously
+ *
+ * The maximum number of readers is also limited in pcsc-lite (16 by default)
+ * see the definition of PCSCLITE_MAX_READERS_CONTEXTS in src/PCSC/pcsclite.h
+ */
+#define DRIVER_MAX_READERS 16
+
 typedef struct
 {
 	/*

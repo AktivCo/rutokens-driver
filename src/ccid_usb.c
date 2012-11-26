@@ -39,7 +39,6 @@
 #include "defs.h"
 #include "utils.h"
 #include "parser.h"
-#include "ccid_ifdhandler.h"
 
 
 /* write timeout
