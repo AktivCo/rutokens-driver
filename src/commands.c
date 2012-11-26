@@ -202,10 +202,10 @@ RESPONSECODE CmdIccPresence(unsigned int reader_index,
 		return r;
 
 	/* present and active by default */
-	*presence = CCID_ICC_PRESENT_ACTIVE;
+	*presence = DEV_ICC_PRESENT_ACTIVE;
 
 	if (ICC_STATUS_MUTE == status)
-		*presence = CCID_ICC_ABSENT;
+		*presence = DEV_ICC_ABSENT;
 
 	return IFD_SUCCESS;
 }/* CmdIccPresence */

@@ -23,6 +23,7 @@
 
 #ifndef __CCID_USB_H__
 #define __CCID_USB_H__
+
 status_t OpenUSB(unsigned int reader_index, int channel);
 
 status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device);

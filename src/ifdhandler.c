@@ -335,7 +335,7 @@ EXTERNAL RESPONSECODE IFDHGetCapabilities(DWORD Lun, DWORD Tag,
 		case SCARD_ATTR_MAXINPUT:
 			*Length = sizeof(uint32_t);
 			if (Value)
-				*(uint32_t *)Value = get_device_descriptor(reader_index) -> dwMaxCCIDMessageLength - 10;
+				*(uint32_t *)Value = get_device_descriptor(reader_index) -> dwMaxDevMessageLength - 10;
 			break;
 
 		default:
@@ -616,7 +616,7 @@ EXTERNAL RESPONSECODE IFDHControl(DWORD Lun, DWORD dwControlCode,
 
 		/* We can only support direct verify and/or modify currently */
 		if (get_device_descriptor(reader_index) -> bPINSupport
-			& CCID_CLASS_PIN_VERIFY)
+			& DEV_CLASS_PIN_VERIFY)
 		{
 			pcsc_tlv -> tag = FEATURE_VERIFY_PIN_DIRECT;
 			pcsc_tlv -> length = 0x04; /* always 0x04 */
@@ -627,7 +627,7 @@ EXTERNAL RESPONSECODE IFDHControl(DWORD Lun, DWORD dwControlCode,
 		}
 
 		if (get_device_descriptor(reader_index) -> bPINSupport
-			& CCID_CLASS_PIN_MODIFY)
+			& DEV_CLASS_PIN_MODIFY)
 		{
 			pcsc_tlv -> tag = FEATURE_MODIFY_PIN_DIRECT;
 			pcsc_tlv -> length = 0x04; /* always 0x04 */
@@ -695,14 +695,14 @@ EXTERNAL RESPONSECODE IFDHICCPresence(DWORD Lun)
 		return return_value;
 
 	return_value = IFD_COMMUNICATION_ERROR;
-	switch (presence & CCID_ICC_STATUS_MASK)	/* bStatus */
+	switch (presence & DEV_ICC_STATUS_MASK)	/* bStatus */
 	{
-		case CCID_ICC_PRESENT_ACTIVE:
+		case DEV_ICC_PRESENT_ACTIVE:
 			return_value = IFD_ICC_PRESENT;
 			/* use default slot */
 			break;
 
-		case CCID_ICC_ABSENT:
+		case DEV_ICC_ABSENT:
 			/* Reset ATR buffer */
 			DevSlots[reader_index].nATRLength = 0;
 			*DevSlots[reader_index].pcATRBuffer = '\0';
@@ -743,14 +743,14 @@ void init_driver(void)
 		DEBUG_INFO2("LogLevel: 0x%.4X", LogLevel);
 	}
 
-	e = getenv("LIBCCID_ifdLogLevel");
+	e = getenv("IFDLIB_ifdLogLevel");
 	if (e)
 	{
 		/* convert from hex or dec or octal */
 		LogLevel = strtoul(e, NULL, 0);
 
 		/* print the log level used */
-		DEBUG_INFO2("LogLevel from LIBCCID_ifdLogLevel: 0x%.4X", LogLevel);
+		DEBUG_INFO2("LogLevel from IFDLIB_ifdLogLevel: 0x%.4X", LogLevel);
 	}
 
 	/* initialise the Lun to reader_index mapping */

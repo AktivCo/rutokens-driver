@@ -74,7 +74,7 @@ typedef struct
 	int *nb_opened_slots;
 
 	/*
-	 * CCID infos common to USB and serial
+	 * Device infos common to USB
 	 */
 	_device_descriptor rtdesc;
 
@@ -89,35 +89,6 @@ static _usbDevice usbDevice[DRIVER_MAX_READERS];
 #define PCSCLITE_MANUKEY_NAME                   "ifdVendorID"
 #define PCSCLITE_PRODKEY_NAME                   "ifdProductID"
 #define PCSCLITE_NAMEKEY_NAME                   "ifdFriendlyName"
-
-struct _bogus_firmware
-{
-	int vendor;		/* idVendor */
-	int product;	/* idProduct */
-	int firmware;	/* bcdDevice: previous firmwares have bugs */
-};
-
-static struct _bogus_firmware Bogus_firmwares[] = {
-	{ 0x04e6, 0xe001, 0x0516 },	/* SCR 331 */
-	{ 0x04e6, 0x5111, 0x0620 },	/* SCR 331-DI */
-	{ 0x04e6, 0x5115, 0x0514 },	/* SCR 335 */
-	{ 0x04e6, 0xe003, 0x0510 },	/* SPR 532 */
-	{ 0x0D46, 0x3001, 0x0037 },	/* KAAN Base */
-	{ 0x0D46, 0x3002, 0x0037 },	/* KAAN Advanced */
-	{ 0x09C3, 0x0008, 0x0203 },	/* ActivCard V2 */
-	{ 0x0DC3, 0x1004, 0x0502 },	/* ASE IIIe USBv2 */
-	{ 0x0DC3, 0x1102, 0x0607 },	/* ASE IIIe KB USB */
-	{ 0x058F, 0x9520, 0x0102 },	/* Alcor AU9520-G */
-
-	/* the firmware version is not correct since I do not have received a
-	 * working reader yet */
-#ifndef O2MICRO_OZ776_PATCH
-	{ 0x0b97, 0x7762, 0x0111 },	/* Oz776S */
-#endif
-};
-
-/* data rates supported by the secondary slots on the GemCore Pos Pro & SIM Pro */
-unsigned int SerialCustomDataRates[] = { GEMPLUS_CUSTOM_DATA_RATES, 0 };
 
 
 /*****************************************************************************
@@ -230,7 +201,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 	}
 	else
 	{
-		DEBUG_INFO2("LTPBundleFindValueWithKey error. Can't find %s?", infofile);
+		DEBUG_INFO2("LTPBundleFindValueWithKey error. Can't find %s", infofile);
 		return STATUS_UNSUCCESSFUL;
 	}
 	if (!LTPBundleFindValueWithKey(infofile, "ifdProductString", keyValue, 0))
@@ -336,7 +307,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					if (usb_interface == NULL)
 					{
 						usb_close(dev_handle);
-						DEBUG_CRITICAL3("Can't find a CCID interface on %s/%s",	bus->dirname, dev->filename);
+						DEBUG_CRITICAL3("Can't find a device interface on %s/%s",	bus->dirname, dev->filename);
 						return STATUS_UNSUCCESSFUL;
 					}
 
