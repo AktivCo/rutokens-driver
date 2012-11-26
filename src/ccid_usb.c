@@ -335,32 +335,18 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					usbDevice[reader_index].real_nb_opened_slots = 1;
 					usbDevice[reader_index].nb_opened_slots = &usbDevice[reader_index].real_nb_opened_slots;
 
-					/* CCID common informations */
+					/* Device common informations */
 					usbDevice[reader_index].rtdesc.real_bSeq = 0;
 					usbDevice[reader_index].rtdesc.pbSeq = &usbDevice[reader_index].rtdesc.real_bSeq;
 					usbDevice[reader_index].rtdesc.readerID = (dev->descriptor.idVendor << 16) + dev->descriptor.idProduct;
 
-					/* 
-					 * Only one of the following values may be present to select a level of exhange: 
-					 *  - xxx0xxxxh Character level exchanges with CCID
-					 *  - xxx1xxxxh TPDU level exchanges with CCID
-					 *  - xxx2xxxxh Short APDU level exchange with CCID
-					 *  - xxx4xxxxh Short and Extended APDU level exchange with CCID
-					 */
-					usbDevice[reader_index].rtdesc.dwFeatures = 0x00000840;
-					usbDevice[reader_index].rtdesc.bPINSupport = 1;
-					usbDevice[reader_index].rtdesc.dwMaxCCIDMessageLength = 261;
+					usbDevice[reader_index].rtdesc.bPINSupport = DEV_CLASS_PIN_VERIFY;
+					usbDevice[reader_index].rtdesc.dwMaxDevMessageLength = 261;
 					usbDevice[reader_index].rtdesc.dwMaxIFSD = 254;
-					usbDevice[reader_index].rtdesc.dwDefaultClock = 3580; /* 3.58 Mhz */
-					usbDevice[reader_index].rtdesc.dwMaxDataRate = 9600; /* 9.6Kbps */
 					usbDevice[reader_index].rtdesc.bMaxSlotIndex = 0;
-					usbDevice[reader_index].rtdesc.arrayOfSupportedDataRates = NULL;
 
-					usbDevice[reader_index].rtdesc.bCurrentSlotIndex = 0;
 					usbDevice[reader_index].rtdesc.readTimeout = DEFAULT_COM_READ_TIMEOUT;
-					usbDevice[reader_index].rtdesc.bInterfaceProtocol = usb_interface->altsetting->bInterfaceProtocol;
 					usbDevice[reader_index].rtdesc.bNumEndpoints = usb_interface->altsetting->bNumEndpoints;
-					usbDevice[reader_index].rtdesc.dwSlotStatus = IFD_ICC_PRESENT;
 				}
 			}
 		}
@@ -391,13 +377,6 @@ status_t CloseUSB(unsigned int reader_index)
 	DEBUG_COMM3("Closing USB device: %s/%s",
 		usbDevice[reader_index].dirname,
 		usbDevice[reader_index].filename);
-
-	if (usbDevice[reader_index].rtdesc.arrayOfSupportedDataRates
-		&& (usbDevice[reader_index].rtdesc.bCurrentSlotIndex == 0))
-	{
-		free(usbDevice[reader_index].rtdesc.arrayOfSupportedDataRates);
-		usbDevice[reader_index].rtdesc.arrayOfSupportedDataRates = NULL;
-	}
 
 	/* one slot closed */
 	(*usbDevice[reader_index].nb_opened_slots)--;

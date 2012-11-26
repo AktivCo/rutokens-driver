@@ -45,7 +45,7 @@ typedef struct
 	/*
 	 * Maximum message length
 	 */
-	unsigned int dwMaxCCIDMessageLength;
+	unsigned int dwMaxDevMessageLength;
 
 	/*
 	 * Maximum IFSD
@@ -53,39 +53,14 @@ typedef struct
 	int dwMaxIFSD;
 
 	/*
-	 * Features supported by the reader (directly from Class Descriptor)
-	 */
-	int dwFeatures;
-
-	/*
 	 * PIN support of the reader (directly from Class Descriptor)
 	 */
 	char bPINSupport;
 
 	/*
-	 * Default Clock
-	 */
-	int dwDefaultClock;
-
-	/*
-	 * Max Data Rate
-	 */
-	unsigned int dwMaxDataRate;
-
-	/*
 	 * Number of available slots
 	 */
 	char bMaxSlotIndex;
-
-	/*
-	 * Slot in use
-	 */
-	char bCurrentSlotIndex;
-
-	/*
-	 * The array of data rates supported by the reader
-	 */
-	unsigned int *arrayOfSupportedDataRates;
 
 	/*
 	 * Read communication port timeout
@@ -95,27 +70,10 @@ typedef struct
 	unsigned int readTimeout;
 
 	/*
-	 * Card protocol
-	 */
-	int cardProtocol;
-
-	/*
-	 * bInterfaceProtocol (CCID, ICCD-A, ICCD-B)
-	 */
-	int bInterfaceProtocol;
-
-	/*
 	 * bNumEndpoints
 	 */
 	int bNumEndpoints;
 
-	/*
-	 * GemCore SIM PRO slot status management
-	 * The reader always reports a card present even if no card is inserted.
-	 * If the Power Up fails the driver will report IFD_ICC_NOT_PRESENT instead
-	 * of IFD_ICC_PRESENT
-	 */
-	int dwSlotStatus;
 } _device_descriptor;
 
 /* Features from bPINSupport */
