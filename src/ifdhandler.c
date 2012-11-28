@@ -55,7 +55,7 @@ static DevDesc DevSlots[DRIVER_MAX_READERS];
 static pthread_mutex_t ifdh_context_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
-int LogLevel = DEBUG_LEVEL_CRITICAL | DEBUG_LEVEL_INFO;
+int LogLevel = 0;
 static int DebugInitialized = FALSE;
 
 /* local functions */

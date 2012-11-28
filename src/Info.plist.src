@@ -28,7 +28,7 @@
 	<string>0x00000001</string>
 
 	<key>ifdLogLevel</key>
-	<string>0x0003</string>
+	<string>0x0000</string>
 
 	<!-- Possible values for ifdLogLevel
 	1: CRITICAL  important error messages
