@@ -9,7 +9,7 @@ lib_LTLIBRARIES =
 LIBS_TO_INSTALL =
 if WITH_LIBUSB
 lib_LTLIBRARIES += librutokens.la
-LIBS_TO_INSTALL += install_ccid
+LIBS_TO_INSTALL += install_rutokens
 endif
 
 COMMON = apdu.c \
@@ -25,7 +25,6 @@ COMMON = apdu.c \
 	utils.c \
 	utils.h 
 USB = rutokens_usb.c rutokens_usb.h
-SERIAL = ccid_serial.c ccid_serial.h
 TOKEN_PARSER = tokenparser.l parser.h \
 	strlcpy.c \
 	misc.h \
@@ -61,15 +60,15 @@ Info.plist: Info.plist.src $(srcdir)/../readers/supported_readers.txt
 	
 DISTCLEANFILES = Info.plist
 
-install_ccid: librutokens.la Info.plist
+install_rutokens: librutokens.la Info.plist
 	$(mkinstalldirs) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/
 	cp Info.plist $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/
 	cp .libs/$(RUTOKENS_LIB) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB).$(VERSION)
 	ln -fs $(RUTOKENS_LIB).$(VERSION) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB)
 	$(INSTALL_UDEV_RULE_FILE)
 
-uninstall: uninstall_ccid
+uninstall: uninstall_rutokens
 
-uninstall_ccid:
+uninstall_rutokens:
 	rm -rf $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)
 

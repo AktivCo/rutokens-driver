@@ -36,7 +36,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @WITH_LIBUSB_TRUE@am__append_1 = librutokens.la
-@WITH_LIBUSB_TRUE@am__append_2 = install_ccid
+@WITH_LIBUSB_TRUE@am__append_2 = install_rutokens
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	tokenparser.c
@@ -252,7 +252,6 @@ COMMON = apdu.c \
 
 
 USB = rutokens_usb.c rutokens_usb.h
-SERIAL = ccid_serial.c ccid_serial.h
 
 TOKEN_PARSER = tokenparser.l parser.h \
 	strlcpy.c \
@@ -636,16 +635,16 @@ install: $(LIBS_TO_INSTALL)
 Info.plist: Info.plist.src $(srcdir)/../readers/supported_readers.txt
 	$(srcdir)/create_Info_plist.pl $(srcdir)/../readers/supported_readers.txt $(srcdir)/Info.plist.src $(ifdCapabilities) | sed s/TARGET/$(RUTOKENS_LIB)/ > Info.plist
 
-install_ccid: librutokens.la Info.plist
+install_rutokens: librutokens.la Info.plist
 	$(mkinstalldirs) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/
 	cp Info.plist $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/
 	cp .libs/$(RUTOKENS_LIB) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB).$(VERSION)
 	ln -fs $(RUTOKENS_LIB).$(VERSION) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB)
 	$(INSTALL_UDEV_RULE_FILE)
 
-uninstall: uninstall_ccid
+uninstall: uninstall_rutokens
 
-uninstall_ccid:
+uninstall_rutokens:
 	rm -rf $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
