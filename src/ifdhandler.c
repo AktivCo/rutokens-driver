@@ -88,7 +88,7 @@ EXTERNAL RESPONSECODE IFDHCreateChannelByName(DWORD Lun, LPSTR lpcDevice)
 
 	if (OpenUSBByName(reader_index, lpcDevice) != STATUS_SUCCESS)
 	{
-		DEBUG_CRITICAL("failed");
+		DEBUG_CRITICAL("OpenUSBByName failed");
 		return_value = IFD_COMMUNICATION_ERROR;
 
 		/* release the allocated reader_index */
@@ -105,7 +105,7 @@ EXTERNAL RESPONSECODE IFDHCreateChannelByName(DWORD Lun, LPSTR lpcDevice)
 			&& (IFD_COMMUNICATION_ERROR == IFDHICCPresence(Lun))
 			&& (IFD_COMMUNICATION_ERROR == IFDHICCPresence(Lun)))
 		{
-			DEBUG_CRITICAL("failed");
+			DEBUG_CRITICAL("IFDHICCPresence failed");
 			return_value = IFD_COMMUNICATION_ERROR;
 
 			/* release the allocated reader_index */
@@ -684,8 +684,6 @@ void init_driver(void)
 	char infofile[FILENAME_MAX];
 	char *e;
 
-	DEBUG_INFO("Driver version: " VERSION);
-
 	/* Info.plist full patch filename */
 	snprintf(infofile, sizeof(infofile), "%s/%s/Contents/Info.plist",
 		PCSCLITE_HP_DROPDIR, BUNDLE);
@@ -697,7 +695,7 @@ void init_driver(void)
 		LogLevel = strtoul(keyValue, NULL, 0);
 
 		/* print the log level used */
-		DEBUG_INFO2("LogLevel: 0x%.4X", LogLevel);
+		DEBUG_INFO2("LogLevel from Info.plist: 0x%.4X", LogLevel);
 	}
 
 	e = getenv("IFDLIB_ifdLogLevel");
@@ -709,6 +707,9 @@ void init_driver(void)
 		/* print the log level used */
 		DEBUG_INFO2("LogLevel from IFDLIB_ifdLogLevel: 0x%.4X", LogLevel);
 	}
+
+	DEBUG_INFO("Driver version: " VERSION);
+	DEBUG_INFO2("LogLevel: 0x%.4X", LogLevel);
 
 	/* initialise the Lun to reader_index mapping */
 	InitReaderIndex();

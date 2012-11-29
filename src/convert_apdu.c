@@ -70,19 +70,19 @@ int convert_doinfo_to_rtprot(void *data, size_t data_len)
 
 	if (read_tag(p, data_len, 0x80, &dohdr[0], 2) == 0) {
 		swap_pair(&dohdr[0], 2);
-		DEBUG_INFO3("tag 0x80 (file size) = %02x %02x", dohdr[0], dohdr[1]);
+		DEBUG_COMM3("tag 0x80 (file size) = %02x %02x", dohdr[0], dohdr[1]);
 	}
 	data_a5_len = dohdr[1] & 0xff;
 	if (read_tag(p, data_len, 0xA5, data_a5, data_a5_len) == 0)
-		DEBUG_INFO2("tag 0xA5 = %s", array_hexdump(data_a5, data_a5_len));
+		DEBUG_COMM2("tag 0xA5 = %s", array_hexdump(data_a5, data_a5_len));
 	else
 		data_a5_len = 0;
 	if (data_len < sizeof(dohdr) + data_a5_len) {
-		DEBUG_INFO2("data_len = %u", data_len);
+		DEBUG_COMM2("data_len = %u", data_len);
 		return -1;
 	}
 	if (read_tag(p, data_len, 0x83, &dohdr[2], 2) == 0)
-		DEBUG_INFO3("tag 0x83 (Type,ID) = %02x %02x", dohdr[2], dohdr[3]);
+		DEBUG_COMM3("tag 0x83 (Type,ID) = %02x %02x", dohdr[2], dohdr[3]);
 	if (read_tag(p, data_len, 0x85, &dohdr[4], 3) == 0)
 		/* ifd_debug(6, "tag 0x85 (Opt,Flags,MaxTry) = %02x %02x %02x",
 				dohdr[4], dohdr[5], dohdr[6]) */;
@@ -91,7 +91,7 @@ int convert_doinfo_to_rtprot(void *data, size_t data_len)
 		memcpy(dohdr + i, secattr, 8);
 		for (i += 8, p = &secattr[8]; i < sizeof(dohdr); ++i, p += 4)
 			dohdr[i] = *p;
-		DEBUG_INFO2("tag 0x86 = %s", array_hexdump(&dohdr[17], 15));
+		DEBUG_COMM2("tag 0x86 = %s", array_hexdump(&dohdr[17], 15));
 	}
 	memcpy(data, dohdr, sizeof(dohdr));
 	memcpy((unsigned char*)data + sizeof(dohdr), data_a5, data_a5_len);
@@ -106,12 +106,12 @@ int convert_fcp_to_rtprot(void *data, size_t data_len)
 	size_t i;
 
 	if (data_len < sizeof(rtprot)) {
-		DEBUG_INFO2("data_len = %u", data_len);
+		DEBUG_COMM2("data_len = %u", data_len);
 		return -1;
 	}
 	/* 0x62 - FCP */
 	if (p[0] != 0x62  ||  (size_t)p[1] + 2 > data_len) {
-		DEBUG_INFO3("Tag = %02x  len = %u", p[0], p[1]);
+		DEBUG_COMM3("Tag = %02x  len = %u", p[0], p[1]);
 		return -1;
 	}
 	p += 2;
@@ -119,28 +119,28 @@ int convert_fcp_to_rtprot(void *data, size_t data_len)
 	/* file type */
 	if (read_tag(p, data_len, 0x82, &rtprot[4], 2) != 0)
 		return -1;
-	DEBUG_INFO3("tag 0x82 (file type) = %02x %02x", rtprot[4], rtprot[5]);
+	DEBUG_COMM3("tag 0x82 (file type) = %02x %02x", rtprot[4], rtprot[5]);
 	/* file id */
 	if (read_tag(p, data_len, 0x83, &rtprot[6], 2) != 0)
 		return -1;
 	swap_pair(&rtprot[6], 2);
-	DEBUG_INFO3("tag 0x83 (file id) = %02x %02x", rtprot[6], rtprot[7]);
+	DEBUG_COMM3("tag 0x83 (file id) = %02x %02x", rtprot[6], rtprot[7]);
 	/* file size */
 	if (read_tag(p, data_len, 0x81, &rtprot[0], 2) == 0) {
 		swap_pair(&rtprot[0], 2);
-		DEBUG_INFO3("tag 0x81 (complete file size) = %02x %02x",
+		DEBUG_COMM3("tag 0x81 (complete file size) = %02x %02x",
 				rtprot[0], rtprot[1]);
 	}
 	if (read_tag(p, data_len, 0x80, &rtprot[2], 2) == 0) {
 		swap_pair(&rtprot[2], 2);
-		DEBUG_INFO3("tag 0x80 (file size) = %02x %02x", rtprot[2], rtprot[3]);
+		DEBUG_COMM3("tag 0x80 (file size) = %02x %02x", rtprot[2], rtprot[3]);
 	}
 	if (read_tag(p, data_len, 0x86, secattr, sizeof(secattr)) == 0) {
 		i = 17;
 		memcpy(rtprot + i, secattr, 8);
 		for (i += 8, p = &secattr[8]; i < sizeof(rtprot); ++i, p += 4)
 			rtprot[i] = *p;
-		DEBUG_INFO2("tag 0x86 = %s", array_hexdump(&rtprot[17], 15));
+		DEBUG_COMM2("tag 0x86 = %s", array_hexdump(&rtprot[17], 15));
 	}
 	memcpy(data, rtprot, sizeof(rtprot));
 	return sizeof(rtprot);
@@ -153,7 +153,7 @@ int convert_rtprot_to_doinfo(void *data, size_t data_len)
 	size_t i, doinfo_len = 0;
 
 	if (data_len < 32) {
-		DEBUG_INFO2("data_len = %u", data_len);
+		DEBUG_COMM2("data_len = %u", data_len);
 		return -1;
 	}
 	if (pdata[0] != 0 && pdata[0] < sizeof(doinfo) - 4 - 4 - 5 - 42 - 2) {
@@ -196,7 +196,7 @@ int convert_rtprot_to_doinfo(void *data, size_t data_len)
 		memcpy(doinfo + doinfo_len, pdata + 32, pdata[0]);
 		doinfo_len += pdata[0];
 	}
-	DEBUG_INFO2("doinfo = %s", array_hexdump(doinfo, doinfo_len));
+	DEBUG_COMM2("doinfo = %s", array_hexdump(doinfo, doinfo_len));
 	memcpy(data, doinfo, doinfo_len);
 	return doinfo_len;
 }
@@ -237,7 +237,7 @@ int convert_rtprot_to_fcp(void *data, size_t data_len)
 	memcpy(fcp + 23, p + 17, 8);
 	for (i = 0; i < 7 && sizeof(fcp) > 23 + 8 + i * 4; ++i)
 		fcp[23 + 8 + i * 4] = p[17 + 8 + i];
-	DEBUG_INFO2("fcp = %s", array_hexdump(fcp, sizeof(fcp)));
+	DEBUG_COMM2("fcp = %s", array_hexdump(fcp, sizeof(fcp)));
 	memcpy(data, fcp, sizeof(fcp));
 	return sizeof(fcp);
 }
