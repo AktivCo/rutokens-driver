@@ -340,7 +340,6 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					usbDevice[reader_index].rtdesc.pbSeq = &usbDevice[reader_index].rtdesc.real_bSeq;
 					usbDevice[reader_index].rtdesc.readerID = (dev->descriptor.idVendor << 16) + dev->descriptor.idProduct;
 
-					usbDevice[reader_index].rtdesc.bPINSupport = DEV_CLASS_PIN_VERIFY;
 					usbDevice[reader_index].rtdesc.dwMaxDevMessageLength = 261;
 					usbDevice[reader_index].rtdesc.dwMaxIFSD = 254;
 					usbDevice[reader_index].rtdesc.bMaxSlotIndex = 0;

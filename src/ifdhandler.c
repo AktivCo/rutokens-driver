@@ -589,7 +589,6 @@ EXTERNAL RESPONSECODE IFDHControl(DWORD Lun, DWORD dwControlCode,
 	 *
 	 * Notes: RxLength should be zero on error.
 	 */
-	RESPONSECODE return_value = IFD_COMMUNICATION_ERROR;
 	int reader_index;
 
 	DEBUG_INFO3("lun: %X, ControlCode: 0x%X", Lun, dwControlCode);
@@ -597,54 +596,12 @@ EXTERNAL RESPONSECODE IFDHControl(DWORD Lun, DWORD dwControlCode,
 
 	reader_index = LunToReaderIndex(Lun);
 	if ((-1 == reader_index) || (NULL == pdwBytesReturned))
-		return return_value;
+		return IFD_COMMUNICATION_ERROR;
 
-	/* Set the return length to 0 to avoid problems */
+	/* No special features */
 	*pdwBytesReturned = 0;
 
-	/* Implement the PC/SC v2.1.2 Part 10 IOCTL mechanism */
-
-	/* Query for features */
-	if (CM_IOCTL_GET_FEATURE_REQUEST == dwControlCode)
-	{
-		unsigned int iBytesReturned = 0;
-		PCSC_TLV_STRUCTURE *pcsc_tlv = (PCSC_TLV_STRUCTURE *)RxBuffer;
-
-		/* we need room for two records */
-		if (RxLength < 2 * sizeof(PCSC_TLV_STRUCTURE))
-			return IFD_COMMUNICATION_ERROR;
-
-		/* We can only support direct verify and/or modify currently */
-		if (get_device_descriptor(reader_index) -> bPINSupport
-			& DEV_CLASS_PIN_VERIFY)
-		{
-			pcsc_tlv -> tag = FEATURE_VERIFY_PIN_DIRECT;
-			pcsc_tlv -> length = 0x04; /* always 0x04 */
-			pcsc_tlv -> value = htonl(IOCTL_FEATURE_VERIFY_PIN_DIRECT);
-
-			pcsc_tlv++;
-			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
-		}
-
-		if (get_device_descriptor(reader_index) -> bPINSupport
-			& DEV_CLASS_PIN_MODIFY)
-		{
-			pcsc_tlv -> tag = FEATURE_MODIFY_PIN_DIRECT;
-			pcsc_tlv -> length = 0x04; /* always 0x04 */
-			pcsc_tlv -> value = htonl(IOCTL_FEATURE_MODIFY_PIN_DIRECT);
-
-			pcsc_tlv++;
-			iBytesReturned += sizeof(PCSC_TLV_STRUCTURE);
-		}
-		*pdwBytesReturned = iBytesReturned;
-		return_value = IFD_SUCCESS;
-	}
-
-	if (IFD_SUCCESS != return_value)
-		*pdwBytesReturned = 0;
-
-	DEBUG_INFO_XXD("Control RxBuffer: ", RxBuffer, *pdwBytesReturned);
-	return return_value;
+	return IFD_SUCCESS;
 } /* IFDHControl */
 
 

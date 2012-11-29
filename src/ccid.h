@@ -53,11 +53,6 @@ typedef struct
 	int dwMaxIFSD;
 
 	/*
-	 * PIN support of the reader (directly from Class Descriptor)
-	 */
-	char bPINSupport;
-
-	/*
 	 * Number of available slots
 	 */
 	char bMaxSlotIndex;
@@ -75,10 +70,6 @@ typedef struct
 	int bNumEndpoints;
 
 } _device_descriptor;
-
-/* Features from bPINSupport */
-#define DEV_CLASS_PIN_VERIFY		0x01
-#define DEV_CLASS_PIN_MODIFY		0x02
 
 /* See CCID specs ch. 4.2.1 */
 #define DEV_ICC_PRESENT_ACTIVE		0x00	/* 00 0000 00 */
