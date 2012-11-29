@@ -270,7 +270,7 @@ AC_SUBST(usbdropdir)
 
 cat << EOF
 
-libccid has been configured with following options:
+librutokens has been configured with following options:
 
 Version:             ${PACKAGE_VERSION}
 User binaries:       $(eval eval eval echo "${bindir}")

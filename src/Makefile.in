@@ -35,7 +35,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@WITH_LIBUSB_TRUE@am__append_1 = libccid.la
+@WITH_LIBUSB_TRUE@am__append_1 = librutokens.la
 @WITH_LIBUSB_TRUE@am__append_2 = install_ccid
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
@@ -58,27 +58,27 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libccid_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+librutokens_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am__libccid_la_SOURCES_DIST = apdu.c apdu.h ccid.h \
+am__librutokens_la_SOURCES_DIST = apdu.c apdu.h ccid.h \
 	commands.c commands.h convert_apdu.c convert_apdu.h debug.h defs.h ifdhandler.c utils.c \
 	utils.h ccid_usb.c ccid_usb.h tokenparser.l parser.h strlcpy.c \
 	misc.h strlcpycat.h debug.c
-am__objects_1 = libccid_la-apdu.lo libccid_la-commands.lo \
-	libccid_la-convert_apdu.lo libccid_la-ifdhandler.lo libccid_la-utils.lo
-am__objects_2 = libccid_la-ccid_usb.lo
-am__objects_3 = libccid_la-tokenparser.lo libccid_la-strlcpy.lo
+am__objects_1 = librutokens_la-apdu.lo librutokens_la-commands.lo \
+	librutokens_la-convert_apdu.lo librutokens_la-ifdhandler.lo librutokens_la-utils.lo
+am__objects_2 = librutokens_la-ccid_usb.lo
+am__objects_3 = librutokens_la-tokenparser.lo librutokens_la-strlcpy.lo
 ### HACK !!!!!
-#@WITHOUT_PCSC_TRUE@am__objects_4 = libccid_la-debug.lo
-am__objects_4 = libccid_la-debug.lo
-am_libccid_la_OBJECTS = $(am__objects_1) $(am__objects_2) \
+#@WITHOUT_PCSC_TRUE@am__objects_4 = librutokens_la-debug.lo
+am__objects_4 = librutokens_la-debug.lo
+am_librutokens_la_OBJECTS = $(am__objects_1) $(am__objects_2) \
 	$(am__objects_3) $(am__objects_4)
-libccid_la_OBJECTS = $(am_libccid_la_OBJECTS)
-libccid_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(libccid_la_CFLAGS) \
+librutokens_la_OBJECTS = $(am_librutokens_la_OBJECTS)
+librutokens_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(librutokens_la_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-@WITH_LIBUSB_TRUE@am_libccid_la_rpath = -rpath $(libdir)
+@WITH_LIBUSB_TRUE@am_librutokens_la_rpath = -rpath $(libdir)
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/build/depcomp
@@ -97,8 +97,8 @@ LEXCOMPILE = $(LEX) $(LFLAGS) $(AM_LFLAGS)
 LTLEXCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=compile $(LEX) $(LFLAGS) $(AM_LFLAGS)
 YLWRAP = $(top_srcdir)/build/ylwrap
-SOURCES = $(libccid_la_SOURCES)
-DIST_SOURCES = $(am__libccid_la_SOURCES_DIST)
+SOURCES = $(librutokens_la_SOURCES)
+DIST_SOURCES = $(am__librutokens_la_SOURCES_DIST)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -233,7 +233,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 usbdropdir = @usbdropdir@
 CCID_BUNDLE = $(bundle)
-CCID_LIB = libccid.$(DYN_LIB_EXT)
+CCID_LIB = librutokens.$(DYN_LIB_EXT)
 CCID_VERSION = CCID_VERSION=`$(srcdir)/convert_version.pl $(PACKAGE_VERSION)`
 lib_LTLIBRARIES = $(am__append_1) $(am__append_3)
 LIBS_TO_INSTALL = $(am__append_2) $(am__append_4)
@@ -261,11 +261,11 @@ TOKEN_PARSER = tokenparser.l parser.h \
 
 MAINTAINERCLEANFILES = tokenparser.c
 @WITHOUT_PCSC_TRUE@PROVIDED_BY_PCSC = debug.c
-libccid_la_SOURCES = $(COMMON) $(USB) $(TOKEN_PARSER) $(PROVIDED_BY_PCSC)
-libccid_la_LIBADD = $(LEXLIB) $(COREFOUNDATION) $(IOKIT) \
+librutokens_la_SOURCES = $(COMMON) $(USB) $(TOKEN_PARSER) $(PROVIDED_BY_PCSC)
+librutokens_la_LIBADD = $(LEXLIB) $(COREFOUNDATION) $(IOKIT) \
 	$(LIBUSB_LIBS) $(PTHREAD_LIBS)
 
-libccid_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
+librutokens_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
 	$(SYMBOL_VISIBILITY) -D$(CCID_VERSION)
 EXTRA_DIST = Info.plist.src create_Info_plist.pl reader.conf.in \
 	openct/LICENSE \
@@ -335,8 +335,8 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libccid.la: $(libccid_la_OBJECTS) $(libccid_la_DEPENDENCIES) 
-	$(libccid_la_LINK) $(am_libccid_la_rpath) $(libccid_la_OBJECTS) $(libccid_la_LIBADD) $(LIBS)
+librutokens.la: $(librutokens_la_OBJECTS) $(librutokens_la_DEPENDENCIES) 
+	$(librutokens_la_LINK) $(am_librutokens_la_rpath) $(librutokens_la_OBJECTS) $(librutokens_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -344,15 +344,15 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-apdu.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-ccid_usb.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-commands.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-convert_apdu.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-debug.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-ifdhandler.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-strlcpy.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-tokenparser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libccid_la-utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librutokens_la-apdu.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librutokens_la-ccid_usb.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librutokens_la-commands.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librutokens_la-convert_apdu.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librutokens_la-debug.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librutokens_la-ifdhandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librutokens_la-strlcpy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librutokens_la-tokenparser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/librutokens_la-utils.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -375,68 +375,68 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
-libccid_la-apdu.lo: apdu.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-apdu.lo -MD -MP -MF $(DEPDIR)/libccid_la-apdu.Tpo -c -o libccid_la-apdu.lo `test -f 'apdu.c' || echo '$(srcdir)/'`apdu.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-apdu.Tpo $(DEPDIR)/libccid_la-apdu.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='apdu.c' object='libccid_la-apdu.lo' libtool=yes @AMDEPBACKSLASH@
+librutokens_la-apdu.lo: apdu.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -MT librutokens_la-apdu.lo -MD -MP -MF $(DEPDIR)/librutokens_la-apdu.Tpo -c -o librutokens_la-apdu.lo `test -f 'apdu.c' || echo '$(srcdir)/'`apdu.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librutokens_la-apdu.Tpo $(DEPDIR)/librutokens_la-apdu.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='apdu.c' object='librutokens_la-apdu.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-apdu.lo `test -f 'apdu.c' || echo '$(srcdir)/'`apdu.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -c -o librutokens_la-apdu.lo `test -f 'apdu.c' || echo '$(srcdir)/'`apdu.c
 
-libccid_la-commands.lo: commands.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-commands.lo -MD -MP -MF $(DEPDIR)/libccid_la-commands.Tpo -c -o libccid_la-commands.lo `test -f 'commands.c' || echo '$(srcdir)/'`commands.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-commands.Tpo $(DEPDIR)/libccid_la-commands.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='commands.c' object='libccid_la-commands.lo' libtool=yes @AMDEPBACKSLASH@
+librutokens_la-commands.lo: commands.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -MT librutokens_la-commands.lo -MD -MP -MF $(DEPDIR)/librutokens_la-commands.Tpo -c -o librutokens_la-commands.lo `test -f 'commands.c' || echo '$(srcdir)/'`commands.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librutokens_la-commands.Tpo $(DEPDIR)/librutokens_la-commands.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='commands.c' object='librutokens_la-commands.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-commands.lo `test -f 'commands.c' || echo '$(srcdir)/'`commands.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -c -o librutokens_la-commands.lo `test -f 'commands.c' || echo '$(srcdir)/'`commands.c
 
-libccid_la-convert_apdu.lo: convert_apdu.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-convert_apdu.lo -MD -MP -MF $(DEPDIR)/libccid_la-convert_apdu.Tpo -c -o libccid_la-convert_apdu.lo `test -f 'convert_apdu.c' || echo '$(srcdir)/'`convert_apdu.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-convert_apdu.Tpo $(DEPDIR)/libccid_la-convert_apdu.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='convert_apdu.c' object='libccid_la-convert_apdu.lo' libtool=yes @AMDEPBACKSLASH@
+librutokens_la-convert_apdu.lo: convert_apdu.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -MT librutokens_la-convert_apdu.lo -MD -MP -MF $(DEPDIR)/librutokens_la-convert_apdu.Tpo -c -o librutokens_la-convert_apdu.lo `test -f 'convert_apdu.c' || echo '$(srcdir)/'`convert_apdu.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librutokens_la-convert_apdu.Tpo $(DEPDIR)/librutokens_la-convert_apdu.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='convert_apdu.c' object='librutokens_la-convert_apdu.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-convert_apdu.lo `test -f 'convert_apdu.c' || echo '$(srcdir)/'`convert_apdu.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -c -o librutokens_la-convert_apdu.lo `test -f 'convert_apdu.c' || echo '$(srcdir)/'`convert_apdu.c
 
-libccid_la-ifdhandler.lo: ifdhandler.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-ifdhandler.lo -MD -MP -MF $(DEPDIR)/libccid_la-ifdhandler.Tpo -c -o libccid_la-ifdhandler.lo `test -f 'ifdhandler.c' || echo '$(srcdir)/'`ifdhandler.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-ifdhandler.Tpo $(DEPDIR)/libccid_la-ifdhandler.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ifdhandler.c' object='libccid_la-ifdhandler.lo' libtool=yes @AMDEPBACKSLASH@
+librutokens_la-ifdhandler.lo: ifdhandler.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -MT librutokens_la-ifdhandler.lo -MD -MP -MF $(DEPDIR)/librutokens_la-ifdhandler.Tpo -c -o librutokens_la-ifdhandler.lo `test -f 'ifdhandler.c' || echo '$(srcdir)/'`ifdhandler.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librutokens_la-ifdhandler.Tpo $(DEPDIR)/librutokens_la-ifdhandler.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ifdhandler.c' object='librutokens_la-ifdhandler.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-ifdhandler.lo `test -f 'ifdhandler.c' || echo '$(srcdir)/'`ifdhandler.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -c -o librutokens_la-ifdhandler.lo `test -f 'ifdhandler.c' || echo '$(srcdir)/'`ifdhandler.c
 
-libccid_la-utils.lo: utils.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-utils.lo -MD -MP -MF $(DEPDIR)/libccid_la-utils.Tpo -c -o libccid_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-utils.Tpo $(DEPDIR)/libccid_la-utils.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='utils.c' object='libccid_la-utils.lo' libtool=yes @AMDEPBACKSLASH@
+librutokens_la-utils.lo: utils.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -MT librutokens_la-utils.lo -MD -MP -MF $(DEPDIR)/librutokens_la-utils.Tpo -c -o librutokens_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librutokens_la-utils.Tpo $(DEPDIR)/librutokens_la-utils.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='utils.c' object='librutokens_la-utils.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -c -o librutokens_la-utils.lo `test -f 'utils.c' || echo '$(srcdir)/'`utils.c
 
-libccid_la-ccid_usb.lo: ccid_usb.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) -std=iso9899:199409 $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-ccid_usb.lo -MD -MP -MF $(DEPDIR)/libccid_la-ccid_usb.Tpo -c -o libccid_la-ccid_usb.lo `test -f 'ccid_usb.c' || echo '$(srcdir)/'`ccid_usb.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-ccid_usb.Tpo $(DEPDIR)/libccid_la-ccid_usb.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ccid_usb.c' object='libccid_la-ccid_usb.lo' libtool=yes @AMDEPBACKSLASH@
+librutokens_la-ccid_usb.lo: ccid_usb.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) -std=iso9899:199409 $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -MT librutokens_la-ccid_usb.lo -MD -MP -MF $(DEPDIR)/librutokens_la-ccid_usb.Tpo -c -o librutokens_la-ccid_usb.lo `test -f 'ccid_usb.c' || echo '$(srcdir)/'`ccid_usb.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librutokens_la-ccid_usb.Tpo $(DEPDIR)/librutokens_la-ccid_usb.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ccid_usb.c' object='librutokens_la-ccid_usb.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-ccid_usb.lo `test -f 'ccid_usb.c' || echo '$(srcdir)/'`ccid_usb.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -c -o librutokens_la-ccid_usb.lo `test -f 'ccid_usb.c' || echo '$(srcdir)/'`ccid_usb.c
 
-libccid_la-tokenparser.lo: tokenparser.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-tokenparser.lo -MD -MP -MF $(DEPDIR)/libccid_la-tokenparser.Tpo -c -o libccid_la-tokenparser.lo `test -f 'tokenparser.c' || echo '$(srcdir)/'`tokenparser.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-tokenparser.Tpo $(DEPDIR)/libccid_la-tokenparser.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tokenparser.c' object='libccid_la-tokenparser.lo' libtool=yes @AMDEPBACKSLASH@
+librutokens_la-tokenparser.lo: tokenparser.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -MT librutokens_la-tokenparser.lo -MD -MP -MF $(DEPDIR)/librutokens_la-tokenparser.Tpo -c -o librutokens_la-tokenparser.lo `test -f 'tokenparser.c' || echo '$(srcdir)/'`tokenparser.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librutokens_la-tokenparser.Tpo $(DEPDIR)/librutokens_la-tokenparser.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tokenparser.c' object='librutokens_la-tokenparser.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-tokenparser.lo `test -f 'tokenparser.c' || echo '$(srcdir)/'`tokenparser.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -c -o librutokens_la-tokenparser.lo `test -f 'tokenparser.c' || echo '$(srcdir)/'`tokenparser.c
 
-libccid_la-strlcpy.lo: strlcpy.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-strlcpy.lo -MD -MP -MF $(DEPDIR)/libccid_la-strlcpy.Tpo -c -o libccid_la-strlcpy.lo `test -f 'strlcpy.c' || echo '$(srcdir)/'`strlcpy.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-strlcpy.Tpo $(DEPDIR)/libccid_la-strlcpy.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='strlcpy.c' object='libccid_la-strlcpy.lo' libtool=yes @AMDEPBACKSLASH@
+librutokens_la-strlcpy.lo: strlcpy.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -MT librutokens_la-strlcpy.lo -MD -MP -MF $(DEPDIR)/librutokens_la-strlcpy.Tpo -c -o librutokens_la-strlcpy.lo `test -f 'strlcpy.c' || echo '$(srcdir)/'`strlcpy.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librutokens_la-strlcpy.Tpo $(DEPDIR)/librutokens_la-strlcpy.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='strlcpy.c' object='librutokens_la-strlcpy.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-strlcpy.lo `test -f 'strlcpy.c' || echo '$(srcdir)/'`strlcpy.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -c -o librutokens_la-strlcpy.lo `test -f 'strlcpy.c' || echo '$(srcdir)/'`strlcpy.c
 
-libccid_la-debug.lo: debug.c
-@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -MT libccid_la-debug.lo -MD -MP -MF $(DEPDIR)/libccid_la-debug.Tpo -c -o libccid_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/libccid_la-debug.Tpo $(DEPDIR)/libccid_la-debug.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='debug.c' object='libccid_la-debug.lo' libtool=yes @AMDEPBACKSLASH@
+librutokens_la-debug.lo: debug.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -MT librutokens_la-debug.lo -MD -MP -MF $(DEPDIR)/librutokens_la-debug.Tpo -c -o librutokens_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/librutokens_la-debug.Tpo $(DEPDIR)/librutokens_la-debug.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='debug.c' object='librutokens_la-debug.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libccid_la_CFLAGS) $(CFLAGS) -c -o libccid_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(librutokens_la_CFLAGS) $(CFLAGS) -c -o librutokens_la-debug.lo `test -f 'debug.c' || echo '$(srcdir)/'`debug.c
 
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
@@ -636,7 +636,7 @@ install: $(LIBS_TO_INSTALL)
 Info.plist: Info.plist.src $(srcdir)/../readers/supported_readers.txt
 	$(srcdir)/create_Info_plist.pl $(srcdir)/../readers/supported_readers.txt $(srcdir)/Info.plist.src $(ifdCapabilities) | sed s/TARGET/$(CCID_LIB)/ > Info.plist
 
-install_ccid: libccid.la Info.plist
+install_ccid: librutokens.la Info.plist
 	$(mkinstalldirs) $(DESTDIR)$(usbdropdir)/$(CCID_BUNDLE)/Contents/$(BUNDLE_HOST)/
 	cp Info.plist $(DESTDIR)$(usbdropdir)/$(CCID_BUNDLE)/Contents/
 	cp .libs/$(CCID_LIB) $(DESTDIR)$(usbdropdir)/$(CCID_BUNDLE)/Contents/$(BUNDLE_HOST)/$(CCID_LIB).$(VERSION)

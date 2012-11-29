@@ -724,10 +724,10 @@ MAKEFLAGS=
 SHELL=${CONFIG_SHELL-/bin/sh}
 
 # Identity of this package.
-PACKAGE_NAME='ccid'
-PACKAGE_TARNAME='ccid'
-PACKAGE_VERSION='1.3.9'
-PACKAGE_STRING='ccid 1.3.9'
+PACKAGE_NAME='rutokens'
+PACKAGE_TARNAME='rutokens'
+PACKAGE_VERSION='1.0.0'
+PACKAGE_STRING='rutokens 1.0.0'
 PACKAGE_BUGREPORT=''
 
 ac_unique_file="src/ifdhandler.c"
@@ -2319,8 +2319,8 @@ fi
 
 
 # Define the identity of the package.
- PACKAGE='ccid'
- VERSION='1.3.9'
+ PACKAGE='rutokens'
+ VERSION='1.0.0'
 
 
 cat >>confdefs.h <<_ACEOF
@@ -22662,7 +22662,7 @@ else
 fi
 
 if test "${bundle}" = false ; then
-	bundle="ifd-ccid.bundle"
+	bundle="ifd-rutokens.bundle"
 fi
 
 cat >>confdefs.h <<_ACEOF
@@ -22802,7 +22802,7 @@ fi
 
 cat << EOF
 
-libccid has been configured with following options:
+librutokens has been configured with following options:
 
 Version:             ${PACKAGE_VERSION}
 User binaries:       $(eval eval eval echo "${bindir}")

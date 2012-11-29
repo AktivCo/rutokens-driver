@@ -89,10 +89,10 @@
 	<string>TARGET</string>
 
 	<key>ifdManufacturerString</key>
-	<string>Ludovic Rousseau (ludovic.rousseau@free.fr)</string>
+	<string>Aktiv Co</string>
 
 	<key>ifdProductString</key>
-	<string>Generic CCID driver</string>
+	<string>Rutoken S driver</string>
 
 	<key>ifdVendorID</key>
 	<array>

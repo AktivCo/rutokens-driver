@@ -1,14 +1,14 @@
 # $Id: Makefile.am 3024 2008-06-26 13:20:43Z rousseau $
 
 CCID_BUNDLE = $(bundle)
-CCID_LIB = libccid.$(DYN_LIB_EXT)
+CCID_LIB = librutokens.$(DYN_LIB_EXT)
 
 CCID_VERSION=CCID_VERSION=`$(srcdir)/convert_version.pl $(PACKAGE_VERSION)`
 
 lib_LTLIBRARIES =
 LIBS_TO_INSTALL =
 if WITH_LIBUSB
-lib_LTLIBRARIES += libccid.la
+lib_LTLIBRARIES += librutokens.la
 LIBS_TO_INSTALL += install_ccid
 endif
 
@@ -37,10 +37,10 @@ if WITHOUT_PCSC
 PROVIDED_BY_PCSC = debug.c
 endif
 
-libccid_la_SOURCES = $(COMMON) $(USB) $(TOKEN_PARSER) $(PROVIDED_BY_PCSC) $(T1)
-libccid_la_LIBADD = $(LEXLIB) $(COREFOUNDATION) $(IOKIT) \
+librutokens_la_SOURCES = $(COMMON) $(USB) $(TOKEN_PARSER) $(PROVIDED_BY_PCSC) $(T1)
+librutokens_la_LIBADD = $(LEXLIB) $(COREFOUNDATION) $(IOKIT) \
 	$(LIBUSB_LIBS) $(PTHREAD_LIBS)
-libccid_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
+librutokens_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
 	$(SYMBOL_VISIBILITY) -D$(CCID_VERSION)
 
 EXTRA_DIST = Info.plist.src create_Info_plist.pl reader.conf.in \
@@ -61,7 +61,7 @@ Info.plist: Info.plist.src $(srcdir)/../readers/supported_readers.txt
 	
 DISTCLEANFILES = Info.plist
 
-install_ccid: libccid.la Info.plist
+install_ccid: librutokens.la Info.plist
 	$(mkinstalldirs) $(DESTDIR)$(usbdropdir)/$(CCID_BUNDLE)/Contents/$(BUNDLE_HOST)/
 	cp Info.plist $(DESTDIR)$(usbdropdir)/$(CCID_BUNDLE)/Contents/
 	cp .libs/$(CCID_LIB) $(DESTDIR)$(usbdropdir)/$(CCID_BUNDLE)/Contents/$(BUNDLE_HOST)/$(CCID_LIB).$(VERSION)
