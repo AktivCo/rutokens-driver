@@ -1,5 +1,5 @@
 /*
-    ccid_usb.h:  USB access routines using the libusb library
+    rutokens_usb.h:  USB access routines using the libusb library
     Copyright (C) 2003-2004   Ludovic Rousseau
 
     This library is free software; you can redistribute it and/or
@@ -21,8 +21,8 @@
  * $Id: ccid_usb.h 2974 2008-05-28 18:32:52Z rousseau $
  */
 
-#ifndef __CCID_USB_H__
-#define __CCID_USB_H__
+#ifndef __RUTOKENS_USB_H__
+#define __RUTOKENS_USB_H__
 
 status_t OpenUSB(unsigned int reader_index, int channel);
 

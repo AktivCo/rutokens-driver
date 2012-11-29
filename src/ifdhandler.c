@@ -31,7 +31,7 @@
 
 #include "rutokens.h"
 #include "defs.h"
-#include "ccid_usb.h"
+#include "rutokens_usb.h"
 #include "debug.h"
 #include "utils.h"
 #include "commands.h"

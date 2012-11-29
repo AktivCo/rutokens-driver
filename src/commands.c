@@ -35,7 +35,7 @@
 #include "defs.h"
 #include "config.h"
 #include "debug.h"
-#include "ccid_usb.h"
+#include "rutokens_usb.h"
 #include "apdu.h"
 #include "convert_apdu.h"
 

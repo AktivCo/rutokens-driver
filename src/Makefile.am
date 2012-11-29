@@ -24,7 +24,7 @@ COMMON = apdu.c \
 	ifdhandler.c \
 	utils.c \
 	utils.h 
-USB = ccid_usb.c ccid_usb.h
+USB = rutokens_usb.c rutokens_usb.h
 SERIAL = ccid_serial.c ccid_serial.h
 TOKEN_PARSER = tokenparser.l parser.h \
 	strlcpy.c \

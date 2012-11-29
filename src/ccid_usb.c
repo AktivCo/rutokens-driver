@@ -1,5 +1,5 @@
 /*
-    ccid_usb.c: USB access routines using the libusb library
+    rutokens_usb.c: USB access routines using the libusb library
     Copyright (C) 2003-2008   Ludovic Rousseau
 
     This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
  * $Id: ccid_usb.c 3127 2008-07-17 16:32:00 ausenok $
  */
 
-#define __CCID_USB__
+#define __RUTOKENS_USB__
 
 #include <stdio.h>
 #include <string.h>
@@ -80,8 +80,8 @@ typedef struct
 
 } _usbDevice;
 
-/* The _usbDevice structure must be defined before including ccid_usb.h */
-#include "ccid_usb.h"
+/* The _usbDevice structure must be defined before including rutokens_usb.h */
+#include "rutokens_usb.h"
 
 /* ne need to initialize to 0 since it is static */
 static _usbDevice usbDevice[DRIVER_MAX_READERS];
