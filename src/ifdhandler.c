@@ -322,7 +322,7 @@ EXTERNAL RESPONSECODE IFDHGetCapabilities(DWORD Lun, DWORD Tag,
 			 * bbbb = build number). */
 			*Length = sizeof(DWORD);
 			if (Value)
-				*(DWORD *)Value = CCID_VERSION;
+				*(DWORD *)Value = RUTOKENS_VERSION;
 			break;
 
 		case SCARD_ATTR_VENDOR_NAME:
