@@ -1,4 +1,4 @@
-List of SCardGetAttrib() commands supported by the CCID driver
+List of SCardGetAttrib() commands supported by the driver
 ==============================================================
 
 PC/SC provides the SCardGetAttrib() function to request some attributes from

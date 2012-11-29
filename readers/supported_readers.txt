@@ -1,4 +1,4 @@
-# list of readers supported by the CCID driver
+# list of readers supported by the driver
 # $Id: supported_readers.txt 3023 2008-06-25 08:58:15Z rousseau $
 
 # Aktiv Co.
