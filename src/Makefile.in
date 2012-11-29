@@ -61,7 +61,7 @@ am__DEPENDENCIES_1 =
 librutokens_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
-am__librutokens_la_SOURCES_DIST = apdu.c apdu.h ccid.h \
+am__librutokens_la_SOURCES_DIST = apdu.c apdu.h rutokens.h \
 	commands.c commands.h convert_apdu.c convert_apdu.h debug.h defs.h ifdhandler.c utils.c \
 	utils.h ccid_usb.c ccid_usb.h tokenparser.l parser.h strlcpy.c \
 	misc.h strlcpycat.h debug.c
@@ -239,7 +239,7 @@ lib_LTLIBRARIES = $(am__append_1) $(am__append_3)
 LIBS_TO_INSTALL = $(am__append_2) $(am__append_4)
 COMMON = apdu.c \
 	apdu.h \
-	ccid.h \
+	rutokens.h \
 	commands.c \
 	commands.h \
 	convert_apdu.c \

@@ -33,7 +33,7 @@
 #include <ifdhandler.h>
 
 #include "misc.h"
-#include "ccid.h"
+#include "rutokens.h"
 #include "config.h"
 #include "debug.h"
 #include "defs.h"

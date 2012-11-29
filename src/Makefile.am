@@ -14,7 +14,7 @@ endif
 
 COMMON = apdu.c \
 	apdu.h \
-	ccid.h \
+	rutokens.h \
 	commands.c \
 	commands.h \
 	convert_apdu.c \

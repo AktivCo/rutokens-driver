@@ -1,5 +1,5 @@
 /*
-    ccid.h: CCID structures
+    rutokens.h: Device descriptor structures
     Copyright (C) 2003   Ludovic Rousseau
 
     This library is free software; you can redistribute it and/or

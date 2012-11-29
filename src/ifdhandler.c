@@ -29,7 +29,7 @@
 #include <ifdhandler.h>
 #include <reader.h>
 
-#include "ccid.h"
+#include "rutokens.h"
 #include "defs.h"
 #include "ccid_usb.h"
 #include "debug.h"

@@ -23,7 +23,7 @@
 
 #include <pcsclite.h>
 
-#include "ccid.h"
+#include "rutokens.h"
 #include "defs.h"
 #include "utils.h"
 #include "debug.h"
