@@ -44,13 +44,13 @@ librutokens_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
 
 EXTRA_DIST = Info.plist.src create_Info_plist.pl reader.conf.in \
 	openct/LICENSE \
-	convert_version.pl pcscd_ccid.rules
+	convert_version.pl 95-rutokens.rules
 
 install: $(LIBS_TO_INSTALL)
 
 if UDEV
 ifdCapabilities=0x00000001
-INSTALL_UDEV_RULE_FILE=@echo -e "\n\33[01;31m***************\n" ; echo "copy the src/pcscd_ccid.rules file in udev directory (/etc/udev/rules.d/)" ; echo -e "\n***************\n\33[0m"
+INSTALL_UDEV_RULE_FILE=@echo -e "\n\33[01;31m***************\n" ; echo "copy the src/95-rutokens.rules file in udev directory (/etc/udev/rules.d/)" ; echo -e "\n***************\n\33[0m"
 else
 ifdCapabilities=0x00000000
 endif
