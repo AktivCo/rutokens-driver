@@ -165,6 +165,46 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 				DEBUG_CRITICAL2("can't parse using libusb scheme: %s", device);
 			}
 		}
+		/* format usb:%04x/%04x:libudev:%d:%s
+		 * with %d set to
+		 * 01 (or whatever the interface number is)
+		 * and %s set to
+		 * /dev/bus/usb/008/004
+		 */
+		else if ((dirname = strstr(device, "libudev:")) != NULL)
+		{
+			/* dirname points to the libudev:/dev/bus/usb/%d/%d */
+
+			/* filename points to the last / */
+			filename = strrchr(dirname, '/');
+
+			if (filename)
+			{
+				/* end the dirname string */
+				*filename = '\0';
+
+				/* filename points to the first char after / */
+				filename++;
+			}
+
+			/* dirname points to the last but only / */
+			dirname = strrchr(dirname, '/');
+
+			if(dirname)
+			{
+				/* dirname points to the first char after / */
+				dirname++;
+			}
+			else
+			{
+				filename = NULL;
+				DEBUG_CRITICAL2("can't parse using libudev scheme: %s", device);
+			}
+		}
+		else
+		{
+			DEBUG_CRITICAL2("can't parse device naming sheme: %s", device);
+		}
 	}
 #endif
 
@@ -273,6 +313,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					{
 						if (usbDevice[r].handle)
 						{
+							DEBUG_COMM3("Comparing with device: %s/%s", usbDevice[r].dirname, usbDevice[r].filename);
 							/* same busname, same filename */
 							if (strcmp(usbDevice[r].dirname, bus->dirname) == 0 && strcmp(usbDevice[r].filename, dev->filename) == 0)
 								already_used = TRUE;
