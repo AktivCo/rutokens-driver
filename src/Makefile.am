@@ -42,17 +42,16 @@ librutokens_la_LIBADD = $(LEXLIB) $(COREFOUNDATION) $(IOKIT) \
 librutokens_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
 	$(SYMBOL_VISIBILITY) -D$(RUTOKENS_VERSION)
 
-EXTRA_DIST = Info.plist.src create_Info_plist.pl reader.conf.in \
-	openct/LICENSE \
+EXTRA_DIST = Info.plist.src \
 	convert_version.pl 95-rutokens.rules
 
 install: $(LIBS_TO_INSTALL)
 
-ifdCapabilities=0x00000000
 INSTALL_UDEV_RULE_FILE=@echo -e "\n\33[01;31m***************\n" ; echo "copy the src/95-rutokens.rules file in udev directory (/etc/udev/rules.d/)" ; echo -e "\n***************\n\33[0m"
 
-Info.plist: Info.plist.src $(srcdir)/../readers/supported_readers.txt
-	$(srcdir)/create_Info_plist.pl $(srcdir)/../readers/supported_readers.txt $(srcdir)/Info.plist.src $(ifdCapabilities) | sed s/TARGET/$(RUTOKENS_LIB)/ > Info.plist
+Info.plist: Info.plist.src
+	cat $(srcdir)/Info.plist.src | sed s/BUNDLE/$(bundle)/\
+	| sed s/VERSION/$(PACKAGE_VERSION)/ | sed s/TARGET/$(RUTOKENS_LIB)/ > Info.plist
 	
 DISTCLEANFILES = Info.plist
 

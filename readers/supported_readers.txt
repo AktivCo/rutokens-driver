@@ -1,5 +1,0 @@
-# list of readers supported by the driver
-# $Id: supported_readers.txt 3023 2008-06-25 08:58:15Z rousseau $
-
-# Aktiv Co.
-0x0A89:0x0020:Aktiv Co. Rutoken S
