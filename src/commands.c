@@ -1,5 +1,8 @@
 /*
     commands.c: Commands sent to the card
+    Copyright (C) 2012 Aktiv Co
+    Copyright (C) 2007, Pavel Mironchik <rutoken@rutoken.ru>
+    Copyright (C) 2007, Eugene Hermann <e_herman@rutoken.ru>
     Copyright (C) 2003-2004   Ludovic Rousseau
 
     This library is free software; you can redistribute it and/or
@@ -17,9 +20,6 @@
 	Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-/*
- * $Id: commands.c 3104 2008-07-17 16:29:00 ausenok $
- */
 
 #include <string.h>
 #include <stdlib.h>

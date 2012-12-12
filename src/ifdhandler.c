@@ -1,5 +1,6 @@
 /*
     ifdhandler.c: IFDH API
+    Copyright (C) 2012 Aktiv Co
     Copyright (C) 2003-2008   Ludovic Rousseau
 
     This library is free software; you can redistribute it and/or
@@ -17,7 +18,6 @@
 	Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-/* $Id: ifdhandler.c 3025 2008-06-26 13:38:50Z rousseau $ */
 
 #include <stdio.h>
 #include <string.h>

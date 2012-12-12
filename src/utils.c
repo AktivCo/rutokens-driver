@@ -1,5 +1,6 @@
 /*
     utils.c:
+    Copyright (C) 2012 Aktiv Co
     Copyright (C) 2003-2004   Ludovic Rousseau
 
     This library is free software; you can redistribute it and/or
@@ -17,9 +18,6 @@
 	Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-/*
- * $Id: utils.c 2974 2008-05-28 18:32:52Z rousseau $
- */
 
 #include <pcsclite.h>
 

@@ -1,5 +1,6 @@
 /*
     debug.c: log (or not) messages
+    Copyright (C) 2012 Aktiv Co
     Copyright (C) 2003-2005   Ludovic Rousseau
 
     This library is free software; you can redistribute it and/or
@@ -16,10 +17,6 @@
 	along with this library; if not, write to the Free Software Foundation,
 	Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-
-/*
- * $Id: debug.c 2974 2008-05-28 18:32:52Z rousseau $
- */
 
 
 #include "config.h"

@@ -1,5 +1,6 @@
 /*
     defs.h:
+    Copyright (C) 2012 Aktiv Co
     Copyright (C) 2003   Ludovic Rousseau
 
     This library is free software; you can redistribute it and/or
@@ -17,9 +18,6 @@
 	Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-/*
- * $Id: defs.h 3006 2008-06-17 12:35:15Z rousseau $
- */
 
 #include <pcsclite.h>
 

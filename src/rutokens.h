@@ -1,5 +1,6 @@
 /*
     rutokens.h: Device descriptor structures
+    Copyright (C) 2012 Aktiv Co
     Copyright (C) 2003   Ludovic Rousseau
 
     This library is free software; you can redistribute it and/or
@@ -18,10 +19,6 @@
 */
 
 /*
- * $Id: ccid.h 2974 2008-05-28 18:32:52Z rousseau $
- */
-
-/*
  * Maximum number of readers supported simultaneously
  *
  * The maximum number of readers is also limited in pcsc-lite (16 by default)
@@ -32,7 +29,7 @@
 typedef struct
 {
 	/*
-	 * CCID Sequence number
+	 * Sequence number
 	 */
 	unsigned char *pbSeq;
 	unsigned char real_bSeq;

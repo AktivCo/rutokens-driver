@@ -1,5 +1,6 @@
 /*
     commands.h: Commands sent to the card
+    Copyright (C) 2012 Aktiv Co
     Copyright (C) 2003   Ludovic Rousseau
 
     This library is free software; you can redistribute it and/or
@@ -17,9 +18,7 @@
 	Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-/*
- * $Id: commands.h 3074 2008-06-17 16:31:00 ausenok $
- */
+
 #ifndef COMMANDS_H
 #define COMMANDS_H
 

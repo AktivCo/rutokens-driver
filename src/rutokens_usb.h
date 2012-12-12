@@ -1,6 +1,8 @@
 /*
     rutokens_usb.h:  USB access routines using the libusb library
+    Copyright (C) 2012 Aktiv Co
     Copyright (C) 2003-2004   Ludovic Rousseau
+
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -17,9 +19,6 @@
 	Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-/*
- * $Id: ccid_usb.h 2974 2008-05-28 18:32:52Z rousseau $
- */
 
 #ifndef __RUTOKENS_USB_H__
 #define __RUTOKENS_USB_H__
