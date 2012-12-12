@@ -111,10 +111,7 @@ case "$host" in
 	DYN_LIB_EXT="so"
 esac
 
-# --disable-libusb
-AC_ARG_ENABLE(libusb,
-	AC_HELP_STRING([--disable-libusb],[do not use libusb]),
-	[ use_libusb="${enableval}" ], [ use_libusb=yes ] )
+use_libusb=yes
 
 use_usb_interrupt=no
 
@@ -174,17 +171,6 @@ fi
 AC_SUBST(LIBUSB_CFLAGS)
 AC_SUBST(LIBUSB_LIBS)
 AM_CONDITIONAL(WITH_LIBUSB, test "${use_libusb}" != "no")
-
-# --enable-usb-interrupt
-AC_ARG_ENABLE(usb-interrupt,
-	AC_HELP_STRING([--enable-usb-interrupt], [force the use of USB
-	interrupt even with an old libusb]),
-	[ use_usb_interrupt="${enableval}" ] )
-
-if test "x$use_usb_interrupt" = xyes; then
-	AC_DEFINE(USE_USB_INTERRUPT, 1, [use libusb usb_interrupt_read()
-	instead of polling])
-fi
 
 # check if the compiler support -fvisibility=hidden (GCC >= 4)
 saved_CFLAGS="$CFLAGS"
@@ -287,8 +273,6 @@ LIBUSB_CFLAGS:       ${LIBUSB_CFLAGS}
 LIBUSB_LIBS:         ${LIBUSB_LIBS}
 SYMBOL_VISIBILITY:   ${SYMBOL_VISIBILITY}
 
-libusb support:          ${use_libusb}
-use USB interrupt:       ${use_usb_interrupt}
 multi threading:         ${multithread}
 bundle directory name:   ${bundle}
 USB drop directory:      ${usbdropdir}
