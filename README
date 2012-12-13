@@ -9,7 +9,8 @@ Authors:
 ========
 
 - Aktiv Co <hotline@rutoken.ru>
-- Ludovic Rousseau <ludovic.rousseau@free.fr>, author of CCID
+- Ludovic Rousseau <ludovic.rousseau@free.fr>, author of CCID,
+  the source code of which has been taken as the base of this driver.
 - Olaf Kirch for the APDU parsing code, taken from OpenCT.
 - Pavel Mironchik <rutoken@rutoken.ru>, Eugene Hermann <e_herman@rutoken.ru>
   for the RutokenS-related code, taken from OpenCT
@@ -26,10 +27,8 @@ Supported operating systems:
 Debug informations:
 ===================
 
-The driver uses the debug function provided by pcscd. So if pcscd sends
-its debug to stderr (pcscd --foreground) then the CCID will also send
-its debug to stderr. If pcscd sends its debug to syslog (by default)
-then the CCID will also send its debug to syslog.
+The driver is capable of providing debug information in case pcscd is running
+in foreground.
 
 You can change the debug level using the Info.plist configuration file.
 The Info.plist is installed, by default, in
@@ -50,6 +49,12 @@ You have to restart the driver so it read the configuration file again
 and use the new debug level value.  To restart the driver you just need
 to unplug all your CCID readers so the the driver is unloaded and then
 replug your readers. You can also restart pcscd.
+
+You can also set debug level by setting the value of environment variable
+IFDLIB_ifdLogLevel.
+
+It's not recommended to set debug levelother than 0, unless pcscd is run
+in foreground.
 
 
 Licence:
