@@ -47,7 +47,11 @@ EXTRA_DIST = Info.plist.src \
 
 install: $(LIBS_TO_INSTALL)
 
-INSTALL_UDEV_RULE_FILE=@echo -e "\n\33[01;31m***************\n" ; echo "copy the src/95-rutokens.rules file in udev directory (/etc/udev/rules.d/)" ; echo -e "\n***************\n\33[0m"
+if DISABLE_UDEV_RULES
+INSTALL_UDEV_RULE_FILE=@echo -e "To support RutokenS copy src/95-rutokens.rules to /etc/udev/rules.d/"
+else
+INSTALL_UDEV_RULE_FILE=@cp -f ./95-rutokens.rules /etc/udev/rules.d/ ; echo -e "RutonenS udev rules file is copied to /etc/udev/rules.d/"
+endif
 
 Info.plist: Info.plist.src
 	cat $(srcdir)/Info.plist.src | sed s/BUNDLE/$(bundle)/\

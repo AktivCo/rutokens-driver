@@ -242,6 +242,11 @@ if test "${pcsclite}" != no ; then
 fi
 AM_CONDITIONAL(WITHOUT_PCSC, test "${pcsclite}" != "yes")
 
+# --enable-udevrules
+AC_ARG_ENABLE(udevrules,
+	AC_HELP_STRING([--enable-udevrules],[enable udev rules for RutokenS installation (yes by default)]),
+	[udevrules="${enableval}"], [udevrules=yes])
+AM_CONDITIONAL(DISABLE_UDEV_RULES, test "${udevrules}" != "yes")
 
 # Setup dist stuff
 AC_SUBST(ac_aux_dir)
@@ -273,6 +278,7 @@ LIBUSB_CFLAGS:       ${LIBUSB_CFLAGS}
 LIBUSB_LIBS:         ${LIBUSB_LIBS}
 SYMBOL_VISIBILITY:   ${SYMBOL_VISIBILITY}
 
+install udev rules:      ${udevrules}
 multi threading:         ${multithread}
 bundle directory name:   ${bundle}
 USB drop directory:      ${usbdropdir}
