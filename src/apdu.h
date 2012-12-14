@@ -25,8 +25,6 @@
 extern "C" {
 #endif
 
-typedef unsigned int size_t;
-
 typedef struct ifd_iso_apdu {
 	unsigned char		cse, cla, ins, p1, p2;
 	unsigned int		lc, le;
