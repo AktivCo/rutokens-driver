@@ -72,6 +72,7 @@ set -x
 	PCSC_LIBS="$PCSC_LIBS" \
 	LDFLAGS="$LDFLAGS" \
 	--enable-usbdropdir=/usr/libexec/SmartCardServices/drivers/ \
+	--enable-udevrules=no \
 	$CONFIGURE_ARGS \
 	"$@"
 
