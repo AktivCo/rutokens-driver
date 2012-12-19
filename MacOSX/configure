@@ -19,10 +19,13 @@
 #    02110-1301 USA.
 
 # to use
-# ./MacOSX/configure
+# ./MacOSX/configure LIBUSB_CFLAGS="-I/path/to/libusb/includes" LIBUSB_LIBS="-L/path/to/libusb/libs -lusb"
 # make
 # make install
 # the driver is installed in /usr/libexec/SmartCardServices/drivers
+#
+# Note: by default dynamic linking is chosen. If static linking against libusb is needed,
+# remove libusb.so from /path/to/libusb/libs
 
 # Colors
 RED="\033[31m"
@@ -48,18 +51,14 @@ PKG_CONFIG="foobar"
 PCSC_CFLAGS="-I$(pwd)/MacOSX"
 PCSC_LIBS="-framework PCSC"
 
-# use libusb from OpenSC (universal binary)
-LIBUSB_CFLAGS="-I/Developer/SDKs/MacOSX10.5.sdk/usr/include"
-LIBUSB_LIBS="-L/Developer/SDKs/MacOSX10.5.sdk/usr/lib -lusb"
-
 # RESPONSECODE is already defined by PCSC/wintypes.h
 # define needed here since config.h is
 # not included
-CFLAGS="$CFLAGS -DRESPONSECODE_DEFINED_IN_WINTYPES_H"
+CFLAGS="-DRESPONSECODE_DEFINED_IN_WINTYPES_H"
 
 # Build a Universal Binary
-CFLAGS="$CFLAGS -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386"
-LDFLAGS="-arch i386"
+CFLAGS="$CFLAGS -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch ppc"
+LDFLAGS="-arch i386 -arch ppc"
 CONFIGURE_ARGS="--disable-dependency-tracking"
 
 # do not use pcscd debug feature
@@ -71,10 +70,8 @@ set -x
 	CFLAGS="$CFLAGS" \
 	PCSC_CFLAGS="$PCSC_CFLAGS" \
 	PCSC_LIBS="$PCSC_LIBS" \
-	LIBUSB_CFLAGS="$LIBUSB_CFLAGS" \
-	LIBUSB_LIBS="$LIBUSB_LIBS" \
 	LDFLAGS="$LDFLAGS" \
-	--enable-usbdropdir=/usr/libexec/SmartCardServices/drivers \
+	--enable-usbdropdir=/usr/libexec/SmartCardServices/drivers/ \
 	$CONFIGURE_ARGS \
 	"$@"
 
