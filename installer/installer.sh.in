@@ -1,0 +1,40 @@
+#!/bin/bash
+# installer.sh.in Template of linux installer for testing use
+#    Copyright (C) Aktiv Co  <hotline@rutoken.ru>
+
+if [ "$(whoami)" != "root" ] ; then
+	echo "Need root permissions. Try sudo $0"
+	exit 1
+fi
+
+usbdropdir="/usr/lib/pcsc/drivers"
+usbdropdir=`pkg-config libpcsclite --variable=usbdropdir`
+if [ ! $? -eq 0 ] ; then
+	echo "Warning: pkg-config libpcsclite failed"
+fi
+
+echo "Driver will be installed to: $usbdropdir"
+
+TAR=`awk '/^__TAR_BELOW__/ {print NR + 1; exit 0; }' $0`
+tail -n+$TAR $0 | tar xzv -C $usbdropdir
+
+if [ $? -eq 0 ] ; then
+	echo "Driver installed successfully"
+fi
+
+RULES_B=`awk '/^__RULES_BELOW__/ {print NR + 2; exit 0; }' $0`
+RULES_E=`awk '/^__RULES_END__/ {print NR-1; exit 0; }' $0`
+RULES_FNAME_N=`echo $RULES_B-1 | bc`
+RULES_FNAME=`sed -n ${RULES_FNAME_N}p ${0}`
+head -n+$RULES_E $0 | tail -n+$RULES_B >/etc/udev/rules.d/${RULES_FNAME}
+
+if [ $? -eq 0 ] ; then
+	echo "Rules copied successfully"
+fi
+
+exit 0
+
+__RULES_BELOW__
+__RULES_END__
+
+__TAR_BELOW__
