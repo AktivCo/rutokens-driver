@@ -679,33 +679,9 @@ void init_driver(void)
 	char keyValue[TOKEN_MAX_VALUE_SIZE];
 	char infofile[FILENAME_MAX];
 	char *e;
-	char libraryPath[FILENAME_MAX];
 
-	/* Library full path filename */
-	if(library_path(libraryPath) != 0)
-	{
-		DEBUG_INFO2("Can't find library path, use default path to Info.plist", LogLevel);
-
-		/* Info.plist full path filename */
-		snprintf(infofile, sizeof(infofile), "%s/%s/Contents/Info.plist",
-			PCSCLITE_HP_DROPDIR, BUNDLE);
-	}
-	else
-	{
-		/* libraryPath ends up with librutokens.so */
-		/* Remove filename and cd .. */
-		int i = 0;
-		for(; i < 2; ++i)
-		{
-			char* fName = 0;
-			fName = strrchr(libraryPath, '/');
-			if (fName != 0)
-				*fName = 0;
-		}
-
-		/* Info.plist full path filename */
-		snprintf(infofile, sizeof(infofile), "%s/Info.plist", libraryPath);
-	}
+	/* Find module path and full path to Info.plist */
+	infoFileName(infofile);
 
 	/* Log level */
 	if (0 == LTPBundleFindValueWithKey(infofile, "ifdLogLevel", keyValue, 0))
@@ -736,7 +712,7 @@ void init_driver(void)
 	DebugInitialized = TRUE;
 } /* init_driver */
 
-EXTERNAL int library_path(char path[])
+int library_path(char path[])
 {
 	size_t dli_fname_len;
 	Dl_info dl_info;
@@ -755,4 +731,35 @@ EXTERNAL int library_path(char path[])
 		strcpy(path, dl_info.dli_fname);
 
 	return 0;
+}
+
+void infoFileName(char infofile[])
+{
+	char libraryPath[FILENAME_MAX];
+
+	/* Library full path filename */
+	if(library_path(libraryPath) != 0)
+	{
+		DEBUG_INFO2("Can't find library path, use default path to Info.plist", LogLevel);
+
+		/* Info.plist full path filename */
+		snprintf(infofile, FILENAME_MAX, "%s/%s/Contents/Info.plist",
+			PCSCLITE_HP_DROPDIR, BUNDLE);
+	}
+	else
+	{
+		/* libraryPath ends up with librutokens.so */
+		/* Remove filename and cd .. */
+		int i = 0;
+		for(; i < 2; ++i)
+		{
+			char* fName = 0;
+			fName = strrchr(libraryPath, '/');
+			if (fName != 0)
+				*fName = 0;
+		}
+
+		/* Info.plist full path filename */
+		snprintf(infofile, FILENAME_MAX, "%s/Info.plist", libraryPath);
+	}
 }

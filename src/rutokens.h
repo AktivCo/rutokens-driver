@@ -76,4 +76,10 @@ typedef struct
 
 _device_descriptor *get_device_descriptor(unsigned int reader_index);
 
+/* library_path used to determine path to Info.plist */
+int library_path(char path[]);
+
+/* infoFileName returns full path to Info.plist */
+void infoFileName(char infofile[]);
+
 

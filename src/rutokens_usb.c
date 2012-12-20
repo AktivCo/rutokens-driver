@@ -214,9 +214,8 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 		return STATUS_UNSUCCESSFUL;
 	}
 
-	/* Info.plist full patch filename */
-	snprintf(infofile, sizeof(infofile), "%s/%s/Contents/Info.plist",
-		PCSCLITE_HP_DROPDIR, BUNDLE);
+	/* Info.plist full path filename */
+	infoFileName(infofile);
 
 	/* general driver info */
 	if (!LTPBundleFindValueWithKey(infofile, "ifdManufacturerString", keyValue, 0))
