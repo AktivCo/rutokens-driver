@@ -1,0 +1,3 @@
+<pkg-info format-version="2" identifier="ru.rutoken.rutokensdriver" version="1.4" install-location="/usr/libexec/SmartCardServices/drivers/" auth="none">
+    <payload installKBytes="60" numberOfFiles="11"/>
+</pkg-info>

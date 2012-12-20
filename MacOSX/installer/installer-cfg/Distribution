@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<installer-script minSpecVersion="1.000000" authoringTool="com.apple.PackageMaker" authoringToolVersion="3.0.6" authoringToolBuild="201">
+    <title>Rutoken S IFD Handler</title>
+    <options customize="never" allow-external-scripts="no"/>
+    <domains enable_localSystem="true"/>
+    <installation-check script="pm_install_check();"/>
+    <script>function pm_install_check() {
+  if(!(/* >= */ system.compareVersions(system.version.ProductVersion, '10.6.0') >= 0)) {
+    my.result.title = 'Operational system is not supported';
+    my.result.message = 'With a great regret we inform you, that your OS version is not supported. Installation is availible for Mac OS X 10.6 and higher.';
+    my.result.type = 'Fatal';
+    return false;
+  }
+  return true;
+}
+</script>
+    <choices-outline>
+        <line choice="choice0"/>
+    </choices-outline>
+    <choice id="choice0" title="Rutoken S driver">
+        <pkg-ref id="ru.rutoken.rutokensdriver"/>
+    </choice>
+    <pkg-ref id="ru.rutoken.rutokensdriver" installKBytes="33816" version="1.0.0" auth="none">#ifd-rutokens.bundle</pkg-ref>
+</installer-script>
