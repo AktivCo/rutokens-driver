@@ -18,12 +18,9 @@
 	Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-/* We use dladdr to determine module path*/
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <dlfcn.h>
 #include <arpa/inet.h>
 #include "misc.h"
 #include "config.h"
@@ -31,6 +28,7 @@
 #include <ifdhandler.h>
 #include <reader.h>
 
+#include "infopath.h"
 #include "rutokens.h"
 #include "defs.h"
 #include "rutokens_usb.h"
@@ -711,55 +709,3 @@ void init_driver(void)
 
 	DebugInitialized = TRUE;
 } /* init_driver */
-
-int library_path(char path[])
-{
-	size_t dli_fname_len;
-	Dl_info dl_info;
-
-	if(path == 0)
-		return -1;
-
-	if(dladdr((int *)library_path, &dl_info) == 0)
-		return -1;
-
-	dli_fname_len = strlen(dl_info.dli_fname);
-
-	if(dli_fname_len > FILENAME_MAX)
-		return -1;
-	else
-		strcpy(path, dl_info.dli_fname);
-
-	return 0;
-}
-
-void infoFileName(char infofile[])
-{
-	char libraryPath[FILENAME_MAX];
-
-	/* Library full path filename */
-	if(library_path(libraryPath) != 0)
-	{
-		DEBUG_INFO2("Can't find library path, use default path to Info.plist", LogLevel);
-
-		/* Info.plist full path filename */
-		snprintf(infofile, FILENAME_MAX, "%s/%s/Contents/Info.plist",
-			PCSCLITE_HP_DROPDIR, BUNDLE);
-	}
-	else
-	{
-		/* libraryPath ends up with librutokens.so */
-		/* Remove filename and cd .. */
-		int i = 0;
-		for(; i < 2; ++i)
-		{
-			char* fName = 0;
-			fName = strrchr(libraryPath, '/');
-			if (fName != 0)
-				*fName = 0;
-		}
-
-		/* Info.plist full path filename */
-		snprintf(infofile, FILENAME_MAX, "%s/Info.plist", libraryPath);
-	}
-}

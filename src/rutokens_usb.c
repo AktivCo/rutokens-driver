@@ -31,6 +31,7 @@
 #include <ifdhandler.h>
 
 #include "misc.h"
+#include "infopath.h"
 #include "rutokens.h"
 #include "config.h"
 #include "debug.h"

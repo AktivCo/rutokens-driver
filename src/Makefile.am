@@ -14,7 +14,6 @@ endif
 
 COMMON = apdu.c \
 	apdu.h \
-	rutokens.h \
 	commands.c \
 	commands.h \
 	convert_apdu.c \
@@ -22,6 +21,9 @@ COMMON = apdu.c \
 	debug.h \
 	defs.h \
 	ifdhandler.c \
+	infopath.h \
+	infopath.c \
+	rutokens.h \
 	utils.c \
 	utils.h 
 USB = rutokens_usb.c rutokens_usb.h
