@@ -7,7 +7,6 @@ if [ "$(whoami)" != "root" ] ; then
 	exit 1
 fi
 
-
 usbdropdir=`pkg-config libpcsclite --variable=usbdropdir`
 if [ ! $? -eq 0 ] ; then
 	echo "Warning: pkg-config libpcsclite failed"
@@ -31,6 +30,9 @@ head -n+$RULES_E $0 | tail -n+$RULES_B >/etc/udev/rules.d/${RULES_FNAME}
 
 if [ $? -eq 0 ] ; then
 	echo "Rules copied successfully"
+	echo "To start working with RutokenS, please, perform following actions:"
+	echo "1. Reload udev rules using: sudo udevadm control --reload-rules"
+	echo "2. Restart udev daemon using: sudo service udevd restart"
 fi
 
 exit 0
