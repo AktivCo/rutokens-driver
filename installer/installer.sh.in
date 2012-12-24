@@ -7,10 +7,11 @@ if [ "$(whoami)" != "root" ] ; then
 	exit 1
 fi
 
-usbdropdir="/usr/lib/pcsc/drivers"
+
 usbdropdir=`pkg-config libpcsclite --variable=usbdropdir`
 if [ ! $? -eq 0 ] ; then
 	echo "Warning: pkg-config libpcsclite failed"
+	usbdropdir="/usr/lib/pcsc/drivers"
 fi
 
 echo "Driver will be installed to: $usbdropdir"
