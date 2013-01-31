@@ -446,6 +446,7 @@ RESPONSECODE CmdReceive(unsigned int reader_index, unsigned int *rx_length,
 		DEBUG_INFO2("ICC Data Block failed: %s", strerror(errno));
 		return IFD_COMMUNICATION_ERROR;
 	}
+	*rx_length = r;
 
 	if (CmdGetSlotStatus(reader_index, &status) != IFD_SUCCESS)
 	{
@@ -578,7 +579,7 @@ RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
 				r = CmdReceive(reader_index, rrecv, rbuf);
 				if (r != IFD_SUCCESS)
 					return r;
-				DEBUG_COMM2("get TPDU Anser %s", array_hexdump(rbuf, iso.le));
+				DEBUG_COMM2("get TPDU Anser %s", array_hexdump(rbuf, *rrecv));
 			}
 
 			r = CmdReceiveSW(reader_index, sw);
