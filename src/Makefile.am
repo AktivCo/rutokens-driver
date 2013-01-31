@@ -14,6 +14,7 @@ endif
 
 COMMON = apdu.c \
 	apdu.h \
+	array_hexdump.c \
 	commands.c \
 	commands.h \
 	convert_apdu.c \

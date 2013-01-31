@@ -69,20 +69,3 @@ void log_xxd(const int priority, const char *msg, const unsigned char *buffer,
 	fprintf(stderr, "%s\n", DebugBuffer);
 #endif
 } /* log_xxd */
-
-const char *array_hexdump(const void *data, unsigned long int len)
-{
-	static char string[1024];
-	unsigned char *d = (unsigned char *)data;
-	unsigned int i, left;
-
-	string[0] = '\0';
-	left = sizeof(string);
-	for (i = 0; len--; i += 3) {
-		if (i >= sizeof(string) - 4)
-			break;
-		snprintf(string + i, 4, " %02x", *d++);
-	}
-	return string;
-}
-
