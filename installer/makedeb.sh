@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# -ne 3 ]; then
-	echo "usage: $0 path_to_bundle version out_directory"
+if [ $# -ne 4 ]; then
+	echo "usage: $0 path_to_bundle version path_to_udev_rules out_directory"
 	exit 1
 fi
 
@@ -24,7 +24,14 @@ mkdir -p "${TOPDIR}/DEBIAN"
 mkdir -p "${TOPDIR}/opt/aktivco/ifd-rutokens/${path_arch}"
 cp -r "$1" "${TOPDIR}/opt/aktivco/ifd-rutokens/${path_arch}/"
 mkdir -p "${TOPDIR}/${libdir}/pcsc/drivers/ifd-rutokens.bundle/Contents/Linux"
+mkdir -p "${TOPDIR}/etc/udev/rules.d/"
+RULES_NAME=`basename "$3"`
+cp "$3" "${TOPDIR}/opt/aktivco/ifd-rutokens/"
+
 pwd_dir=`pwd`
+cd "${TOPDIR}/etc/udev/rules.d/"
+ln -sf "/opt/aktivco/ifd-rutokens/"${RULES_NAME} ${RULES_NAME}
+cd "${pwd_dir}"
 cd "${TOPDIR}/${libdir}/pcsc/drivers/ifd-rutokens.bundle/Contents/Linux"
 ln -sf "/opt/aktivco/ifd-rutokens/${path_arch}/ifd-rutokens.bundle/Contents/Linux/librutokens.so."${VERSION} librutokens.so
 cd "${pwd_dir}"
@@ -50,13 +57,16 @@ Description: Aktiv Co Rutoken S driver
  Allows users to access Rutoken S through pcsc-lite.
 EOF201301170017
 
+echo -e '#!/bin/sh\nudevadm control --reload-rules\n' > "${TOPDIR}/DEBIAN/postinst"
+echo -e '#!/bin/sh\nudevadm control --reload-rules\n' > "${TOPDIR}/DEBIAN/postrm"
+
 # set permissions
 find "${TOPDIR}"/* -type d -exec chmod 755 {} \;
 find "${TOPDIR}"/* -type f -exec chmod 644 {} \;
-find "${TOPDIR}"/* \( -name *.so.*.*.* \) -exec chmod -f 755 {} \;
+find "${TOPDIR}"/* \( -name *.so.*.*.* -or -name postinst -or -name postrm \) -exec chmod -f 755 {} \;
 
 # make deb packet
-fakeroot dpkg-deb --build ${TOPDIR} "$3/ifd-rutokens_${VERSION}_${ARCH}.deb"
+fakeroot dpkg-deb --build ${TOPDIR} "$4/ifd-rutokens_${VERSION}_${ARCH}.deb"
 
 rm -rf "${TOPDIR}"
 
