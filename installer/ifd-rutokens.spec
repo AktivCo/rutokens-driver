@@ -41,13 +41,13 @@ RULES_NAME=`basename "%{SOURCE1}"`
 
 
 cd "${RPM_BUILD_ROOT}/%{_etcdir}/udev/rules.d/"
-ln -sf "/opt/aktivco/ifd-rutokens/"${RULES_NAME} %rules_file
+mv "${RPM_BUILD_ROOT}/opt/aktivco/ifd-rutokens/"${RULES_NAME} %rules_file
 cd "${pwd_dir}"
 cd "${RPM_BUILD_ROOT}/%{_libdir}/pcsc/drivers/ifd-rutokens.bundle/Contents/Linux"
 ln -sf /opt/aktivco/ifd-rutokens/%{target_arch}/ifd-rutokens.bundle/Contents/Linux/librutokens.so.%{version} librutokens.so
 cd "${pwd_dir}"
 cd "${RPM_BUILD_ROOT}/%{_libdir}/pcsc/drivers/ifd-rutokens.bundle/Contents"
-ln -sf "/opt/aktivco/ifd-rutokens/%{target_arch}/ifd-rutokens.bundle/Contents/Info.plist" Info.plist
+mv "${RPM_BUILD_ROOT}/opt/aktivco/ifd-rutokens/%{target_arch}/ifd-rutokens.bundle/Contents/Info.plist" Info.plist
 cd "${pwd_dir}"
 
 
