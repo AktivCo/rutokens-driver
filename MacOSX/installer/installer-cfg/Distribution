@@ -6,14 +6,16 @@
     <installation-check script="pm_install_check();"/>
     <script>function pm_install_check() {
   if(!(/* >= */ system.compareVersions(system.version.ProductVersion, '10.6.0') >= 0)) {
-    my.result.title = 'Operational system is not supported';
-    my.result.message = 'With a great regret we inform you, that your OS version is not supported. Installation is availible for Mac OS X 10.6 and higher.';
+    my.result.title = NOT_SUPPORTED_MESSAGE;
+    my.result.message = NOT_SUPPORTED_MESSAGE_EXTENDED;
     my.result.type = 'Fatal';
     return false;
   }
   return true;
 }
 </script>
+    <background file="background.png" alignment="bottomleft" scaling="none"/>
+    <welcome file="Welcome.html"/>
     <choices-outline>
         <line choice="choice0"/>
     </choices-outline>
