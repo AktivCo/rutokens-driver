@@ -56,11 +56,13 @@ cd "${pwd_dir}"
 rm -rf $RPM_BUILD_ROOT
 
 
-%post -n ifd-rutokens -p "/sbin/udevadm control --reload-rules"
+%post
+if [ $1 -eq 1 ]; then
+	%{_initrddir}/pcscd try-restart &>/dev/null || :
+fi
 
-
-%postun -n ifd-rutokens -p "/sbin/udevadm control --reload-rules"
-
+%postun
+%{_initrddir}/pcscd try-restart &>/dev/null || :
 
 %files
 %defattr(0644,root,root, 0755)
