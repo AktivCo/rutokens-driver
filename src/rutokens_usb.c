@@ -118,10 +118,44 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 			return STATUS_UNSUCCESSFUL;
 		}
 
-		if (sscanf(device, "usb:%x/%x", &device_vendor, &device_product) != 2)
 		{
-			DEBUG_CRITICAL2("device name can't be parsed: %s", device);
-			return STATUS_UNSUCCESSFUL;
+			char* vendor=0;
+			char* deviceproduct=0;
+			char* deviceproductend=0;
+			vendor = strchr(device, ':');
+			deviceproduct = strchr(device, '/');
+
+			if(vendor && deviceproduct)
+			{
+				vendor++;
+				*deviceproduct = 0;
+				deviceproduct++;
+				deviceproductend = strchr(deviceproduct, ':');
+			}
+
+			if(deviceproductend)
+				*deviceproductend = 0;
+			else
+			{
+				DEBUG_CRITICAL2("device name can't be parsed: %s", device);
+				return STATUS_UNSUCCESSFUL;
+			}
+
+			if(strlen(vendor) < 4 || strlen(deviceproduct) < 4)
+			{
+				DEBUG_CRITICAL2("device name can't be parsed: %s", device);
+				return STATUS_UNSUCCESSFUL;
+			}
+
+			device_vendor = strtoul(vendor,NULL,16);
+			device_product = strtoul(deviceproduct,NULL,16);
+
+			if (!device_vendor || !device_product)
+			{
+				DEBUG_CRITICAL2("device name can't be parsed: %s", device);
+				return STATUS_UNSUCCESSFUL;
+			}
+			device = deviceproductend+1;
 		}
 
 		/* format usb:%04x/%04x:libusb:%s

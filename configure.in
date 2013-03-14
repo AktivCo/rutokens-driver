@@ -248,6 +248,15 @@ AC_ARG_ENABLE(udevrules,
 	[udevrules="${enableval}"], [udevrules=yes])
 AM_CONDITIONAL(DISABLE_UDEV_RULES, test "${udevrules}" != "yes")
 
+# --enable-stackprotector
+AC_ARG_ENABLE(stackprotector,
+	AC_HELP_STRING([--enable-stackprotector],[enable glibc 2.4 stack protector (no by default)]),
+	[stackprotector="${enableval}"], [stackprotector=no])
+
+if test "${stackprotector}" != yes ; then
+	CFLAGS="$CFLAGS -fno-stack-protector"
+fi
+
 LDFLAGS="${LDFLAGS} -Wl,--as-needed"
 
 # Setup dist stuff
