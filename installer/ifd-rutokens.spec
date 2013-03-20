@@ -32,23 +32,13 @@ Allows users to access Rutoken S through pcsc-lite.
 
 %install
 pwd_dir=`pwd`
-mkdir -p "${RPM_BUILD_ROOT}/opt/aktivco/ifd-rutokens/%{target_arch}"
-cp -r %{SOURCE0} "${RPM_BUILD_ROOT}/opt/aktivco/ifd-rutokens/%{target_arch}/"
-mkdir -p "${RPM_BUILD_ROOT}/%{_libdir}/pcsc/drivers/ifd-rutokens.bundle/Contents/Linux"
+mkdir -p "${RPM_BUILD_ROOT}/%{_libdir}/pcsc/drivers/"
+cp -r %{SOURCE0} "${RPM_BUILD_ROOT}/%{_libdir}/pcsc/drivers/"
 mkdir -p "${RPM_BUILD_ROOT}/%{_etcdir}/udev/rules.d/"
-cp %{SOURCE1} "${RPM_BUILD_ROOT}/opt/aktivco/ifd-rutokens/"
-RULES_NAME=`basename "%{SOURCE1}"`
 
 
 cd "${RPM_BUILD_ROOT}/%{_etcdir}/udev/rules.d/"
-mv "${RPM_BUILD_ROOT}/opt/aktivco/ifd-rutokens/"${RULES_NAME} %rules_file
-cd "${pwd_dir}"
-cd "${RPM_BUILD_ROOT}/%{_libdir}/pcsc/drivers/ifd-rutokens.bundle/Contents/Linux"
-ln -sf /opt/aktivco/ifd-rutokens/%{target_arch}/ifd-rutokens.bundle/Contents/Linux/librutokens.so.%{version} librutokens.so
-cd "${pwd_dir}"
-cd "${RPM_BUILD_ROOT}/%{_libdir}/pcsc/drivers/ifd-rutokens.bundle/Contents"
-mv "${RPM_BUILD_ROOT}/opt/aktivco/ifd-rutokens/%{target_arch}/ifd-rutokens.bundle/Contents/Info.plist" Info.plist
-cd "${pwd_dir}"
+cp %{SOURCE1}  %rules_file
 
 
 %clean
@@ -59,16 +49,19 @@ rm -rf $RPM_BUILD_ROOT
 %post
 if [ $1 -eq 1 ]; then
 	%{_initrddir}/pcscd try-restart &>/dev/null || :
+	/bin/sh -c "udevadm control --reload-rules" &>/dev/null || :
+	/bin/sh -c "/sbin/udevcontrol reload-rules" &>/dev/null || :
 fi
 
 %postun
 %{_initrddir}/pcscd try-restart &>/dev/null || :
+/bin/sh -c "udevadm control --reload-rules" &>/dev/null || :
+/bin/sh -c "/sbin/udevcontrol reload-rules" &>/dev/null || :
 
 %files
 %defattr(0644,root,root, 0755)
-/opt/aktivco/ifd-rutokens
 %{_libdir}/pcsc/drivers/ifd-rutokens.bundle/Contents/Linux/librutokens.so
-%attr(0755, root, -) /opt/aktivco/ifd-rutokens/%{target_arch}/ifd-rutokens.bundle/Contents/Linux/librutokens.so.%{version}
+%attr(0755, root, -) %{_libdir}/pcsc/drivers/ifd-rutokens.bundle/Contents/Linux/librutokens.so.%{version}
 %{_libdir}/pcsc/drivers/ifd-rutokens.bundle/Contents/Info.plist
 %{_etcdir}/udev/rules.d/95-rutokens.rules
 

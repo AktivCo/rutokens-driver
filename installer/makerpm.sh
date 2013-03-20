@@ -9,7 +9,7 @@ TOPDIR=/tmp/rpmbuild-`whoami`-$$
 ABSOLUTE_PATH_TO_SCRIPT=`readlink -e "$0"`
 SCRIPT_DIR=`dirname "${ABSOLUTE_PATH_TO_SCRIPT}"`
 
-umask 0077 && mkdir -p "${TOPDIR}/SOURCES"
+umask 0077 && mkdir -p "${TOPDIR}/SOURCES" && mkdir -p "${TOPDIR}/BUILD" && mkdir -p "${TOPDIR}/RPMS"
 cp -r "$2" "${TOPDIR}/SOURCES"
 cp "$4" "${TOPDIR}/SOURCES/95-rutokens.rules"
 
