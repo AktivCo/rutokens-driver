@@ -26,6 +26,10 @@ Allows users to access Rutoken S through pcsc-lite.
 
 %define _etcdir /etc
 
+%define _binary_filedigest_algorithm 1
+%define _source_filedigest_algorithm 1
+%define _binary_payload w9.gzdio
+
 
 %prep
 
