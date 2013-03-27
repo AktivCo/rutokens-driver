@@ -60,13 +60,13 @@ rm -rf $RPM_BUILD_ROOT
 
 local_usbdropdir=`pkg-config libpcsclite --variable=usbdropdir 2>/dev/null`
 %ifarch x86_64
-if [ -d "/usr/lib/pcsc/drivers/" -a -z ${local_usbdropdir}] ; then
-	ln -sf %{usbdropdir}/%{name}.bundle /usr/lib/pcsc/drivers/%{name}.bundle &>/dev/null
+if [ -d "/usr/lib/pcsc/drivers/" -a -z "${local_usbdropdir}" ] ; then
+	ln -sf "%{usbdropdir}/%{name}.bundle" "/usr/lib/pcsc/drivers/%{name}.bundle" &>/dev/null
 fi
 %endif
 
-if [ -n ${local_usbdropdir} -a ${local_usbdropdir}!=%{usbdropdir} ] ; then
-	ln -sf %{usbdropdir}/%{name}.bundle ${local_usbdropdir}/%{name}.bundle &>/dev/null
+if [ -n "${local_usbdropdir}" -a "${local_usbdropdir}"!="%{usbdropdir}" ] ; then
+	ln -sf "%{usbdropdir}/%{name}.bundle" "${local_usbdropdir}/%{name}.bundle" &>/dev/null
 fi
 
 
@@ -77,12 +77,12 @@ fi
 /bin/sh -c "/sbin/udevcontrol reload-rules" &>/dev/null || :
 
 local_usbdropdir=`pkg-config libpcsclite --variable=usbdropdir 2>/dev/null`
-if [ -n ${local_usbdropdir} -a -h ${local_usbdropdir}/%{name}.bundle ] ; then
-	rm -rf ${local_usbdropdir}/%{name}.bundle &>/dev/null
+if [ -n "${local_usbdropdir}" -a -h "${local_usbdropdir}/%{name}.bundle" ] ; then
+	rm -rf "${local_usbdropdir}/%{name}.bundle" &>/dev/null
 fi
 
 if [ -h /usr/lib/pcsc/drivers/%{name}.bundle ] ; then
-	rm -rf /usr/lib/pcsc/drivers/%{name}.bundle &>/dev/null
+	rm -rf "/usr/lib/pcsc/drivers/%{name}.bundle" &>/dev/null
 fi
 
 %files
