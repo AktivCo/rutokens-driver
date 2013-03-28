@@ -257,7 +257,25 @@ if test "${stackprotector}" != yes ; then
 	CFLAGS="$CFLAGS -fno-stack-protector"
 fi
 
-LDFLAGS="${LDFLAGS} -Wl,--as-needed"
+# --disable-as-needed (c) http://mdbtools.sourceforge.net
+AC_ARG_ENABLE([as-needed],
+	AC_HELP_STRING([--disable-as-needed],
+	[Disable overlinking protection]),
+	[enable_as_needed=$enableval], [enable_as_needed=yes])
+
+	if test "x$enable_as_needed" != "xno"; then
+	AC_MSG_CHECKING([whether $LD accepts --as-needed])
+	case `$LD --as-needed -v 2>&1 </dev/null` in
+	*GNU* | *'with BFD'*)
+		LDFLAGS="$LDFLAGS -Wl,--as-needed"
+		AC_MSG_RESULT([yes])
+		;;
+	*)
+		AC_MSG_RESULT([no])
+		;;
+	esac
+fi
+
 
 # Setup dist stuff
 AC_SUBST(ac_aux_dir)
