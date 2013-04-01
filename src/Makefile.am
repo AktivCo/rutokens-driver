@@ -1,3 +1,5 @@
+# Copyright (C) 2012   Aktiv Co
+# Copyright (C) 2008   Ludovic Rousseau
 # $Id: Makefile.am 3024 2008-06-26 13:20:43Z rousseau $
 
 RUTOKENS_BUNDLE = $(bundle)

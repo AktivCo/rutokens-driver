@@ -1,6 +1,6 @@
 #!/bin/bash
 # installer.sh.in Template of linux installer for testing use
-#    Copyright (C) Aktiv Co  <hotline@rutoken.ru>
+#    Copyright (C) 2012 Aktiv Co  <hotline@rutoken.ru>
 
 if [ "$(whoami)" != "root" ] ; then
 	echo "Need root permissions. Try sudo $0"
