@@ -501,9 +501,15 @@ RESPONSECODE CmdPrepareT0Hdr(ifd_iso_apdu_t* iso, unsigned char hdr[])
 {
 	switch(iso->cse){
 		case	IFD_APDU_CASE_1:
-			// {cla, ins, p1, p2, 0};
-			DEBUG_COMM("case 1");
-			break;
+			// Fix Rutoken S 4-byte SELECT FILE ifd_iso_apdu_parse error
+			if (!(iso->cla == 0 && iso->ins == 0xa4))
+			{
+				// {cla, ins, p1, p2, 0};
+				DEBUG_COMM("case 1");
+				break;
+			}
+			else
+				iso->cse = IFD_APDU_CASE_2S;
 		case    IFD_APDU_CASE_2S:
 			// {cla, ins, p1, p2, le};
 			// Rutoken Bug!!!
