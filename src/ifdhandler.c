@@ -229,6 +229,30 @@ EXTERNAL RESPONSECODE IFDHCloseChannel(DWORD Lun)
 	return IFD_SUCCESS;
 } /* IFDHCloseChannel */
 
+static RESPONSECODE IFDHSleep(DWORD Lun);
+static RESPONSECODE IFDHTimedSleep(DWORD Lun, int timeout);
+
+static RESPONSECODE IFDHSleep(DWORD Lun)
+{
+	DEBUG_INFO2("lun: %X", Lun);
+
+	//wait till thread is not cancelled
+	pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
+	pthread_cond_t  condition_var = PTHREAD_COND_INITIALIZER;
+
+	pthread_mutex_lock(&count_mutex);
+	pthread_cond_wait(&condition_var, &count_mutex);
+	pthread_mutex_unlock( &count_mutex );
+
+	return IFD_SUCCESS;
+}
+
+static RESPONSECODE IFDHTimedSleep(DWORD Lun, int timeout)
+{
+	DEBUG_INFO2("lun: %X", Lun);
+	(void) timeout;
+	return IFDHSleep(Lun);
+}
 
 EXTERNAL RESPONSECODE IFDHGetCapabilities(DWORD Lun, DWORD Tag,
 	PDWORD Length, PUCHAR Value)
@@ -292,7 +316,34 @@ EXTERNAL RESPONSECODE IFDHGetCapabilities(DWORD Lun, DWORD Tag,
 			}
 			break;
 #endif
-
+#ifdef HAVE_PTHREAD
+		case TAG_IFD_POLLING_THREAD:
+			*Length = sizeof(void *);
+			if (Value)
+				*(void **)Value = IFDHSleep;
+			break;
+#ifdef TAG_IFD_POLLING_THREAD_WITH_TIMEOUT
+		case TAG_IFD_POLLING_THREAD_WITH_TIMEOUT:
+			*Length = sizeof(void *);
+			if (Value)
+				*(void **)Value = IFDHTimedSleep;
+			break;
+#endif
+#ifdef TAG_IFD_STOP_POLLING_THREAD
+		case TAG_IFD_STOP_POLLING_THREAD:
+			*Length = 0; //Use pthread_cancel
+			break;
+#endif
+#ifdef TAG_IFD_POLLING_THREAD_KILLABLE
+		case TAG_IFD_POLLING_THREAD_KILLABLE:
+			{
+				*Length = 1;	/* 1 char */
+				if (Value)
+					*Value = 1;	/* TRUE */
+			}
+			break;
+#endif
+#endif // HAVE_PTHREAD
 		case TAG_IFD_SLOTS_NUMBER:
 			if (*Length >= 1)
 			{
