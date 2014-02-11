@@ -57,7 +57,7 @@ PCSC_LIBS="-framework PCSC"
 CFLAGS="-DRESPONSECODE_DEFINED_IN_WINTYPES_H"
 
 # Build a Universal Binary
-CFLAGS="$CFLAGS -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch ppc"
+CFLAGS="$CFLAGS -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -arch ppc"
 LDFLAGS="-arch i386 -arch ppc"
 CONFIGURE_ARGS="--disable-dependency-tracking"
 
