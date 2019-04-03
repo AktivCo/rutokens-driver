@@ -90,12 +90,13 @@ int convert_doinfo_to_rtprot(void *data, size_t data_len)
 		DEBUG_COMM3("tag 0x80 (file size) = %02x %02x", dohdr[0], dohdr[1]);
 	}
 	data_a5_len = dohdr[1] & 0xff;
-	if (read_tag(p, data_len, 0xA5, data_a5, data_a5_len) == 0)
+	if (read_tag(p, data_len, 0xA5, data_a5, data_a5_len) == 0) {
 		DEBUG_COMM2("tag 0xA5 = %s", array_hexdump(data_a5, data_a5_len));
-	else
+	} else {
 		data_a5_len = 0;
+	}
 	if (data_len < sizeof(dohdr) + data_a5_len) {
-		DEBUG_COMM2("data_len = %u", data_len);
+		DEBUG_COMM2("data_len = %zu", data_len);
 		return -1;
 	}
 	if (read_tag(p, data_len, 0x83, &dohdr[2], 2) == 0)
@@ -123,7 +124,7 @@ int convert_fcp_to_rtprot(void *data, size_t data_len)
 	size_t i;
 
 	if (data_len < sizeof(rtprot)) {
-		DEBUG_COMM2("data_len = %u", data_len);
+		DEBUG_COMM2("data_len = %zu", data_len);
 		return -1;
 	}
 	/* 0x62 - FCP */
@@ -170,7 +171,7 @@ int convert_rtprot_to_doinfo(void *data, size_t data_len)
 	size_t i, doinfo_len = 0;
 
 	if (data_len < 32) {
-		DEBUG_COMM2("data_len = %u", data_len);
+		DEBUG_COMM2("data_len = %zu", data_len);
 		return -1;
 	}
 	if (pdata[0] != 0 && pdata[0] < sizeof(doinfo) - 4 - 4 - 5 - 42 - 2) {
@@ -205,7 +206,7 @@ int convert_rtprot_to_doinfo(void *data, size_t data_len)
 	if (pdata[0] != 0 && pdata[0] + doinfo_len + 2 < sizeof(doinfo)) {
 		/* Tag 0xA5 */
 		if (data_len - 32 < pdata[0]) {
-			DEBUG_INFO2("for tag 0xA5 incorrect data_len = %u", data_len);
+			DEBUG_INFO2("for tag 0xA5 incorrect data_len = %zu", data_len);
 			return -1;
 		}
 		doinfo[doinfo_len++] = 0xA5;
@@ -233,7 +234,7 @@ int convert_rtprot_to_fcp(void *data, size_t data_len)
 	size_t i;
 
 	if (data_len < sizeof(fcp)) {
-		DEBUG_INFO2("data_len = %u", data_len);
+		DEBUG_INFO2("data_len = %zu", data_len);
 		return -1;
 	}
 	/* Tag 0x81 */

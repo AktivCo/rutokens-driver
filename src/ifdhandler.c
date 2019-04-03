@@ -64,7 +64,7 @@ EXTERNAL RESPONSECODE IFDHCreateChannelByName(DWORD Lun, LPSTR lpcDevice)
 	if (!DebugInitialized)
 		init_driver();
 
-	DEBUG_INFO3("lun: %X, device: %s", Lun, lpcDevice);
+	DEBUG_INFO3("lun: %lX, device: %s", Lun, lpcDevice);
 
 	if (-1 == (reader_index = GetNewReaderIndex(Lun)))
 		return IFD_COMMUNICATION_ERROR;
@@ -156,7 +156,7 @@ EXTERNAL RESPONSECODE IFDHCreateChannel(DWORD Lun, DWORD Channel)
 	if (!DebugInitialized)
 		init_driver();
 
-	DEBUG_INFO2("lun: %X", Lun);
+	DEBUG_INFO2("lun: %lX", Lun);
 
 	if (-1 == (reader_index = GetNewReaderIndex(Lun)))
 		return IFD_COMMUNICATION_ERROR;
@@ -203,7 +203,7 @@ EXTERNAL RESPONSECODE IFDHCloseChannel(DWORD Lun)
 	 */
 	int reader_index;
 
-	DEBUG_INFO2("lun: %X", Lun);
+	DEBUG_INFO2("lun: %lX", Lun);
 
 	if (-1 == (reader_index = LunToReaderIndex(Lun)))
 		return IFD_COMMUNICATION_ERROR;
@@ -234,7 +234,7 @@ static RESPONSECODE IFDHTimedSleep(DWORD Lun, int timeout);
 
 static RESPONSECODE IFDHSleep(DWORD Lun)
 {
-	DEBUG_INFO2("lun: %X", Lun);
+	DEBUG_INFO2("lun: %lX", Lun);
 
 	//wait till thread is not cancelled
 	pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -249,7 +249,7 @@ static RESPONSECODE IFDHSleep(DWORD Lun)
 
 static RESPONSECODE IFDHTimedSleep(DWORD Lun, int timeout)
 {
-	DEBUG_INFO2("lun: %X", Lun);
+	DEBUG_INFO2("lun: %lX", Lun);
 	(void) timeout;
 	return IFDHSleep(Lun);
 }
@@ -276,7 +276,7 @@ EXTERNAL RESPONSECODE IFDHGetCapabilities(DWORD Lun, DWORD Tag,
 	 */
 	int reader_index;
 
-	DEBUG_INFO3("lun: %X, tag: 0x%X", Lun, Tag);
+	DEBUG_INFO3("lun: %lX, tag: 0x%lX", Lun, Tag);
 
 	if (-1 == (reader_index = LunToReaderIndex(Lun)))
 		return IFD_COMMUNICATION_ERROR;
@@ -413,7 +413,7 @@ EXTERNAL RESPONSECODE IFDHSetCapabilities(DWORD Lun, DWORD Tag,
 
 	/* By default, say it worked */
 
-	DEBUG_INFO3("lun: %X, tag: 0x%X", Lun, Tag);
+	DEBUG_INFO3("lun: %lX, tag: 0x%lX", Lun, Tag);
 
 	return IFD_NOT_SUPPORTED;
 } /* IFDHSetCapabilities */
@@ -443,7 +443,7 @@ EXTERNAL RESPONSECODE IFDHSetProtocolParameters(DWORD Lun, DWORD Protocol,
 
 	int reader_index;
 
-	DEBUG_INFO3("lun: %X, protocol T=%d", Lun, Protocol-1);
+	DEBUG_INFO3("lun: %lX, protocol T=%lu", Lun, Protocol-1);
 
 	if (-1 == (reader_index = LunToReaderIndex(Lun)))
 		return IFD_COMMUNICATION_ERROR;
@@ -498,7 +498,7 @@ EXTERNAL RESPONSECODE IFDHPowerICC(DWORD Lun, DWORD Action,
 	int reader_index;
 	const char *actions[] = { "PowerUp", "PowerDown", "Reset" };
 
-	DEBUG_INFO3("lun: %X, action: %s", Lun, actions[Action-IFD_POWER_UP]);
+	DEBUG_INFO3("lun: %lX, action: %s", Lun, actions[Action-IFD_POWER_UP]);
 
 	/* By default, assume it won't work :) */
 	*AtrLength = 0;
@@ -599,7 +599,7 @@ EXTERNAL RESPONSECODE IFDHTransmitToICC(DWORD Lun, SCARD_IO_HEADER SendPci,
 	unsigned int rx_length;
 	int reader_index;
 
-	DEBUG_INFO2("lun: %X", Lun);
+	DEBUG_INFO2("lun: %lX", Lun);
 
 	if (-1 == (reader_index = LunToReaderIndex(Lun)))
 		return IFD_COMMUNICATION_ERROR;
@@ -636,8 +636,8 @@ EXTERNAL RESPONSECODE IFDHControl(DWORD Lun, DWORD dwControlCode,
 	 */
 	int reader_index;
 
-	DEBUG_INFO3("lun: %X, ControlCode: 0x%X", Lun, dwControlCode);
-	DEBUG_INFO_XXD("Control TxBuffer: ", TxBuffer, TxLength);
+	DEBUG_INFO3("lun: %lX, ControlCode: 0x%lX", Lun, dwControlCode);
+	/*DEBUG_INFO_XXD("Control TxBuffer: ", TxBuffer, TxLength);*/
 
 	reader_index = LunToReaderIndex(Lun);
 	if ((-1 == reader_index) || (NULL == pdwBytesReturned))
@@ -667,7 +667,7 @@ EXTERNAL RESPONSECODE IFDHICCPresence(DWORD Lun)
 	_device_descriptor *device_descriptor;
 	unsigned int oldReadTimeout;
 
-	DEBUG_PERIODIC2("lun: %X", Lun);
+	DEBUG_PERIODIC2("lun: %lX", Lun);
 
 	if (-1 == (reader_index = LunToReaderIndex(Lun)))
 		return IFD_COMMUNICATION_ERROR;
