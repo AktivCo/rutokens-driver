@@ -1,0 +1,7 @@
+#!/bin/bash
+DROPDIR="/usr/local/libexec/SmartCardServices/drivers/"
+
+sudo rm -rf "${DROPDIR}/ifd-rutokens.bundle"
+sudo mkdir -p "${DROPDIR}"
+sudo ln -sf "/Library/Aktiv Co/Rutoken S/drivers/ifd-rutokens.bundle" "${DROPDIR}/ifd-rutokens.bundle"
+sudo chmod -R 755 "${DROPDIR}/ifd-rutokens.bundle"
