@@ -76,10 +76,12 @@ AC_CHECK_FUNCS(select strerror strncpy memcpy strlcpy)
 # Select OS specific versions of source files.
 AC_SUBST(BUNDLE_HOST)
 AC_SUBST(DYN_LIB_EXT)
+darwin="no"
 case "$host" in
 *-*-darwin*)
 	BUNDLE_HOST="MacOS"
 	DYN_LIB_EXT="dylib"
+	darwin="yes"
 
 	AC_SUBST(COREFOUNDATION)
 	COREFOUNDATION="-Wl,-framework,CoreFoundation"
@@ -110,6 +112,8 @@ case "$host" in
 	BUNDLE_HOST="Linux"
 	DYN_LIB_EXT="so"
 esac
+
+AM_CONDITIONAL(IS_DARWIN, test "${darwin}" != "no")
 
 use_libusb=yes
 
