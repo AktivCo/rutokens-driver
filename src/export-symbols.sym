@@ -1,0 +1,11 @@
+get_usb_interface
+IFDHCloseChannel
+IFDHControl
+IFDHCreateChannel
+IFDHCreateChannelByName
+IFDHGetCapabilities
+IFDHICCPresence
+IFDHPowerICC
+IFDHSetCapabilities
+IFDHSetProtocolParameters
+IFDHTransmitToICC
