@@ -104,6 +104,9 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 	unsigned int device_vendor, device_product;
 	char *dirname = NULL, *filename = NULL;
 	static int previous_reader_index = -1;
+#ifdef __APPLE__
+	int count_libusb = 10;
+#endif
 
 	DEBUG_COMM3("Reader index: %X, Device: %s", reader_index, device);
 
@@ -229,6 +232,10 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 
 	if (busses == NULL)
 		usb_init();
+
+#ifdef __APPLE__
+again_libusb:
+#endif
 
 	usb_find_busses();
 	usb_find_devices();
@@ -359,7 +366,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					{
 						usb_close(dev_handle);
 						DEBUG_CRITICAL3("No dev->config found for %s/%s", bus->dirname, dev->filename);
-						return STATUS_UNSUCCESSFUL;
+						continue;
 					}
 
 					usb_interface = get_usb_interface(dev);
@@ -367,7 +374,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					{
 						usb_close(dev_handle);
 						DEBUG_CRITICAL3("Can't find a device interface on %s/%s",	bus->dirname, dev->filename);
-						return STATUS_UNSUCCESSFUL;
+						continue;
 					}
 
 					if (usb_interface->altsetting->extralen != 54)
@@ -378,7 +385,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 					{
 						usb_close(dev_handle);
 						DEBUG_CRITICAL4("Can't claim interface %s/%s: %s",	bus->dirname, dev->filename, strerror(errno));
-						return STATUS_UNSUCCESSFUL;
+						continue;
 					}
 
 					DEBUG_INFO4("Found Vendor/Product: %04X/%04X (%s)",	dev->descriptor.idVendor, dev->descriptor.idProduct, keyValue);
@@ -410,8 +417,22 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 		}
 	}
 end:
-	if (usbDevice[reader_index].handle == NULL)
+	if (usbDevice[reader_index].handle == NULL) {
+#ifdef __APPLE__
+		// There is a race condition with libusb-1.0. The latter doesn't have time to process
+		// token connection by the usb_find_devices() call. To handle this situation there is
+		// 10 attempts with a delay for 100 ms.
+		if (count_libusb > 0)
+		{
+			count_libusb--;
+			DEBUG_INFO2("Wait after libusb: %d", count_libusb);
+			usleep(100000);
+
+			goto again_libusb;
+		}
+#endif
 		return STATUS_UNSUCCESSFUL;
+	}
 
 	/* memorise the current reader_index so we can detect
 	 * a new OpenUSBByName on a multi slot reader */
