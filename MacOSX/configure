@@ -62,12 +62,12 @@ CONFIGURE_ARGS="$CONFIGURE_ARGS --disable-pcsclite"
 
 set -x
 ./configure \
-	CFLAGS="$CFLAGS" \
+	CFLAGS="$CFLAGS -target x86_64-apple-macosx10.12" \
 	PCSC_CFLAGS="$PCSC_CFLAGS" \
 	PCSC_LIBS="$PCSC_LIBS" \
 	LIBUSB_CFLAGS="$LIBUSB_CFLAGS" \
 	LIBUSB_LIBS="$LIBUSB_ARCHIVE" \
-	LDFLAGS="$LDFLAGS" \
+	LDFLAGS="$LDFLAGS -mmacosx-version-min=10.12" \
 	--enable-usbdropdir=/usr/local/libexec/SmartCardServices/drivers/ \
 	--enable-udevrules=no \
 	$CONFIGURE_ARGS \
