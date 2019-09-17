@@ -29,9 +29,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device);
 
 status_t CloseUSB(unsigned int reader_index);
 
-#if defined (__USB_H__) || defined (_SYS_USB_LIBUSB_USB_H)
-/*@null@*/ struct usb_interface *get_usb_interface(struct usb_device *dev);
-#endif
+struct usb_interface *get_usb_interface(struct usb_device *dev);
 
 int ControlUSB(int reader_index, int requesttype, int request, int value,
 	unsigned char *bytes, unsigned int size);

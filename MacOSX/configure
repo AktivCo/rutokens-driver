@@ -44,12 +44,6 @@ fi
 PCSC_CFLAGS="-I$(pwd)/MacOSX"
 PCSC_LIBS="-framework PCSC"
 
-# use libusb-0.1
-LIBUSB_0_1_DIR=$(pkg-config --variable=libdir libusb)
-LIBUSB_1_0_DIR=$(pkg-config --variable=libdir libusb-1.0)
-LIBUSB_ARCHIVE="${LIBUSB_0_1_DIR}/libusb.a ${LIBUSB_1_0_DIR}/libusb-1.0.a"
-LIBUSB_CFLAGS=$(pkg-config --cflags --static libusb)
-
 # RESPONSECODE is already defined by PCSC/wintypes.h
 # define needed here since config.h is
 # not included
@@ -65,8 +59,6 @@ set -x
 	CFLAGS="$CFLAGS -target x86_64-apple-macosx10.12" \
 	PCSC_CFLAGS="$PCSC_CFLAGS" \
 	PCSC_LIBS="$PCSC_LIBS" \
-	LIBUSB_CFLAGS="$LIBUSB_CFLAGS" \
-	LIBUSB_LIBS="$LIBUSB_ARCHIVE" \
 	LDFLAGS="$LDFLAGS -mmacosx-version-min=10.12" \
 	--enable-usbdropdir=/usr/local/libexec/SmartCardServices/drivers/ \
 	--enable-udevrules=no \
