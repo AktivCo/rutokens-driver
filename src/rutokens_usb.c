@@ -105,7 +105,7 @@ status_t OpenUSBByName(unsigned int reader_index, /*@null@*/ char *device)
 	char *dirname = NULL, *filename = NULL;
 	static int previous_reader_index = -1;
 #ifdef __APPLE__
-	int count_libusb = 10;
+	int count_libusb = 25;
 #endif
 
 	DEBUG_COMM3("Reader index: %X, Device: %s", reader_index, device);
