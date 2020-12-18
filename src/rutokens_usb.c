@@ -24,6 +24,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+# ifdef __FreeBSD__
+#   include <stdlib.h>
+#   include <limits.h>
+# endif
 # ifdef S_SPLINT_S
 # include <sys/types.h>
 # endif

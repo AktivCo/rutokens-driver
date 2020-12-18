@@ -28,6 +28,7 @@
 #include <ifdhandler.h>
 #include <reader.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "misc.h"
 #include "commands.h"
@@ -62,7 +63,7 @@ RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status);
 
 RESPONSECODE CmdTransmit(unsigned int reader_index, unsigned int tx_length, const unsigned char tx_buffer[]);
 
-RESPONSECODE CmdReceive(unsigned int reader_index, unsigned int *rx_length, unsigned char rx_buffer[]);
+RESPONSECODE CmdReceive(unsigned int reader_index, size_t *rx_length, unsigned char rx_buffer[]);
 
 RESPONSECODE CmdReceiveSW(unsigned int reader_index, unsigned char sw[]);
 
@@ -73,7 +74,7 @@ RESPONSECODE CmdTranslateRxBuffer(const ifd_iso_apdu_t* iso, unsigned int *rx_le
 RESPONSECODE CmdPrepareT0Hdr(ifd_iso_apdu_t* iso, unsigned char hdr[]);
 
 RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
-		size_t slen, void *rbuf, size_t rlen, int *rrecv, int iscase4);
+		size_t slen, void *rbuf, size_t rlen, size_t *rrecv, int iscase4);
 
 
 /*****************************************************************************
@@ -102,7 +103,7 @@ RESPONSECODE CmdPowerOn(unsigned int reader_index, unsigned int * nlength,
 	/* we got an error? */
 	if (r < 0)
 	{
-		DEBUG_INFO2("ICC Power On failed: %s", strerror(errno));
+	        DEBUG_INFO2("ICC Power On failed: %s", strerror(errno));
 		return IFD_COMMUNICATION_ERROR;
 	}
 
@@ -126,7 +127,7 @@ RESPONSECODE CmdPowerOff(unsigned int reader_index)
 	/* we got an error? */
 	if (r < 0)
 	{
-		DEBUG_INFO2("ICC Power Off failed: %s", strerror(errno));
+	        DEBUG_INFO2("ICC Power Off failed: %s", strerror(errno));
 		return IFD_COMMUNICATION_ERROR;
 	}
 
@@ -148,7 +149,7 @@ RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status)
 	/* we got an error? */
 	if (r < 0)
 	{
-		DEBUG_INFO2("ICC Slot Status failed: %s", strerror(errno));
+	  DEBUG_INFO2("ICC Slot Status failed: %s", strerror(errno));
 		if (ENODEV == errno)
 			return IFD_NO_SUCH_DEVICE;
 		return IFD_COMMUNICATION_ERROR;
@@ -170,7 +171,7 @@ RESPONSECODE CmdGetSlotStatus(unsigned int reader_index, unsigned char* status)
 				/* we got an error? */
 				if (r < 0)
 				{
-					DEBUG_INFO2("ICC Slot Status failed: %s", strerror(errno));
+				  DEBUG_INFO2("ICC Slot Status failed: %s", strerror(errno));
 					if (ENODEV == errno)
 						return IFD_NO_SUCH_DEVICE;
 					return IFD_COMMUNICATION_ERROR;
@@ -226,7 +227,7 @@ RESPONSECODE CmdTranslateTxBuffer(const ifd_iso_apdu_t* iso, unsigned int* tx_le
 		*send_buf_trn = malloc(*tx_length);
 		if (!send_buf_trn)
 		{
-			DEBUG_INFO2("out of memory (tx_length = %u)", *tx_length);
+		  DEBUG_INFO2("out of memory (tx_length = %u)", *tx_length);
 			return IFD_COMMUNICATION_ERROR;
 		}
 		memcpy(*send_buf_trn, tx_buffer, *tx_length);
@@ -371,12 +372,12 @@ RESPONSECODE CmdXfrBlock(unsigned int reader_index, unsigned int tx_length,
 				iscase4 = 1; /* FIXME: */
 		case	IFD_APDU_CASE_1:
 			r = CmdSendTPDU(reader_index, send_buf, tx_length,
-					rx_buffer, *rx_length, &rrecv, iscase4);
+					rx_buffer, *rx_length, (size_t *)&rrecv, iscase4);
 			break;
 		case	IFD_APDU_CASE_4S:
 			// make send case 4 command
 			r = CmdSendTPDU(reader_index, send_buf, tx_length-1,
-					rx_buffer, *rx_length, &rrecv, 1);
+					rx_buffer, *rx_length, (size_t *)&rrecv, 1);
 			break;
 		default:
 			break;
@@ -431,7 +432,7 @@ RESPONSECODE CmdTransmit(unsigned int reader_index, unsigned int tx_length,
  *					CmdReceive
  *
  ****************************************************************************/
-RESPONSECODE CmdReceive(unsigned int reader_index, unsigned int *rx_length,
+RESPONSECODE CmdReceive(unsigned int reader_index, size_t *rx_length,
 	unsigned char rx_buffer[])
 {
 	_device_descriptor *device_descriptor = get_device_descriptor(reader_index);
@@ -466,7 +467,7 @@ RESPONSECODE CmdReceive(unsigned int reader_index, unsigned int *rx_length,
 RESPONSECODE CmdReceiveSW(unsigned int reader_index, unsigned char sw[])
 {
 	unsigned char status = 0;
-	int sw_len = 2;
+	size_t sw_len = 2;
 	int r = IFD_COMMUNICATION_ERROR;
 
 	r = CmdGetSlotStatus(reader_index, &status);
@@ -540,13 +541,13 @@ RESPONSECODE CmdPrepareT0Hdr(ifd_iso_apdu_t* iso, unsigned char hdr[])
  *  return in *rrecv how much bytes received
  ****************************************************************************/
 RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
-		size_t slen, void *rbuf, size_t rlen, int *rrecv, int iscase4)
+		size_t slen, void *rbuf, size_t rlen, size_t *rrecv, int iscase4)
 {
 	int r = 0;
 	unsigned char status;
 	unsigned char sw[2];
 	ifd_iso_apdu_t iso;
-	DEBUG_COMM3("send tpdu command %s, len: %d", array_hexdump(sbuf, slen), slen);
+	DEBUG_COMM3("send tpdu command %s, len: %zu", array_hexdump(sbuf, slen), slen);
 
 	*rrecv = 0;
 	
@@ -640,7 +641,7 @@ RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
 					return CmdSendTPDU(reader_index, hdr,
 							T0_HDR_LEN, rbuf, rlen, rrecv, 0);
 				else {
-					int recvtmp;
+					size_t recvtmp;
 					r = CmdSendTPDU(reader_index,
 							hdr, T0_HDR_LEN, rbuf, rlen, &recvtmp, 0);
 					if(r != IFD_SUCCESS)
@@ -671,7 +672,7 @@ RESPONSECODE CmdSendTPDU(unsigned int reader_index, const void *sbuf,
 	// Add SW to respond
 	memcpy(((char *)rbuf)+*rrecv, sw, 2);
 	*rrecv+=2;
-	DEBUG_COMM2("recv %d bytes", *rrecv);
+	DEBUG_COMM2("recv %zu bytes", *rrecv);
 
 	return IFD_SUCCESS;
 }/* CmdSendTPDU */
