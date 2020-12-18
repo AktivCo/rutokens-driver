@@ -26,11 +26,30 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef __APPLE__
+#include <syslog.h>
+#endif // __APPLE__
+
 #define DEBUG_BUF_SIZE ((256+20)*3+10)
 
 static char DebugBuffer[DEBUG_BUF_SIZE];
 
-#define LOG_TO_STDERR
+#ifdef __APPLE__
+int translate_pcsc_to_syslog(int priority) {
+	switch(priority)
+	{
+		case PCSC_LOG_CRITICAL:
+			return LOG_CRIT;
+		case PCSC_LOG_ERROR:
+			return LOG_ERR;
+		case PCSC_LOG_INFO:
+			return LOG_INFO;
+		case PCSC_LOG_DEBUG:
+		default:
+			return LOG_DEBUG;
+	}
+}
+#endif // __APPLE__
 
 void log_msg(const int priority, const char *fmt, ...)
 {
@@ -38,11 +57,14 @@ void log_msg(const int priority, const char *fmt, ...)
 
 	va_start(argptr, fmt);
 	vsnprintf(DebugBuffer, DEBUG_BUF_SIZE, fmt, argptr);
-	va_end(argptr);
 
-#ifdef LOG_TO_STDERR
+#ifdef __APPLE__
+	syslog(translate_pcsc_to_syslog(priority), "%s\n", DebugBuffer);
+#else // __APPLE__
 	fprintf(stderr, "%s\n", DebugBuffer);
-#endif
+#endif // __APPLE__
+
+	va_end(argptr);
 } /* log_msg */
 
 void log_xxd(const int priority, const char *msg, const unsigned char *buffer,
@@ -62,10 +84,12 @@ void log_xxd(const int priority, const char *msg, const unsigned char *buffer,
 		c += strlen(c);
 	}
 
-#ifdef LOG_TO_STDERR
+#ifdef __APPLE__
+	syslog(translate_pcsc_to_syslog(priority), "%s\n", DebugBuffer);
+#else // __APPLE__
 	if (c >= debug_buf_end)
 		fprintf(stderr, "Debug buffer too short\n");
 
 	fprintf(stderr, "%s\n", DebugBuffer);
-#endif
+#endif // __APPLE__
 } /* log_xxd */

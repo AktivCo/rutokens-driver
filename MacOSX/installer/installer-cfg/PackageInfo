@@ -1,3 +1,6 @@
-<pkg-info format-version="2" identifier="ru.rutoken.rutokensdriver" version="1.4" install-location="/usr/libexec/SmartCardServices/drivers/" auth="none">
+<pkg-info format-version="2" identifier="ru.rutoken.rutokensdriver" version="1.4" install-location="/Library/Aktiv Co/Rutoken S/drivers/" auth="none">
     <payload installKBytes="60" numberOfFiles="11"/>
+    <scripts>
+        <postinstall file="./postinstall"/>
+    </scripts>
 </pkg-info>

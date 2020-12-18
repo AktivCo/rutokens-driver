@@ -20,7 +20,7 @@ mkdir -p $TMPDIR/installer/src
 mkdir $TMPDIR/installer/out
 mkdir $TMPDIR/installer/pkg
 cp -r $BUNDLEPATH $TMPDIR/installer/src/
-pkgbuild --info $SHPATH/installer-cfg/PackageInfo --root $TMPDIR/installer/src $TMPDIR/installer/pkg/ifd-rutokens.bundle
+pkgbuild --info $SHPATH/installer-cfg/PackageInfo --scripts $SHPATH/installer-cfg/scripts --root $TMPDIR/installer/src $TMPDIR/installer/pkg/ifd-rutokens.bundle
 productbuild --distribution $SHPATH/installer-cfg/Distribution --resources "$SHPATH/installer-cfg/Resources" --package-path $TMPDIR/installer/pkg/ $TMPDIR/installer/out/ifd-rutokens.pkg
 mv $TMPDIR/installer/out/ifd-rutokens.pkg $DST_PATH
 rm -rf $TMPDIR

@@ -46,6 +46,7 @@ librutokens_la_LIBADD = $(LEXLIB) $(COREFOUNDATION) $(IOKIT) \
 	$(LIBUSB_LIBS) $(PTHREAD_LIBS)
 librutokens_la_CFLAGS = $(PCSC_CFLAGS) $(LIBUSB_CFLAGS) $(PTHREAD_CFLAGS) \
 	$(SYMBOL_VISIBILITY) -D$(RUTOKENS_VERSION)
+librutokens_la_LDFLAGS =-avoid-version -export-symbols export-symbols.sym
 
 EXTRA_DIST = Info.plist.src \
 	convert_version.pl 95-rutokens.rules
@@ -64,11 +65,19 @@ Info.plist: Info.plist.src
 	
 DISTCLEANFILES = Info.plist
 
+if IS_DARWIN
+INSTALL_BINARY = cp .libs/$(RUTOKENS_LIB) $(DESTDIR)$(usbdropdir)$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB); \
+	install_name_tool -id $(usbdropdir)$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB) \
+		$(DESTDIR)$(usbdropdir)$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB)
+else
+INSTALL_BINARY = cp .libs/$(RUTOKENS_LIB) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB).$(VERSION); \
+	ln -fs $(RUTOKENS_LIB).$(VERSION) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB)
+endif
+
 install_rutokens: librutokens.la Info.plist
 	$(mkinstalldirs) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/
 	cp Info.plist $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/
-	cp .libs/$(RUTOKENS_LIB) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB).$(VERSION)
-	ln -fs $(RUTOKENS_LIB).$(VERSION) $(DESTDIR)$(usbdropdir)/$(RUTOKENS_BUNDLE)/Contents/$(BUNDLE_HOST)/$(RUTOKENS_LIB)
+	$(INSTALL_BINARY)
 	$(INSTALL_UDEV_RULE_FILE)
 
 uninstall: uninstall_rutokens

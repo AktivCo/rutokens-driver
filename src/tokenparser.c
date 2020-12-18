@@ -498,7 +498,6 @@ char *yytext;
 #include "misc.h"
 #include "debug.h"
 #include "parser.h"
-#include "strlcpycat.h"
 
 void tpevalToken(char *pcToken, int tokType);
 
