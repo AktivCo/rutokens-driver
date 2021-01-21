@@ -28,6 +28,7 @@
 #include <ifdhandler.h>
 #include <reader.h>
 #include <stdio.h>
+#include <unistd.h> 
 
 #include "misc.h"
 #include "commands.h"
