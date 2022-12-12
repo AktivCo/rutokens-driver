@@ -468,6 +468,7 @@ status_t CloseUSB(unsigned int reader_index)
 		usb_release_interface(usbDevice[reader_index].handle,
 			usbDevice[reader_index].interface);
 		usb_close(usbDevice[reader_index].handle);
+		usb_find_devices();
 
 		free(usbDevice[reader_index].dirname);
 		free(usbDevice[reader_index].filename);
@@ -539,6 +540,6 @@ int ControlUSB(int reader_index, int requesttype, int request, int value,
 
 	if (requesttype & 0x80)
 		 DEBUG_XXD("receive: ", bytes, ret);
-	
+
 	return ret;
 } /* ControlUSB */
