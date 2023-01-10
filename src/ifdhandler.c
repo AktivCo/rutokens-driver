@@ -102,6 +102,8 @@ EXTERNAL RESPONSECODE IFDHCreateChannelByName(DWORD Lun, LPSTR lpcDevice)
 			DEBUG_CRITICAL("IFDHICCPresence failed");
 			return_value = IFD_COMMUNICATION_ERROR;
 
+			(void)CloseUSB(reader_index);
+
 			/* release the allocated reader_index */
 			ReleaseReaderIndex(reader_index);
 		}
